@@ -1,76 +1,130 @@
 body {
   font-family: 'Inter', sans-serif;
-}
-
-.login-container {
+  background-color: #f5f5f5;
+  margin: 0;
   padding: 0;
+}
+
+input {
+  border: none;
+  border-bottom: #555 1px solid;
+  margin: 1%;
+}
+.container {
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  background-image: url('../../public/assets/images/LoginPageBackground.png');
-  background-size: cover;
-  background-position: center;
 }
 
-.login-card {
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 4rem;
+.sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  padding: 2rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: left 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.analytics-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.analytics-card {
+  flex: 1;
+  background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(59, 216, 7, 0.482);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-right: 1rem;
 }
 
-.login-header {
-  color: #333;
-  text-align: center;
-  margin-bottom: 1.5rem;
+.analytics-card:last-child {
+  margin-right: 0;
 }
 
-.input-group {
+.analytics-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
 }
 
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.analytics-card-header h3 {
+  font-size: 1.2rem;
+  margin: 0;
 }
 
-.checkbox-label {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
+.analytics-card-filters {
+  display: flex;
 }
 
-.login-button {
+.analytics-card-filters select {
+  margin-left: 0.5rem;
+}
+
+.analytics-card-content {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.create-event-btn {
   display: block;
   width: 100%;
-  padding: 0.5rem;
-  background-color: #74c45d;
+  padding: 0.75rem;
+  background-color: #ff6600;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-/* Admin Dashboard Styles */
-.admin-dashboard {
-  padding: 2rem;
-}
-
-.event-section {
+  transition: background-color 0.3s ease;
   margin-bottom: 2rem;
 }
 
-.event-section-title {
+.create-event-btn:hover {
+  background-color: #e65c00;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #fff;
+  overflow-y: auto;
+  position: relative;
+}
+
+.main-content h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.region {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.region-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  color: #333;
 }
 
 .event-cards {
@@ -86,6 +140,11 @@ body {
   padding: 1rem;
 }
 
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .event-card-header {
   display: flex;
   justify-content: space-between;
@@ -94,66 +153,147 @@ body {
 }
 
 .event-card-title {
-  font-size: 1.2rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.event-card-location,
+.event-card-date {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 0.5rem;
 }
 
 .event-status-toggle {
-  /* Add styles for the event status toggle button */
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 
-.add-event-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 3rem;
-  height: 3rem;
-  background-color: #ff6600;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.event-status-toggle button {
+  padding: 0.5rem 1rem;
+  margin-left: 0.5rem;
+  background-color: transparent;
+  color: #333;
+  border: 2px solid #74c45d;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.event-status-toggle button:hover {
+  background-color: #74c45d;
+  color: #fff;
+}
+
+.event-status-toggle button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.event-section-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 1rem;
+}
+
+.event-section-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.event-section-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.event-section-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.event-section-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+.hamburger-icon {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+}
+
+.event-table {
+  overflow-x: auto;
+}
+
+.event-table table {
   width: 100%;
+  min-width: 600px;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .create-event-btn {
+    margin-bottom: 1rem;
+  }
+
+  .hamburger-icon {
+    display: block;
+    position: relative;
+  }
+
+  .analytics-section {
+    flex-direction: column;
+  }
+
+  .analytics-card {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    overflow-y: auto;
+    max-height: 200px;
+  }
+}
+
+/* progressbar stylings */
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.progress-bar-fill {
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  background-color: #00963f;
+  border-radius: 10px;
+  transition: width 0.3s ease-in-out;
 }
 
-.modal-content {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 100%;
-}
-
-.modal-header {
+.progress-bar-labels {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  margin-top: 10px;
 }
 
-.modal-title {
-  font-size: 1.5rem;
+.progress-bar-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #999;
 }
 
-.close-modal-btn {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+.progress-bar-label.active {
+  color: #00963f;
 }

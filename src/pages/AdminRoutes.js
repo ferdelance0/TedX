@@ -8,6 +8,7 @@ import EventDetails from '../components/Admin/EventDetails';
 // import Poll from '../components/Admin/Poll';
 // import Certificate from '../components/Admin/Certificate';
 import LoginPage from '../components/Admin/LoginPage';
+import CreateEventPage from '../components/Admin/CreateEventPage';
 
 const AdminRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AdminRoutes = () => {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/event-details" element={<EventDetails />} />
+        <Route path="/admin/create-event" element={<CreateEventPage />} />
         {/* Add more routes for other admin components */}
       </Routes>
     </Router>
