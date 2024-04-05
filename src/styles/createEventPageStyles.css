@@ -1,3 +1,92 @@
+.page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #00963f;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #555;
+  background-color: #fff;
+  border-radius: 4px;
+  font-size: 16px;
+}
+input[type='checkbox'] {
+  width: max-content;
+}
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.content-button {
+  padding: 10px 20px;
+  background-color: #00963f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.content-button:hover {
+  background-color: #008037;
+}
+
+.event-created-message {
+  text-align: center;
+  margin-top: 20px;
+  color: #00963f;
+}
+
+@media screen and (max-width: 600px) {
+  .page-container {
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 14px;
+  }
+
+  .content-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
 /* progressbar stylings */
 
 .progress-bar {

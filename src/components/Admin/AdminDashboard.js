@@ -111,22 +111,19 @@ const AdminDashboard = () => {
             <thead>
               <tr>
                 <th>Event Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
+                <th>Scheduled Date</th>
+
                 <th>Location</th>
                 <th>Chief Guest</th>
-                <th>Registered Fields</th>
               </tr>
             </thead>
             <tbody>
               {events.map((event) => (
                 <tr key={event.id}>
                   <td>{event.name}</td>
-                  <td>{event.startDate}</td>
-                  <td>{event.endDate}</td>
+                  <td>{event.scheduledDate}</td>
                   <td>{event.location}</td>
                   <td>{event.chiefGuest}</td>
-                  <td>{event.registrationFields.join(', ')}</td>
                 </tr>
               ))}
             </tbody>
