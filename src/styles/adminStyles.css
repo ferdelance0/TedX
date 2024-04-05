@@ -15,6 +15,8 @@ input {
   height: 100vh;
 }
 
+/* sidenavbar stylings */
+
 .sidebar {
   width: 250px;
   background-color: #2c3e50;
@@ -40,6 +42,7 @@ input {
   }
 }
 
+/* analytics section stylings */
 .analytics-section {
   display: flex;
   justify-content: space-between;
@@ -85,6 +88,7 @@ input {
   text-align: center;
 }
 
+/* sidebar create event button */
 .create-event-btn {
   display: block;
   width: 100%;
@@ -104,7 +108,7 @@ input {
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 4%;
   background-color: #fff;
   overflow-y: auto;
   position: relative;
@@ -114,115 +118,6 @@ input {
   font-size: 2rem;
   margin-bottom: 2rem;
   color: #333;
-}
-
-.region {
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.region-title {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.event-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.event-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-
-.event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.event-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.event-card-title {
-  font-size: 1rem;
-  color: #333;
-}
-
-.event-card-location,
-.event-card-date {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-.event-status-toggle {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.event-status-toggle button {
-  padding: 0.5rem 1rem;
-  margin-left: 0.5rem;
-  background-color: transparent;
-  color: #333;
-  border: 2px solid #74c45d;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.event-status-toggle button:hover {
-  background-color: #74c45d;
-  color: #fff;
-}
-
-.event-status-toggle button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.event-section-container {
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 1rem;
-}
-
-.event-section-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.event-section-container::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-}
-
-.event-section-container::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 4px;
-}
-
-.event-section-container::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
-
-.hamburger-icon {
-  display: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
 }
 
 .event-table {
@@ -264,36 +159,20 @@ input {
   }
 }
 
-/* progressbar stylings */
+/* buttons */
 
-.progress-bar {
-  width: 100%;
-  height: 20px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  position: relative;
+.content-button {
+  width: max-content;
+  padding: 0.75rem;
+  background-color: #74c45d;
+  color: #fff;
+  margin: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background-color: #00963f;
-  border-radius: 10px;
-  transition: width 0.3s ease-in-out;
-}
-
-.progress-bar-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.progress-bar-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #999;
-}
-
-.progress-bar-label.active {
-  color: #00963f;
+.content-button:hover {
+  background-color: #5da64a;
 }

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/adminStyles.css';
-import '../../styles/modalStyles.css';
+import '../../styles/createEventPageStyles.css';
 import ProgressBar from './ProgressBar';
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
@@ -53,16 +53,16 @@ const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
         />
         <button
           type="button"
-          className="modal-content-button"
+          className="content-button"
           onClick={handleAddField}
         >
           Add Field
         </button>
       </div>
-      <button className="modal-content-button" onClick={onPrevious}>
+      <button className="content-button" onClick={onPrevious}>
         Previous
       </button>
-      <button className="modal-content-button" onClick={onNext}>
+      <button className="content-button" onClick={onNext}>
         Save and Continue
       </button>
     </>
@@ -105,10 +105,10 @@ const IdCardFields = ({
             </div>
           ))}
       </div>
-      <button className="modal-content-button" onClick={onPrevious}>
+      <button className="content-button" onClick={onPrevious}>
         Previous
       </button>
-      <button className="modal-content-button" onClick={onNext}>
+      <button className="content-button" onClick={onNext}>
         Save and Continue
       </button>
     </>
@@ -192,6 +192,9 @@ const CreateEventPage = () => {
 
   const handlePrevious = () => {
     setPage(page - 1);
+  };
+  const handleBackToDashboard = () => {
+    navigate('/admin/dashboard');
   };
 
   const handleRegistrationFieldsChange = (fields) => {
@@ -360,7 +363,7 @@ const CreateEventPage = () => {
               </div>
             ))}
             <button
-              className="modal-content-button"
+              className="content-button"
               type="button"
               onClick={() =>
                 setEventVenues([
@@ -439,7 +442,7 @@ const CreateEventPage = () => {
             />
           </div>
         )}
-        <button className="modal-content-button" onClick={handleNext}>
+        <button className="content-button" onClick={handleNext}>
           Save and Continue
         </button>
       </>
@@ -503,7 +506,7 @@ const CreateEventPage = () => {
             </div>
           ))}
           <button
-            className="modal-content-button "
+            className="content-button "
             type="button"
             onClick={() => {
               const updatedQuestions = [...pollQuestions];
@@ -516,7 +519,7 @@ const CreateEventPage = () => {
         </div>
       ))}
       <button
-        className="modal-content-button "
+        className="content-button "
         type="button"
         onClick={() =>
           setPollQuestions([...pollQuestions, { question: '', options: [''] }])
@@ -524,10 +527,10 @@ const CreateEventPage = () => {
       >
         Add Question
       </button>
-      <button className="modal-content-button " onClick={handlePrevious}>
+      <button className="content-button " onClick={handlePrevious}>
         Previous
       </button>
-      <button className="modal-content-button " onClick={handleNext}>
+      <button className="content-button " onClick={handleNext}>
         Save and Continue
       </button>
     </>
@@ -581,7 +584,7 @@ const CreateEventPage = () => {
         </div>
       ))}
       <button
-        className="modal-content-button "
+        className="content-button "
         type="button"
         onClick={() =>
           setFeedbackQuestions([
@@ -592,23 +595,58 @@ const CreateEventPage = () => {
       >
         Add Question
       </button>
-      <button className="modal-content-button " onClick={handlePrevious}>
+      <button className="content-button " onClick={handlePrevious}>
         Previous
       </button>
-      <button className="modal-content-button " onClick={handleNext}>
+      <button className="content-button " onClick={handleNext}>
         Save and Continue
       </button>
     </>
   );
 
-  const renderPageSix = () => {
-    // ... existing code ...
-  };
+  const renderPageSix = () => (
+    <>
+      <h2>Certificate Generation</h2>
+      <div className="form-group">
+        <label htmlFor="certificateEvent">Select Event</label>
+        <select
+          id="certificateEvent"
+          value={certificateEvent}
+          onChange={(e) => setCertificateEvent(e.target.value)}
+        >
+          {/* ... */}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="certificateTemplate">Upload Template</label>
+        <input
+          type="file"
+          id="certificateTemplate"
+          onChange={(e) => setCertificateTemplate(e.target.files[0])}
+          required
+        />
+      </div>
+      <button className="content-button " onClick={handlePrevious}>
+        Previous
+      </button>
+      <button className="content-button " type="submit">
+        Done
+      </button>
+    </>
+  );
 
   return (
     <div className="container">
       <div className="main-content">
         <h1 style={{ color: 'black' }}>Create New Event</h1>
+        <div className="underNav">
+          <button
+            className="back-to-home-btn content-button"
+            onClick={handleBackToDashboard}
+          >
+            Back To Dashboard
+          </button>
+        </div>
         <ProgressBar currentPage={page} totalPages={totalPages} />
         <form onSubmit={handleSubmit}>
           {page === 1 && renderPageOne()}
