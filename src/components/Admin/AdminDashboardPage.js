@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/adminStyles.css';
 
-const AdminDashboard = () => {
+const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState('all');
@@ -35,6 +35,9 @@ const AdminDashboard = () => {
   const handleCreateEvent = () => {
     navigate('/admin/create-event');
   };
+  const handleViewEventDetails = () => {
+    navigate('/admin/view-eventdetails');
+  };
 
   const upcomingEventsCount = filteredEvents.filter(
     (event) => event.status === 'upcoming'
@@ -48,7 +51,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="container">
+    <div className="main-container">
       <div className="sidebar">
         <button
           className="create-event-btn"
@@ -93,26 +96,17 @@ const AdminDashboard = () => {
             </div>
             <div className="analytics-card-content">{completedEventsCount}</div>
           </div>
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3>Total Participants</h3>
-              <div className="analytics-card-filters">
-                {/* Render year and month dropdowns */}
-              </div>
-            </div>
-            <div className="analytics-card-content">
-              {totalParticipantsCount}
-            </div>
-          </div>
         </div>
         {/* ... existing code ... */}
+        <button className="content-button" onClick={handleViewEventDetails}>
+          {' '}
+        </button>
         <div className="event-table">
           <table>
             <thead>
               <tr>
                 <th>Event Name</th>
                 <th>Scheduled Date</th>
-
                 <th>Location</th>
                 <th>Chief Guest</th>
               </tr>
@@ -133,4 +127,4 @@ const AdminDashboard = () => {
     </div>
   );
 };
-export default AdminDashboard;
+export default AdminDashboardPage;

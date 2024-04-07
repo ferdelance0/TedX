@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/loginpageStyles.css';
 
 function LoginPage() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -13,7 +15,9 @@ function LoginPage() {
     console.log('Password:', password);
     console.log('Remember Me:', rememberMe);
   };
-
+  const handleLogin = () => {
+    navigate('/admin/dashboard');
+  };
   return (
     <div className="login-container">
       <div className="login-card">
@@ -46,7 +50,7 @@ function LoginPage() {
             />
             Remember me
           </label>
-          <button type="submit" className="login-button">
+          <button type="submit" className="login-button" onClick={handleLogin}>
             Login
           </button>
           <p className="register-link">Don't have an account? Register</p>

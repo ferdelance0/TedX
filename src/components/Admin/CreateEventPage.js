@@ -128,7 +128,7 @@ const CreateEventPage = () => {
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventDuration, setEventDuration] = useState('');
-
+  const [eventMode, setEventMode] = useState('');
   const [eventScheduledDate, setEventScheduledDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
@@ -168,10 +168,9 @@ const CreateEventPage = () => {
     setPage(1);
     setEventName('');
     setEventDescription('');
-
     setEventDuration('');
     setEventScheduledDate('');
-
+    setEventMode('');
     setEventLocation('');
     setEventVenues([
       { name: '', venue: '', state: '', date: '', time: '', duration: '' },
@@ -256,6 +255,16 @@ const CreateEventPage = () => {
             />
           </div>
           <div className="form-group">
+            <label htmlFor="eventMode">Mode</label>
+            <input
+              type="text"
+              id="eventDuration"
+              value={eventMode}
+              onChange={(e) => setEventMode(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
             <label htmlFor="eventScheduledDate">Scheduled Date</label>
             <input
               type="date"
@@ -266,16 +275,6 @@ const CreateEventPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="eventLocation">Location</label>
-            <input
-              type="text"
-              id="eventLocation"
-              value={eventLocation}
-              onChange={(e) => setEventLocation(e.target.value)}
-              required
-            />
-          </div>
           <div className="form-group">
             <label htmlFor="eventLocation">Location</label>
             <input
