@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/adminStyles.css';
 import '../../styles/createEventPageStyles.css';
 import ProgressBar from './ProgressBar';
+import axios from 'axios';
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
   const [registrationFields, setRegistrationFields] = useState(fields);
@@ -152,18 +153,48 @@ const CreateEventPage = () => {
   const [certificateEvent, setCertificateEvent] = useState('');
   const [certificateTemplate, setCertificateTemplate] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle form submission and create the event
     const newEvent = {
       // ... other form data ...
-      eventName,
-      eventDescription,
-      eventScheduledDate,
-      eventLocation,
-      registrationFields: registrationFields.filter((field) => field.checked),
-      idCardFields,
+      eventName: eventName,
+      eventDescription: eventDescription,
+      //More details to follow
+      // eventScheduledDate,
+      // eventLocation,
+      // registrationFields: registrationFields.filter((field) => field.checked),
+      // idCardFields,
     };
+
+    //the posting details
+
+    try {
+      // Send a POST request to create the event
+      const response = await axios.post('/api/events', newEvent);
+      const createdEvent = response.data;
+
+      if (multipleVenues) {
+        // Create subevents for multiple venues
+        const subeventsData = eventVenues.map((venue) => ({
+          subeventname: venue.name,
+          // subeventmode: 'Single',
+          subeventdescription: '',
+          subeventvenue: venue.venue,
+          subeventorganizer: '', // Add the organizer field if needed
+          subeventfromdate: venue.date,
+          subeventtodate: venue.date, // Modify based on your requirements
+          subeventhassubsubevents: false,
+          subeventparentevent: createdEvent._id,
+        }));
+
+        // Send a POST request to create the subevents
+        await axios.post('/api/subevents', subeventsData);
+      }
+    } catch (error) {
+      console.error('Error creating event:', error);
+      // Handle error scenario
+    }
     // Reset form fields and state
     setPage(1);
     setEventName('');
@@ -188,7 +219,7 @@ const CreateEventPage = () => {
     setCertificateEvent('');
     setCertificateTemplate(null);
     // Redirect back to the admin dashboard
-    navigate('/admin/dashboard');
+    // navigate('/admin/dashboard');
   };
 
   const handleNext = () => {
