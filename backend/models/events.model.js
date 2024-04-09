@@ -12,7 +12,7 @@ const EventSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timesstamps: true }
+  { timestamps: true } // Corrected 'timestamps' spelling
 );
 
 const Event = mongoose.model("Event", EventSchema);
