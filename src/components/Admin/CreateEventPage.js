@@ -14,57 +14,63 @@ const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
   }, [registrationFields, onFieldsChange]);
 
   const handleAddField = () => {
-    setRegistrationFields([
-      ...registrationFields,
-      { label: customField, checked: true },
-    ]);
-    setCustomField('');
+    if (customField.trim() !== '') {
+      setRegistrationFields([
+        ...registrationFields,
+        { label: customField, checked: true },
+      ]);
+      setCustomField('');
+    }
   };
 
   return (
     <>
-      <h2>Registration</h2>
-      <div className="form-group">
-        <label>Fields to Collect</label>
-        {registrationFields.map((field, index) => (
-          <div key={index}>
-            <label>
-              <input
-                type="checkbox"
-                checked={field.checked}
-                onChange={(e) => {
-                  const updatedFields = [...registrationFields];
-                  updatedFields[index].checked = e.target.checked;
-                  setRegistrationFields(updatedFields);
-                }}
-              />
-              {field.label}
-            </label>
-          </div>
-        ))}
+      <div className="page-container">
+        <h2 className="page-title">Registration</h2>
+        <div className="form-group">
+          <label>Fields to Collect</label>
+          {registrationFields.map((field, index) => (
+            <div key={index}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={field.checked}
+                  onChange={(e) => {
+                    const updatedFields = [...registrationFields];
+                    updatedFields[index].checked = e.target.checked;
+                    setRegistrationFields(updatedFields);
+                  }}
+                />
+                {field.label}
+              </label>
+            </div>
+          ))}
+        </div>
+        <div className="form-group">
+          <label htmlFor="customField">Custom Field</label>
+          <input
+            type="text"
+            id="customField"
+            value={customField}
+            onChange={(e) => setCustomField(e.target.value)}
+          />
+          <button
+            type="button"
+            className="content-button"
+            onClick={handleAddField}
+          >
+            Add Field
+          </button>
+        </div>
+        <div className="button-container">
+          <button className="content-button" onClick={onPrevious}>
+            Previous
+          </button>
+          <button className="content-button" onClick={onNext}>
+            Save and Continue
+          </button>
+        </div>
       </div>
-      <div className="form-group">
-        <label htmlFor="customField">Custom Field</label>
-        <input
-          type="text"
-          id="customField"
-          value={customField}
-          onChange={(e) => setCustomField(e.target.value)}
-        />
-        <button
-          type="button"
-          className="content-button"
-          onClick={handleAddField}
-        >
-          Add Field
-        </button>
-      </div>
-      <button className="content-button" onClick={onPrevious}>
-        Previous
-      </button>
-      <button className="content-button" onClick={onNext}>
-        Save and Continue
-      </button>
     </>
   );
 };
@@ -122,7 +128,7 @@ const CreateEventPage = () => {
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventDuration, setEventDuration] = useState('');
-
+  const [eventMode, setEventMode] = useState('');
   const [eventScheduledDate, setEventScheduledDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
@@ -162,10 +168,9 @@ const CreateEventPage = () => {
     setPage(1);
     setEventName('');
     setEventDescription('');
-
     setEventDuration('');
     setEventScheduledDate('');
-
+    setEventMode('');
     setEventLocation('');
     setEventVenues([
       { name: '', venue: '', state: '', date: '', time: '', duration: '' },
@@ -183,7 +188,7 @@ const CreateEventPage = () => {
     setCertificateEvent('');
     setCertificateTemplate(null);
     // Redirect back to the admin dashboard
-    navigate('/admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleNext = () => {
@@ -217,234 +222,238 @@ const CreateEventPage = () => {
 
     return (
       <>
-        <h2>Event Details</h2>
-        <div className="form-group">
-          <label htmlFor="eventName">Name of the Event</label>
-          <input
-            type="text"
-            id="eventName"
-            value={eventName}
-            onChange={(e) => setEventName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="eventDescription">Description</label>
-          <textarea
-            id="eventDescription"
-            value={eventDescription}
-            onChange={(e) => setEventDescription(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="eventDuration">Duration</label>
-          <input
-            type="text"
-            id="eventDuration"
-            value={eventDuration}
-            onChange={(e) => setEventDuration(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="eventScheduledDate">Scheduled Date</label>
-          <input
-            type="date"
-            id="eventScheduledDate"
-            value={eventScheduledDate}
-            onChange={handleScheduledDateChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="eventLocation">Location</label>
-          <input
-            type="text"
-            id="eventLocation"
-            value={eventLocation}
-            onChange={(e) => setEventLocation(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="eventLocation">Location</label>
-          <input
-            type="text"
-            id="eventLocation"
-            value={eventLocation}
-            onChange={(e) => setEventLocation(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={multipleVenues}
-              onChange={(e) => setMultipleVenues(e.target.checked)}
-            />
-            Multiple Venues?
-          </label>
-        </div>
-        {multipleVenues ? (
+        <div className="page-container">
+          <h2 className="page-title">Event Details</h2>
           <div className="form-group">
-            <label>Venues</label>
-            {eventVenues.map((venue, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  placeholder="Subevent Name"
-                  value={venue.name}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].name = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Venue"
-                  value={venue.venue}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].venue = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="State"
-                  value={venue.state}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].state = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-                <input
-                  type="date"
-                  placeholder="Date"
-                  value={venue.date}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].date = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-                <input
-                  type="time"
-                  placeholder="Time"
-                  value={venue.time}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].time = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Duration"
-                  value={venue.duration}
-                  onChange={(e) => {
-                    const updatedVenues = [...eventVenues];
-                    updatedVenues[index].duration = e.target.value;
-                    setEventVenues(updatedVenues);
-                  }}
-                  required
-                />
-              </div>
-            ))}
-            <button
-              className="content-button"
-              type="button"
-              onClick={() =>
-                setEventVenues([
-                  ...eventVenues,
-                  {
-                    name: '',
-                    venue: '',
-                    state: '',
-                    date: '',
-                    time: '',
-                    duration: '',
-                  },
-                ])
-              }
-            >
-              Add New Venue
-            </button>
+            <label htmlFor="eventName">Name of the Event</label>
+            <input
+              type="text"
+              id="eventName"
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              required
+            />
           </div>
-        ) : (
           <div className="form-group">
-            <label>Venue</label>
-            <input
-              type="text"
-              placeholder="Venue"
-              value={eventVenues[0].venue}
-              onChange={(e) => {
-                const updatedVenues = [...eventVenues];
-                updatedVenues[0].venue = e.target.value;
-                setEventVenues(updatedVenues);
-              }}
+            <label htmlFor="eventDescription">Description</label>
+            <textarea
+              id="eventDescription"
+              value={eventDescription}
+              onChange={(e) => setEventDescription(e.target.value)}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="eventDuration">Duration</label>
             <input
               type="text"
-              placeholder="State"
-              value={eventVenues[0].state}
-              onChange={(e) => {
-                const updatedVenues = [...eventVenues];
-                updatedVenues[0].state = e.target.value;
-                setEventVenues(updatedVenues);
-              }}
+              id="eventDuration"
+              value={eventDuration}
+              onChange={(e) => setEventDuration(e.target.value)}
               required
             />
+          </div>
+          <div className="form-group">
+            <label htmlFor="eventMode">Mode</label>
+            <input
+              type="text"
+              id="eventDuration"
+              value={eventMode}
+              onChange={(e) => setEventMode(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="eventScheduledDate">Scheduled Date</label>
             <input
               type="date"
-              placeholder="Date"
-              value={eventVenues[0].date}
-              onChange={(e) => {
-                const updatedVenues = [...eventVenues];
-                updatedVenues[0].date = e.target.value;
-                setEventVenues(updatedVenues);
-              }}
-              required
-            />
-            <input
-              type="time"
-              placeholder="Time"
-              value={eventVenues[0].time}
-              onChange={(e) => {
-                const updatedVenues = [...eventVenues];
-                updatedVenues[0].time = e.target.value;
-                setEventVenues(updatedVenues);
-              }}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Duration"
-              value={eventVenues[0].duration}
-              onChange={(e) => {
-                const updatedVenues = [...eventVenues];
-                updatedVenues[0].duration = e.target.value;
-                setEventVenues(updatedVenues);
-              }}
+              id="eventScheduledDate"
+              value={eventScheduledDate}
+              onChange={handleScheduledDateChange}
               required
             />
           </div>
-        )}
-        <button className="content-button" onClick={handleNext}>
-          Save and Continue
-        </button>
+
+          <div className="form-group">
+            <label htmlFor="eventLocation">Location</label>
+            <input
+              type="text"
+              id="eventLocation"
+              value={eventLocation}
+              onChange={(e) => setEventLocation(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={multipleVenues}
+                onChange={(e) => setMultipleVenues(e.target.checked)}
+              />
+              Multiple Venues?
+            </label>
+          </div>
+          {multipleVenues ? (
+            <div className="form-group">
+              <label>Venues</label>
+              {eventVenues.map((venue, index) => (
+                <div key={index}>
+                  <input
+                    type="text"
+                    placeholder="Subevent Name"
+                    value={venue.name}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].name = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Venue"
+                    value={venue.venue}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].venue = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="State"
+                    value={venue.state}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].state = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="date"
+                    placeholder="Date"
+                    value={venue.date}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].date = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="time"
+                    placeholder="Time"
+                    value={venue.time}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].time = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Duration"
+                    value={venue.duration}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].duration = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                </div>
+              ))}
+              <button
+                className="content-button"
+                type="button"
+                onClick={() =>
+                  setEventVenues([
+                    ...eventVenues,
+                    {
+                      name: '',
+                      venue: '',
+                      state: '',
+                      date: '',
+                      time: '',
+                      duration: '',
+                    },
+                  ])
+                }
+              >
+                Add New Venue
+              </button>
+            </div>
+          ) : (
+            <div className="form-group">
+              <label>Venue</label>
+              <input
+                type="text"
+                placeholder="Venue"
+                value={eventVenues[0].venue}
+                onChange={(e) => {
+                  const updatedVenues = [...eventVenues];
+                  updatedVenues[0].venue = e.target.value;
+                  setEventVenues(updatedVenues);
+                }}
+                required
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={eventVenues[0].state}
+                onChange={(e) => {
+                  const updatedVenues = [...eventVenues];
+                  updatedVenues[0].state = e.target.value;
+                  setEventVenues(updatedVenues);
+                }}
+                required
+              />
+              <input
+                type="date"
+                placeholder="Date"
+                value={eventVenues[0].date}
+                onChange={(e) => {
+                  const updatedVenues = [...eventVenues];
+                  updatedVenues[0].date = e.target.value;
+                  setEventVenues(updatedVenues);
+                }}
+                required
+              />
+              <input
+                type="time"
+                placeholder="Time"
+                value={eventVenues[0].time}
+                onChange={(e) => {
+                  const updatedVenues = [...eventVenues];
+                  updatedVenues[0].time = e.target.value;
+                  setEventVenues(updatedVenues);
+                }}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Duration"
+                value={eventVenues[0].duration}
+                onChange={(e) => {
+                  const updatedVenues = [...eventVenues];
+                  updatedVenues[0].duration = e.target.value;
+                  setEventVenues(updatedVenues);
+                }}
+                required
+              />
+            </div>
+          )}
+          <div className="button-container">
+            <button className="content-button" onClick={handleNext}>
+              Save and Continue
+            </button>
+          </div>
+        </div>
       </>
     );
   };
@@ -474,164 +483,180 @@ const CreateEventPage = () => {
 
   const renderPageFour = () => (
     <>
-      <h2>Poll</h2>
-      {pollQuestions.map((question, index) => (
-        <div key={index}>
-          <div className="form-group">
-            <label>Question {index + 1}</label>
-            <input
-              type="text"
-              value={question.question}
-              onChange={(e) => {
-                const updatedQuestions = [...pollQuestions];
-                updatedQuestions[index].question = e.target.value;
-                setPollQuestions(updatedQuestions);
-              }}
-              required
-            />
-          </div>
-          {question.options.map((option, optionIndex) => (
-            <div key={optionIndex} className="form-group">
-              <label>Option {optionIndex + 1}</label>
+      <div className="page-container">
+        <h2 className="page-title">Poll</h2>
+        {pollQuestions.map((question, index) => (
+          <div key={index}>
+            <div className="form-group">
+              <label>Question {index + 1}</label>
               <input
                 type="text"
-                value={option}
+                value={question.question}
                 onChange={(e) => {
                   const updatedQuestions = [...pollQuestions];
-                  updatedQuestions[index].options[optionIndex] = e.target.value;
+                  updatedQuestions[index].question = e.target.value;
                   setPollQuestions(updatedQuestions);
                 }}
                 required
               />
             </div>
-          ))}
-          <button
-            className="content-button "
-            type="button"
-            onClick={() => {
-              const updatedQuestions = [...pollQuestions];
-              updatedQuestions[index].options.push('');
-              setPollQuestions(updatedQuestions);
-            }}
-          >
-            Add Option
+            {question.options.map((option, optionIndex) => (
+              <div key={optionIndex} className="form-group">
+                <label>Option {optionIndex + 1}</label>
+                <input
+                  type="text"
+                  value={option}
+                  onChange={(e) => {
+                    const updatedQuestions = [...pollQuestions];
+                    updatedQuestions[index].options[optionIndex] =
+                      e.target.value;
+                    setPollQuestions(updatedQuestions);
+                  }}
+                  required
+                />
+              </div>
+            ))}
+            <button
+              className="content-button "
+              type="button"
+              onClick={() => {
+                const updatedQuestions = [...pollQuestions];
+                updatedQuestions[index].options.push('');
+                setPollQuestions(updatedQuestions);
+              }}
+            >
+              Add Option
+            </button>
+          </div>
+        ))}
+        <button
+          className="content-button "
+          type="button"
+          onClick={() =>
+            setPollQuestions([
+              ...pollQuestions,
+              { question: '', options: [''] },
+            ])
+          }
+        >
+          Add Question
+        </button>
+        <div className="button-container">
+          <button className="content-button " onClick={handlePrevious}>
+            Previous
+          </button>
+          <button className="content-button " onClick={handleNext}>
+            Save and Continue
           </button>
         </div>
-      ))}
-      <button
-        className="content-button "
-        type="button"
-        onClick={() =>
-          setPollQuestions([...pollQuestions, { question: '', options: [''] }])
-        }
-      >
-        Add Question
-      </button>
-      <button className="content-button " onClick={handlePrevious}>
-        Previous
-      </button>
-      <button className="content-button " onClick={handleNext}>
-        Save and Continue
-      </button>
+      </div>
     </>
   );
 
   const renderPageFive = () => (
     <>
-      <h2>Feedback Form</h2>
-      <div className="form-group">
-        <label htmlFor="feedbackEvent">Select Event</label>
-        <select
-          id="feedbackEvent"
-          value={feedbackEvent}
-          onChange={(e) => setFeedbackEvent(e.target.value)}
-          required
-        >
-          {/* ... */}
-        </select>
-      </div>
-      {feedbackQuestions.map((question, index) => (
-        <div key={index}>
-          <div className="form-group">
-            <label>Question {index + 1}</label>
-            <input
-              type="text"
-              value={question.question}
-              onChange={(e) => {
-                const updatedQuestions = [...feedbackQuestions];
-                updatedQuestions[index].question = e.target.value;
-                setFeedbackQuestions(updatedQuestions);
-              }}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Input Type</label>
-            <select
-              value={question.inputType}
-              onChange={(e) => {
-                const updatedQuestions = [...feedbackQuestions];
-                updatedQuestions[index].inputType = e.target.value;
-                setFeedbackQuestions(updatedQuestions);
-              }}
-              required
-            >
-              <option value="short">Short Text</option>
-              <option value="multiple">Multiple Choice</option>
-              <option value="rating">Rating</option>
-            </select>
-          </div>
+      <div className="page-container">
+        <h2 className="page-title">Feedback Form</h2>
+        <div className="form-group">
+          <label htmlFor="feedbackEvent">Select Event</label>
+          <select
+            id="feedbackEvent"
+            value={feedbackEvent}
+            onChange={(e) => setFeedbackEvent(e.target.value)}
+            required
+          >
+            {/* ... */}
+          </select>
         </div>
-      ))}
-      <button
-        className="content-button "
-        type="button"
-        onClick={() =>
-          setFeedbackQuestions([
-            ...feedbackQuestions,
-            { question: '', inputType: 'short' },
-          ])
-        }
-      >
-        Add Question
-      </button>
-      <button className="content-button " onClick={handlePrevious}>
-        Previous
-      </button>
-      <button className="content-button " onClick={handleNext}>
-        Save and Continue
-      </button>
+        {feedbackQuestions.map((question, index) => (
+          <div key={index}>
+            <div className="form-group">
+              <label>Question {index + 1}</label>
+              <input
+                type="text"
+                value={question.question}
+                onChange={(e) => {
+                  const updatedQuestions = [...feedbackQuestions];
+                  updatedQuestions[index].question = e.target.value;
+                  setFeedbackQuestions(updatedQuestions);
+                }}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Input Type</label>
+              <select
+                value={question.inputType}
+                onChange={(e) => {
+                  const updatedQuestions = [...feedbackQuestions];
+                  updatedQuestions[index].inputType = e.target.value;
+                  setFeedbackQuestions(updatedQuestions);
+                }}
+                required
+              >
+                <option value="short">Short Text</option>
+                <option value="multiple">Multiple Choice</option>
+                <option value="rating">Rating</option>
+              </select>
+            </div>
+          </div>
+        ))}
+        <button
+          className="content-button "
+          type="button"
+          onClick={() =>
+            setFeedbackQuestions([
+              ...feedbackQuestions,
+              { question: '', inputType: 'short' },
+            ])
+          }
+        >
+          Add Question
+        </button>
+        <div className="button-container">
+          <button className="content-button " onClick={handlePrevious}>
+            Previous
+          </button>
+          <button className="content-button " onClick={handleNext}>
+            Save and Continue
+          </button>
+        </div>
+      </div>
     </>
   );
 
   const renderPageSix = () => (
     <>
-      <h2>Certificate Generation</h2>
-      <div className="form-group">
-        <label htmlFor="certificateEvent">Select Event</label>
-        <select
-          id="certificateEvent"
-          value={certificateEvent}
-          onChange={(e) => setCertificateEvent(e.target.value)}
-        >
-          {/* ... */}
-        </select>
+      <div className="page-container">
+        <h2 className="page-title">Certificate Generation</h2>
+        <div className="form-group">
+          <label htmlFor="certificateEvent">Select Event</label>
+          <select
+            id="certificateEvent"
+            value={certificateEvent}
+            onChange={(e) => setCertificateEvent(e.target.value)}
+          >
+            {/* ... */}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="certificateTemplate">Upload Template</label>
+          <input
+            type="file"
+            id="certificateTemplate"
+            onChange={(e) => setCertificateTemplate(e.target.files[0])}
+            required
+          />
+        </div>
+        <div className="button-container">
+          <button className="content-button " onClick={handlePrevious}>
+            Previous
+          </button>
+          <button className="content-button " type="submit">
+            Done
+          </button>
+        </div>
       </div>
-      <div className="form-group">
-        <label htmlFor="certificateTemplate">Upload Template</label>
-        <input
-          type="file"
-          id="certificateTemplate"
-          onChange={(e) => setCertificateTemplate(e.target.files[0])}
-          required
-        />
-      </div>
-      <button className="content-button " onClick={handlePrevious}>
-        Previous
-      </button>
-      <button className="content-button " type="submit">
-        Done
-      </button>
     </>
   );
 
