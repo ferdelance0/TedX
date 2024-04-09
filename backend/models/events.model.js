@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const EventSchema = new mongoose.Schema(
   {
-    eventname: {
+    eventName: {
       type: String,
       required: true,
     },
 
-    eventdescription: {
+    eventDescription: {
       type: String,
       required: true,
     },
@@ -15,6 +15,6 @@ const EventSchema = new mongoose.Schema(
   { timestamps: true } // Corrected 'timestamps' spelling
 );
 
-const Event = mongoose.model("Event", EventSchema);
+const Event = mongoose.model('Event', EventSchema);
 
 module.exports = Event;
