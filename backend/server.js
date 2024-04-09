@@ -6,6 +6,7 @@ const SubEvent = require("./models/subevents.model");
 // Create Express app
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Atlas connection string
 const mongoURI = "mongodb://localhost:27017/event_management";
