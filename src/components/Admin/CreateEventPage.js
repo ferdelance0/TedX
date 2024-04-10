@@ -1,25 +1,26 @@
 // CreateEventPage.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../../styles/adminStyles.css';
-import '../../styles/createEventPageStyles.css';
-import ProgressBar from './ProgressBar';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../styles/adminStyles.css";
+import "../../styles/createEventPageStyles.css";
+import ProgressBar from "./ProgressBar";
+import axios from "axios";
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
   const [registrationFields, setRegistrationFields] = useState(fields);
-  const [customField, setCustomField] = useState('');
+  const [customField, setCustomField] = useState("");
 
   useEffect(() => {
     onFieldsChange(registrationFields);
   }, [registrationFields, onFieldsChange]);
 
   const handleAddField = () => {
-    if (customField.trim() !== '') {
+    if (customField.trim() !== "") {
       setRegistrationFields([
         ...registrationFields,
         { label: customField, checked: true },
       ]);
-      setCustomField('');
+      setCustomField("");
     }
   };
 
@@ -125,70 +126,105 @@ const CreateEventPage = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const totalPages = 6;
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
-  const [eventDuration, setEventDuration] = useState('');
-  const [eventMode, setEventMode] = useState('');
-  const [eventScheduledDate, setEventScheduledDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
+  const [eventName, setEventName] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+  const [eventDuration, setEventDuration] = useState("");
+  const [eventMode, setEventMode] = useState("");
+  const [eventScheduledDate, setEventScheduledDate] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
   const [eventVenues, setEventVenues] = useState([
-    { name: '', venue: '', state: '', date: '', time: '', duration: '' },
+    { name: "", venue: "", state: "", date: "", time: "", duration: "" },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
-    { label: 'Name', checked: false },
-    { label: 'Phone', checked: false },
-    { label: 'Email', checked: false },
+    { label: "Name", checked: false },
+    { label: "Phone", checked: false },
+    { label: "Email", checked: false },
   ]);
-  const [customField, setCustomField] = useState('');
+  const [customField, setCustomField] = useState("");
   const [idCardFields, setIdCardFields] = useState([]);
   const [pollQuestions, setPollQuestions] = useState([
-    { question: '', options: [''] },
+    { question: "", options: [""] },
   ]);
-  const [feedbackEvent, setFeedbackEvent] = useState('');
+  const [feedbackEvent, setFeedbackEvent] = useState("");
   const [feedbackQuestions, setFeedbackQuestions] = useState([
-    { question: '', inputType: 'short' },
+    { question: "", inputType: "short" },
   ]);
-  const [certificateEvent, setCertificateEvent] = useState('');
+  const [certificateEvent, setCertificateEvent] = useState("");
   const [certificateTemplate, setCertificateTemplate] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle form submission and create the event
     const newEvent = {
-      // ... other form data ...
-      eventName,
-      eventDescription,
-      eventScheduledDate,
-      eventLocation,
-      registrationFields: registrationFields.filter((field) => field.checked),
-      idCardFields,
+      eventname: eventName,
+      eventmode: multipleVenues ? "Multiple" : "Single",
+      eventdescription: eventDescription,
+      eventvenue: eventLocation,
+      eventorganizer: "", // Add the organizer field if needed
+      eventhassubevents: multipleVenues,
+      eventfromdate: eventScheduledDate,
+      eventtodate: eventScheduledDate, // Modify based on your requirements
     };
+    //the posting details
+
+    try {
+      // Send a POST request to create the event
+      const response = await axios.post(
+        "http://localhost:3000/createevents",
+        newEvent
+      );
+      const createdEvent = response.data;
+
+      if (multipleVenues) {
+        // Create subevents for multiple venues
+        const subeventsData = eventVenues.map((venue) => ({
+          subeventname: venue.name,
+          subeventmode: "Single",
+          subeventdescription: "",
+          subeventvenue: venue.venue,
+          subeventorganizer: "", // Add the organizer field if needed
+          subeventfromdate: venue.date,
+          subeventtodate: venue.date, // Modify based on your requirements
+          subeventhassubsubevents: false,
+          subeventparentevent: createdEvent._id,
+        }));
+
+        // Send a POST request to create the subevents
+        await axios.post(
+          "http://localhost:3000/createsubevents",
+          subeventsData
+        );
+      }
+    } catch (error) {
+      console.error("Error creating event:", error);
+      // Handle error scenario
+    }
     // Reset form fields and state
     setPage(1);
-    setEventName('');
-    setEventDescription('');
-    setEventDuration('');
-    setEventScheduledDate('');
-    setEventMode('');
-    setEventLocation('');
+    setEventName("");
+    setEventDescription("");
+    setEventDuration("");
+    setEventScheduledDate("");
+    setEventMode("");
+    setEventLocation("");
     setEventVenues([
-      { name: '', venue: '', state: '', date: '', time: '', duration: '' },
+      { name: "", venue: "", state: "", date: "", time: "", duration: "" },
     ]);
     setRegistrationFields([
-      { label: 'Name', checked: false },
-      { label: 'Phone', checked: false },
-      { label: 'Email', checked: false },
+      { label: "Name", checked: false },
+      { label: "Phone", checked: false },
+      { label: "Email", checked: false },
     ]);
-    setCustomField('');
+    setCustomField("");
     setIdCardFields([]);
-    setPollQuestions([{ question: '', options: [''] }]);
-    setFeedbackEvent('');
-    setFeedbackQuestions([{ question: '', inputType: 'short' }]);
-    setCertificateEvent('');
+    setPollQuestions([{ question: "", options: [""] }]);
+    setFeedbackEvent("");
+    setFeedbackQuestions([{ question: "", inputType: "short" }]);
+    setCertificateEvent("");
     setCertificateTemplate(null);
     // Redirect back to the admin dashboard
-    navigate('/admin/dashboard');
+    // navigate('/admin/dashboard');
   };
 
   const handleNext = () => {
@@ -199,7 +235,7 @@ const CreateEventPage = () => {
     setPage(page - 1);
   };
   const handleBackToDashboard = () => {
-    navigate('/admin/dashboard');
+    navigate("/admin/dashboard");
   };
 
   const handleRegistrationFieldsChange = (fields) => {
@@ -215,7 +251,7 @@ const CreateEventPage = () => {
       const selectedDate = new Date(e.target.value);
       const currentDate = new Date();
       if (selectedDate < currentDate) {
-        alert('Start date cannot be prior to the current date');
+        alert("Start date cannot be prior to the current date");
         return;
       }
     };
@@ -375,12 +411,12 @@ const CreateEventPage = () => {
                   setEventVenues([
                     ...eventVenues,
                     {
-                      name: '',
-                      venue: '',
-                      state: '',
-                      date: '',
-                      time: '',
-                      duration: '',
+                      name: "",
+                      venue: "",
+                      state: "",
+                      date: "",
+                      time: "",
+                      duration: "",
                     },
                   ])
                 }
@@ -521,7 +557,7 @@ const CreateEventPage = () => {
               type="button"
               onClick={() => {
                 const updatedQuestions = [...pollQuestions];
-                updatedQuestions[index].options.push('');
+                updatedQuestions[index].options.push("");
                 setPollQuestions(updatedQuestions);
               }}
             >
@@ -535,7 +571,7 @@ const CreateEventPage = () => {
           onClick={() =>
             setPollQuestions([
               ...pollQuestions,
-              { question: '', options: [''] },
+              { question: "", options: [""] },
             ])
           }
         >
@@ -607,7 +643,7 @@ const CreateEventPage = () => {
           onClick={() =>
             setFeedbackQuestions([
               ...feedbackQuestions,
-              { question: '', inputType: 'short' },
+              { question: "", inputType: "short" },
             ])
           }
         >
@@ -663,16 +699,17 @@ const CreateEventPage = () => {
   return (
     <div className="container">
       <div className="main-content">
-        <h1 style={{ color: 'black' }}>Create New Event</h1>
-        <div className="underNav">
-          <button
-            className="back-to-home-btn content-button"
-            onClick={handleBackToDashboard}
-          >
-            Back To Dashboard
-          </button>
-        </div>
+        <h1 style={{ color: "black" }}>Create New Event</h1>
+
+        {/* <button
+          className="back-to-home-btn content-button"
+          onClick={handleBackToDashboard}
+        >
+          Back To Dashboard
+        </button> */}
+
         <ProgressBar currentPage={page} totalPages={totalPages} />
+        <br></br>
         <form onSubmit={handleSubmit}>
           {page === 1 && renderPageOne()}
           {page === 2 && renderPageTwo()}

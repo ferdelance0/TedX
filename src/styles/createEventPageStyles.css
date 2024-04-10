@@ -36,9 +36,11 @@
   border-radius: 4px;
   font-size: 16px;
 }
+
 input[type='checkbox'] {
   width: max-content;
 }
+
 .button-container {
   display: flex;
   justify-content: flex-end;
@@ -70,17 +72,14 @@ input[type='checkbox'] {
   .page-container {
     padding: 10px;
   }
-
   .page-title {
     font-size: 20px;
   }
-
   .form-group input,
   .form-group textarea,
   .form-group select {
     font-size: 14px;
   }
-
   .content-button {
     font-size: 14px;
     padding: 8px 16px;
@@ -88,26 +87,21 @@ input[type='checkbox'] {
 }
 
 /* progressbar stylings */
-
-.progress-bar {
-  width: 100%;
-  height: 20px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  margin-bottom: 3%;
-  position: relative;
+.progress-bar-container {
+  margin-bottom: 20px;
 }
 
 .progress-bar-fill {
-  height: 100%;
+  height: 15px;
+
   background-color: #00963f;
-  border-radius: 10px;
   transition: width 0.3s ease-in-out;
 }
 
 .progress-bar-labels {
   display: flex;
   justify-content: space-between;
+
   margin-top: 10px;
 }
 
