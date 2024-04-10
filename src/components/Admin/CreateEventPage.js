@@ -171,7 +171,10 @@ const CreateEventPage = () => {
 
     try {
       // Send a POST request to create the event
-      const response = await axios.post('/api/events', newEvent);
+      const response = await axios.post(
+        'http://localhost:3000/createevents',
+        newEvent
+      );
       const createdEvent = response.data;
 
       if (multipleVenues) {
@@ -695,15 +698,16 @@ const CreateEventPage = () => {
     <div className="container">
       <div className="main-content">
         <h1 style={{ color: 'black' }}>Create New Event</h1>
-        <div className="underNav">
-          <button
-            className="back-to-home-btn content-button"
-            onClick={handleBackToDashboard}
-          >
-            Back To Dashboard
-          </button>
-        </div>
+
+        {/* <button
+          className="back-to-home-btn content-button"
+          onClick={handleBackToDashboard}
+        >
+          Back To Dashboard
+        </button> */}
+
         <ProgressBar currentPage={page} totalPages={totalPages} />
+        <br></br>
         <form onSubmit={handleSubmit}>
           {page === 1 && renderPageOne()}
           {page === 2 && renderPageTwo()}
