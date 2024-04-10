@@ -4,15 +4,16 @@ const SubEventSchema = new mongoose.Schema(
   {
     subeventname: {
       type: String,
-      required: true,
     },
 
     subeventdescription: {
       type: String,
-      required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    strict: false, // Allow additional fields not defined in the schema
+  }
 );
 const SubEvent = mongoose.model("SubEvent", SubEventSchema);
 module.exports = SubEvent;
