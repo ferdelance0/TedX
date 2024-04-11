@@ -134,7 +134,15 @@ const CreateEventPage = () => {
   const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
   const [eventVenues, setEventVenues] = useState([
-    { name: "", venue: "", state: "", date: "", time: "", duration: "" },
+    {
+      name: "",
+      venue: "",
+      state: "",
+      date: "",
+      time: "",
+      duration: "",
+      eventMode: "",
+    },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
     { label: "Name", checked: false },
@@ -158,7 +166,7 @@ const CreateEventPage = () => {
     // Handle form submission and create the event
     const newEvent = {
       eventname: eventName,
-      eventmode: multipleVenues ? "Multiple" : "Single",
+      eventmode: eventMode,
       eventdescription: eventDescription,
       eventvenue: eventLocation,
       eventorganizer: "", // Add the organizer field if needed
@@ -180,7 +188,7 @@ const CreateEventPage = () => {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: "Single",
+          subeventmode: venue.eventMode,
           subeventdescription: "",
           subeventvenue: venue.venue,
           subeventorganizer: "", // Add the organizer field if needed
@@ -252,7 +260,8 @@ const CreateEventPage = () => {
       const currentDate = new Date();
       if (selectedDate < currentDate) {
         alert("Start date cannot be prior to the current date");
-        return;
+      } else {
+        setEventScheduledDate(e.target.value);
       }
     };
 
@@ -279,8 +288,33 @@ const CreateEventPage = () => {
               required
             />
           </div>
-
           <div className="form-group">
+            <label>
+              Does this Event have subevents? <br></br>
+              Yes
+              <input
+                type="checkbox"
+                checked={multipleVenues}
+                onChange={(e) => setMultipleVenues(e.target.checked)}
+              />
+            </label>
+          </div>
+          {!multipleVenues ? (
+            <div className="form-group">
+              <label htmlFor="eventMode">Event Mode</label>
+              <select
+                id="eventMode"
+                value={eventMode}
+                onChange={(e) => setEventMode(e.target.value)}
+                required
+              >
+                <option value="Offline">Offline</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+          ) : null}
+
+          {/* <div className="form-group">
             <label htmlFor="eventDuration">Duration</label>
             <input
               type="text"
@@ -289,17 +323,8 @@ const CreateEventPage = () => {
               onChange={(e) => setEventDuration(e.target.value)}
               required
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="eventMode">Mode</label>
-            <input
-              type="text"
-              id="eventDuration"
-              value={eventMode}
-              onChange={(e) => setEventMode(e.target.value)}
-              required
-            />
-          </div>
+          </div> */}
+
           <div className="form-group">
             <label htmlFor="eventScheduledDate">Scheduled Date</label>
             <input
@@ -321,16 +346,7 @@ const CreateEventPage = () => {
               required
             />
           </div>
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={multipleVenues}
-                onChange={(e) => setMultipleVenues(e.target.checked)}
-              />
-              Multiple Venues?
-            </label>
-          </div>
+
           {multipleVenues ? (
             <div className="form-group">
               <label>Venues</label>
@@ -347,6 +363,20 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
+                  <select
+                    value={venue.eventMode}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].eventMode = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  >
+                    <option value="Offline" selected>
+                      Offline
+                    </option>
+                    <option value="Online">Online</option>
+                  </select>
                   <input
                     type="text"
                     placeholder="Venue"
@@ -358,17 +388,7 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="State"
-                    value={venue.state}
-                    onChange={(e) => {
-                      const updatedVenues = [...eventVenues];
-                      updatedVenues[index].state = e.target.value;
-                      setEventVenues(updatedVenues);
-                    }}
-                    required
-                  />
+
                   <input
                     type="date"
                     placeholder="Date"
@@ -391,7 +411,7 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  <input
+                  {/* <input
                     type="text"
                     placeholder="Duration"
                     value={venue.duration}
@@ -401,7 +421,7 @@ const CreateEventPage = () => {
                       setEventVenues(updatedVenues);
                     }}
                     required
-                  />
+                  /> */}
                 </div>
               ))}
               <button
@@ -424,66 +444,7 @@ const CreateEventPage = () => {
                 Add New Venue
               </button>
             </div>
-          ) : (
-            <div className="form-group">
-              <label>Venue</label>
-              <input
-                type="text"
-                placeholder="Venue"
-                value={eventVenues[0].venue}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].venue = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="text"
-                placeholder="State"
-                value={eventVenues[0].state}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].state = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="date"
-                placeholder="Date"
-                value={eventVenues[0].date}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].date = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="time"
-                placeholder="Time"
-                value={eventVenues[0].time}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].time = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Duration"
-                value={eventVenues[0].duration}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].duration = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-            </div>
-          )}
+          ) : null}
           <div className="button-container">
             <button className="content-button" onClick={handleNext}>
               Save and Continue
