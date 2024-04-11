@@ -334,16 +334,7 @@ const CreateEventPage = () => {
               required
             />
           </div>
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={multipleVenues}
-                onChange={(e) => setMultipleVenues(e.target.checked)}
-              />
-              Multiple Venues?
-            </label>
-          </div>
+
           {multipleVenues ? (
             <div className="form-group">
               <label>Venues</label>
@@ -385,7 +376,7 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  <input
+                  {/* <input
                     type="text"
                     placeholder="State"
                     value={venue.state}
@@ -395,7 +386,7 @@ const CreateEventPage = () => {
                       setEventVenues(updatedVenues);
                     }}
                     required
-                  />
+                  /> */}
 
                   <input
                     type="date"
