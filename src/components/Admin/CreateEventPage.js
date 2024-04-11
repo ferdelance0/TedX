@@ -257,7 +257,8 @@ const CreateEventPage = () => {
       const currentDate = new Date();
       if (selectedDate < currentDate) {
         alert('Start date cannot be prior to the current date');
-        return;
+      } else {
+        setEventScheduledDate(e.target.value);
       }
     };
 
@@ -286,12 +287,13 @@ const CreateEventPage = () => {
           </div>
           <div className="form-group">
             <label>
+              Does this Event have subevents? <br></br>
+              Yes
               <input
                 type="checkbox"
                 checked={multipleVenues}
                 onChange={(e) => setMultipleVenues(e.target.checked)}
               />
-              Does this Event have subevents?
             </label>
           </div>
           <div className="form-group">
@@ -381,17 +383,6 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  {/* <input
-                    type="text"
-                    placeholder="State"
-                    value={venue.state}
-                    onChange={(e) => {
-                      const updatedVenues = [...eventVenues];
-                      updatedVenues[index].state = e.target.value;
-                      setEventVenues(updatedVenues);
-                    }}
-                    required
-                  /> */}
 
                   <input
                     type="date"
