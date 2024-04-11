@@ -288,6 +288,17 @@ const CreateEventPage = () => {
               required
             />
           </div>
+          <div className="form-group">
+            <label>
+              Does this Event have subevents? <br></br>
+              Yes
+              <input
+                type="checkbox"
+                checked={multipleVenues}
+                onChange={(e) => setMultipleVenues(e.target.checked)}
+              />
+            </label>
+          </div>
           {!multipleVenues ? (
             <div className="form-group">
               <label htmlFor="eventMode">Event Mode</label>
@@ -302,29 +313,6 @@ const CreateEventPage = () => {
               </select>
             </div>
           ) : null}
-          <div className="form-group">
-            <label>
-              Does this Event have subevents? <br></br>
-              Yes
-              <input
-                type="checkbox"
-                checked={multipleVenues}
-                onChange={(e) => setMultipleVenues(e.target.checked)}
-              />
-            </label>
-          </div>
-          <div className="form-group">
-            <label htmlFor="eventMode">Event Mode</label>
-            <select
-              id="eventMode"
-              value={eventMode}
-              onChange={(e) => setEventMode(e.target.value)}
-              required
-            >
-              <option value="Offline">Offline</option>
-              <option value="Online">Online</option>
-            </select>
-          </div>
 
           <div className="form-group">
             <label htmlFor="eventDuration">Duration</label>
