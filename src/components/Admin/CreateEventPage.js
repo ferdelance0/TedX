@@ -310,16 +310,7 @@ const CreateEventPage = () => {
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="eventMode">Mode</label>
-            <input
-              type="text"
-              id="eventDuration"
-              value={eventMode}
-              onChange={(e) => setEventMode(e.target.value)}
-              required
-            />
-          </div>
+
           <div className="form-group">
             <label htmlFor="eventScheduledDate">Scheduled Date</label>
             <input
