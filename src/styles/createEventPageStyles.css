@@ -93,7 +93,7 @@ input[type='checkbox'] {
 
 .progress-bar-fill {
   height: 15px;
-
+  border-radius: 25px;
   background-color: #00963f;
   transition: width 0.3s ease-in-out;
 }
