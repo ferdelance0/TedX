@@ -287,18 +287,20 @@ const CreateEventPage = () => {
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="eventMode">Event Mode</label>
-            <select
-              id="eventMode"
-              value={eventMode}
-              onChange={(e) => setEventMode(e.target.value)}
-              required
-            >
-              <option value="Offline">Offline</option>
-              <option value="Online">Online</option>
-            </select>
-          </div>
+          {!multipleVenues ? (
+            <div className="form-group">
+              <label htmlFor="eventMode">Event Mode</label>
+              <select
+                id="eventMode"
+                value={eventMode}
+                onChange={(e) => setEventMode(e.target.value)}
+                required
+              >
+                <option value="Offline">Offline</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+          ) : null}
 
           <div className="form-group">
             <label htmlFor="eventDuration">Duration</label>
@@ -464,6 +466,18 @@ const CreateEventPage = () => {
                 }}
                 required
               />
+              <div className="form-group">
+                <label htmlFor="eventMode">Event Mode</label>
+                <select
+                  id="eventMode"
+                  value={eventMode}
+                  onChange={(e) => setEventMode(e.target.value)}
+                  required
+                >
+                  <option value="Offline">Offline</option>
+                  <option value="Online">Online</option>
+                </select>
+              </div>
               <input
                 type="text"
                 placeholder="State"
