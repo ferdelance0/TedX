@@ -23,13 +23,10 @@ app.get("/events", async (req, res) => {
 
 app.post("/createevents", async (req, res) => {
   try {
-    console.log("haaiiiii");
-    console.log(req.body);
     const event = await Event.create(req.body);
-    console.log(event);
+
     res.status(200).json({ event });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ message: error.message });
   }
 });
