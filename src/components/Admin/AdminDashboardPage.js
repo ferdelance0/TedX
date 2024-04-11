@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../../styles/adminStyles.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../../styles/adminStyles.css';
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState('all');
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -14,16 +14,16 @@ const AdminDashboardPage = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch("http://localhost:3000/events");
+      const response = await fetch('http://localhost:3000/events');
       if (response.ok) {
-        console.log("fetch success");
+        console.log('fetch success');
         const data = await response.json();
         setEvents(data);
       } else {
-        console.error("Failed to fetch events");
+        console.error('Failed to fetch events');
       }
     } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error('Error fetching events:', error);
     }
   };
 
@@ -31,7 +31,7 @@ const AdminDashboardPage = () => {
     const currentDate = new Date();
     const updatedEvents = events.map((event) => {
       if (new Date(event.endDate) < currentDate) {
-        return { ...event, status: "completed" };
+        return { ...event, status: 'completed' };
       }
       return event;
     });
@@ -45,24 +45,24 @@ const AdminDashboardPage = () => {
     if (selectedYear !== eventYear) {
       return false;
     }
-    if (selectedMonth !== "all" && selectedMonth !== eventMonth) {
+    if (selectedMonth !== 'all' && selectedMonth !== eventMonth) {
       return false;
     }
     return true;
   });
 
   const handleCreateEvent = () => {
-    navigate("/admin/create-event");
+    navigate('/admin/create-event');
   };
   const handleViewEventDetails = () => {
-    navigate("/admin/view-eventdetails");
+    navigate('/admin/view-eventdetails');
   };
 
   const upcomingEventsCount = filteredEvents.filter(
-    (event) => event.status === "upcoming"
+    (event) => event.status === 'upcoming'
   ).length;
   const completedEventsCount = filteredEvents.filter(
-    (event) => event.status === "completed"
+    (event) => event.status === 'completed'
   ).length;
   const totalParticipantsCount = filteredEvents.reduce(
     (total, event) => total + event.registrationFields.length,

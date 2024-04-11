@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/adminStyles.css';
 import '../../styles/createEventPageStyles.css';
 import ProgressBar from './ProgressBar';
+import RegistrationForm from './RegistrationForm';
 import axios from 'axios';
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
@@ -740,6 +741,7 @@ const CreateEventPage = () => {
         </button> */}
 
         <ProgressBar currentPage={page} totalPages={totalPages} />
+
         <br></br>
         <form onSubmit={handleSubmit}>
           {page === 1 && renderPageOne()}
