@@ -196,7 +196,6 @@ const CreateEventPage = () => {
           subeventvenue: venue.venue,
           subeventorganizer: venue.organiser, // Add the organizer field if needed
           subeventscheduleddate: venue.date,
-
           subeventparentevent: createdEvent._id,
         }));
 
