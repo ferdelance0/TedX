@@ -128,8 +128,9 @@ const CreateEventPage = () => {
   const totalPages = 6;
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
-  const [eventDuration, setEventDuration] = useState("");
-  const [eventMode, setEventMode] = useState("");
+  const [eventOrganiser, setEventOrganiser] = useState("");
+
+  const [eventMode, setEventMode] = useState("Offline");
   const [eventScheduledDate, setEventScheduledDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
@@ -141,7 +142,7 @@ const CreateEventPage = () => {
       date: "",
       time: "",
       duration: "",
-      eventMode: "",
+      mode: "Offline",
     },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
@@ -166,16 +167,18 @@ const CreateEventPage = () => {
     // Handle form submission and create the event
     const newEvent = {
       eventname: eventName,
-      eventmode: eventMode,
+      // eventmode: eventMode || "Offline", // Set default value if eventMode is falsy
       eventdescription: eventDescription,
       eventvenue: eventLocation,
-      eventorganizer: "", // Add the organizer field if needed
+      eventorganizer: eventOrganiser, // Add the organizer field if needed
       eventhassubevents: multipleVenues,
-      eventfromdate: eventScheduledDate,
-      eventtodate: eventScheduledDate, // Modify based on your requirements
+      eventscheduleddate: eventScheduledDate,
     };
     //the posting details
-
+    // Add eventmode only if multipleVenues is false
+    if (!multipleVenues) {
+      newEvent.eventmode = eventMode || "Offline";
+    }
     try {
       // Send a POST request to create the event
       const response = await axios.post(
@@ -188,13 +191,12 @@ const CreateEventPage = () => {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: venue.eventMode,
-          subeventdescription: "",
+          subeventmode: venue.mode || "Offline", // Set default value if venue.mode is falsy
+          subeventdescription: venue.description,
           subeventvenue: venue.venue,
-          subeventorganizer: "", // Add the organizer field if needed
-          subeventfromdate: venue.date,
-          subeventtodate: venue.date, // Modify based on your requirements
-          subeventhassubsubevents: false,
+          subeventorganizer: venue.organiser, // Add the organizer field if needed
+          subeventscheduleddate: venue.date,
+
           subeventparentevent: createdEvent._id,
         }));
 
@@ -212,12 +214,20 @@ const CreateEventPage = () => {
     setPage(1);
     setEventName("");
     setEventDescription("");
-    setEventDuration("");
+    setEventOrganiser("");
     setEventScheduledDate("");
     setEventMode("");
     setEventLocation("");
     setEventVenues([
-      { name: "", venue: "", state: "", date: "", time: "", duration: "" },
+      {
+        name: "",
+        venue: "",
+        state: "",
+        date: "",
+        time: "",
+        duration: "",
+        mode: "Offline",
+      },
     ]);
     setRegistrationFields([
       { label: "Name", checked: false },
@@ -289,6 +299,16 @@ const CreateEventPage = () => {
             />
           </div>
           <div className="form-group">
+            <label htmlFor="eventOrganiser">Event Organiser</label>
+            <input
+              type="text"
+              id="eventOrganiser"
+              value={eventOrganiser}
+              onChange={(e) => setEventOrganiser(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
             <label>
               Does this Event have subevents? <br></br>
               Yes
@@ -308,7 +328,9 @@ const CreateEventPage = () => {
                 onChange={(e) => setEventMode(e.target.value)}
                 required
               >
-                <option value="Offline">Offline</option>
+                <option value="Offline" selected>
+                  Offline
+                </option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -364,10 +386,10 @@ const CreateEventPage = () => {
                     required
                   />
                   <select
-                    value={venue.eventMode}
+                    value={venue.mode}
                     onChange={(e) => {
                       const updatedVenues = [...eventVenues];
-                      updatedVenues[index].eventMode = e.target.value;
+                      updatedVenues[index].mode = e.target.value;
                       setEventVenues(updatedVenues);
                     }}
                     required
@@ -396,6 +418,28 @@ const CreateEventPage = () => {
                     onChange={(e) => {
                       const updatedVenues = [...eventVenues];
                       updatedVenues[index].date = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Subevent Description"
+                    value={venue.description}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].description = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Subevent Organiser"
+                    value={venue.organiser}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].organiser = e.target.value;
                       setEventVenues(updatedVenues);
                     }}
                     required
@@ -642,7 +686,6 @@ const CreateEventPage = () => {
             type="file"
             id="certificateTemplate"
             onChange={(e) => setCertificateTemplate(e.target.files[0])}
-            required
           />
         </div>
         <div className="button-container">

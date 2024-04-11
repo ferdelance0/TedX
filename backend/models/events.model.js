@@ -8,7 +8,6 @@ const EventSchema = new mongoose.Schema(
     },
     eventdescription: {
       type: String,
-      required: true,
     },
   },
   {
