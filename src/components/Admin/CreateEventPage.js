@@ -314,7 +314,7 @@ const CreateEventPage = () => {
             </div>
           ) : null}
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="eventDuration">Duration</label>
             <input
               type="text"
@@ -323,7 +323,7 @@ const CreateEventPage = () => {
               onChange={(e) => setEventDuration(e.target.value)}
               required
             />
-          </div>
+          </div> */}
 
           <div className="form-group">
             <label htmlFor="eventScheduledDate">Scheduled Date</label>
@@ -411,7 +411,7 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  <input
+                  {/* <input
                     type="text"
                     placeholder="Duration"
                     value={venue.duration}
@@ -421,7 +421,7 @@ const CreateEventPage = () => {
                       setEventVenues(updatedVenues);
                     }}
                     required
-                  />
+                  /> */}
                 </div>
               ))}
               <button
@@ -444,78 +444,7 @@ const CreateEventPage = () => {
                 Add New Venue
               </button>
             </div>
-          ) : (
-            <div className="form-group">
-              <label>Venue</label>
-              <input
-                type="text"
-                placeholder="Venue"
-                value={eventVenues[0].venue}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].venue = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <div className="form-group">
-                <label htmlFor="eventMode">Event Mode</label>
-                <select
-                  id="eventMode"
-                  value={eventMode}
-                  onChange={(e) => setEventMode(e.target.value)}
-                  required
-                >
-                  <option value="Offline">Offline</option>
-                  <option value="Online">Online</option>
-                </select>
-              </div>
-              <input
-                type="text"
-                placeholder="State"
-                value={eventVenues[0].state}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].state = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="date"
-                placeholder="Date"
-                value={eventVenues[0].date}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].date = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="time"
-                placeholder="Time"
-                value={eventVenues[0].time}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].time = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Duration"
-                value={eventVenues[0].duration}
-                onChange={(e) => {
-                  const updatedVenues = [...eventVenues];
-                  updatedVenues[0].duration = e.target.value;
-                  setEventVenues(updatedVenues);
-                }}
-                required
-              />
-            </div>
-          )}
+          ) : null}
           <div className="button-container">
             <button className="content-button" onClick={handleNext}>
               Save and Continue
