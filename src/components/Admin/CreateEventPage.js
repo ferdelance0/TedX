@@ -134,7 +134,15 @@ const CreateEventPage = () => {
   const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
   const [eventVenues, setEventVenues] = useState([
-    { name: "", venue: "", state: "", date: "", time: "", duration: "" },
+    {
+      name: "",
+      venue: "",
+      state: "",
+      date: "",
+      time: "",
+      duration: "",
+      eventMode: "",
+    },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
     { label: "Name", checked: false },
@@ -158,7 +166,7 @@ const CreateEventPage = () => {
     // Handle form submission and create the event
     const newEvent = {
       eventname: eventName,
-      eventmode: multipleVenues ? "Multiple" : "Single",
+      eventmode: eventMode,
       eventdescription: eventDescription,
       eventvenue: eventLocation,
       eventorganizer: "", // Add the organizer field if needed
@@ -180,7 +188,7 @@ const CreateEventPage = () => {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: "Single",
+          subeventmode: venue.eventMode,
           subeventdescription: "",
           subeventvenue: venue.venue,
           subeventorganizer: "", // Add the organizer field if needed
@@ -279,6 +287,18 @@ const CreateEventPage = () => {
               required
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="eventMode">Event Mode</label>
+            <select
+              id="eventMode"
+              value={eventMode}
+              onChange={(e) => setEventMode(e.target.value)}
+              required
+            >
+              <option value="Offline">Offline</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
 
           <div className="form-group">
             <label htmlFor="eventDuration">Duration</label>
@@ -347,6 +367,20 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
+                  <select
+                    value={venue.eventMode}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].eventMode = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  >
+                    <option value="Offline" selected>
+                      Offline
+                    </option>
+                    <option value="Online">Online</option>
+                  </select>
                   <input
                     type="text"
                     placeholder="Venue"
@@ -369,6 +403,7 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
+
                   <input
                     type="date"
                     placeholder="Date"
