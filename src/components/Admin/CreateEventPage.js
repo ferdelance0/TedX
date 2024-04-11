@@ -185,7 +185,9 @@ const CreateEventPage = () => {
         "http://localhost:3000/createevents",
         newEvent
       );
-      const createdEvent = response.data;
+      const createdEvent = response.data.event;
+      console.log("Created event:", createdEvent);
+      console.log("Created event id", createdEvent._id);
 
       if (multipleVenues) {
         // Create subevents for multiple venues
@@ -196,7 +198,6 @@ const CreateEventPage = () => {
           subeventvenue: venue.venue,
           subeventorganizer: venue.organiser, // Add the organizer field if needed
           subeventscheduleddate: venue.date,
-
           subeventparentevent: createdEvent._id,
         }));
 
