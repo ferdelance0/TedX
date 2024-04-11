@@ -128,7 +128,8 @@ const CreateEventPage = () => {
   const totalPages = 6;
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
-  const [eventDuration, setEventDuration] = useState("");
+  const [eventOrganiser, setEventOrganiser] = useState("");
+
   const [eventMode, setEventMode] = useState("Offline");
   const [eventScheduledDate, setEventScheduledDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
@@ -169,10 +170,9 @@ const CreateEventPage = () => {
       // eventmode: eventMode || "Offline", // Set default value if eventMode is falsy
       eventdescription: eventDescription,
       eventvenue: eventLocation,
-      eventorganizer: "", // Add the organizer field if needed
+      eventorganizer: eventOrganiser, // Add the organizer field if needed
       eventhassubevents: multipleVenues,
-      eventfromdate: eventScheduledDate,
-      eventtodate: eventScheduledDate, // Modify based on your requirements
+      eventscheduleddate: eventScheduledDate,
     };
     //the posting details
     // Add eventmode only if multipleVenues is false
@@ -192,11 +192,11 @@ const CreateEventPage = () => {
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
           subeventmode: venue.mode || "Offline", // Set default value if venue.mode is falsy
-          subeventdescription: "",
+          subeventdescription: venue.description,
           subeventvenue: venue.venue,
-          subeventorganizer: "", // Add the organizer field if needed
-          subeventfromdate: venue.date,
-          subeventtodate: venue.date, // Modify based on your requirements
+          subeventorganizer: venue.organiser, // Add the organizer field if needed
+          subeventscheduleddate: venue.date,
+
           subeventparentevent: createdEvent._id,
         }));
 
@@ -214,7 +214,7 @@ const CreateEventPage = () => {
     setPage(1);
     setEventName("");
     setEventDescription("");
-    setEventDuration("");
+    setEventOrganiser("");
     setEventScheduledDate("");
     setEventMode("");
     setEventLocation("");
@@ -295,6 +295,16 @@ const CreateEventPage = () => {
               id="eventDescription"
               value={eventDescription}
               onChange={(e) => setEventDescription(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="eventOrganiser">Event Organiser</label>
+            <input
+              type="text"
+              id="eventOrganiser"
+              value={eventOrganiser}
+              onChange={(e) => setEventOrganiser(e.target.value)}
               required
             />
           </div>
@@ -408,6 +418,28 @@ const CreateEventPage = () => {
                     onChange={(e) => {
                       const updatedVenues = [...eventVenues];
                       updatedVenues[index].date = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Subevent Description"
+                    value={venue.description}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].description = e.target.value;
+                      setEventVenues(updatedVenues);
+                    }}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Subevent Organiser"
+                    value={venue.organiser}
+                    onChange={(e) => {
+                      const updatedVenues = [...eventVenues];
+                      updatedVenues[index].organiser = e.target.value;
                       setEventVenues(updatedVenues);
                     }}
                     required
