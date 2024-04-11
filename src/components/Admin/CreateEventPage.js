@@ -129,7 +129,7 @@ const CreateEventPage = () => {
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventDuration, setEventDuration] = useState("");
-  const [eventMode, setEventMode] = useState("");
+  const [eventMode, setEventMode] = useState("Offline");
   const [eventScheduledDate, setEventScheduledDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
@@ -141,7 +141,7 @@ const CreateEventPage = () => {
       date: "",
       time: "",
       duration: "",
-      eventMode: "",
+      mode: "Offline",
     },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
@@ -166,7 +166,7 @@ const CreateEventPage = () => {
     // Handle form submission and create the event
     const newEvent = {
       eventname: eventName,
-      eventmode: eventMode,
+      // eventmode: eventMode || "Offline", // Set default value if eventMode is falsy
       eventdescription: eventDescription,
       eventvenue: eventLocation,
       eventorganizer: "", // Add the organizer field if needed
@@ -175,7 +175,10 @@ const CreateEventPage = () => {
       eventtodate: eventScheduledDate, // Modify based on your requirements
     };
     //the posting details
-
+    // Add eventmode only if multipleVenues is false
+    if (!multipleVenues) {
+      newEvent.eventmode = eventMode || "Offline";
+    }
     try {
       // Send a POST request to create the event
       const response = await axios.post(
@@ -188,13 +191,12 @@ const CreateEventPage = () => {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: venue.eventMode,
+          subeventmode: venue.mode || "Offline", // Set default value if venue.mode is falsy
           subeventdescription: "",
           subeventvenue: venue.venue,
           subeventorganizer: "", // Add the organizer field if needed
           subeventfromdate: venue.date,
           subeventtodate: venue.date, // Modify based on your requirements
-          subeventhassubsubevents: false,
           subeventparentevent: createdEvent._id,
         }));
 
@@ -217,7 +219,15 @@ const CreateEventPage = () => {
     setEventMode("");
     setEventLocation("");
     setEventVenues([
-      { name: "", venue: "", state: "", date: "", time: "", duration: "" },
+      {
+        name: "",
+        venue: "",
+        state: "",
+        date: "",
+        time: "",
+        duration: "",
+        mode: "Offline",
+      },
     ]);
     setRegistrationFields([
       { label: "Name", checked: false },
@@ -308,7 +318,9 @@ const CreateEventPage = () => {
                 onChange={(e) => setEventMode(e.target.value)}
                 required
               >
-                <option value="Offline">Offline</option>
+                <option value="Offline" selected>
+                  Offline
+                </option>
                 <option value="Online">Online</option>
               </select>
             </div>
@@ -364,10 +376,10 @@ const CreateEventPage = () => {
                     required
                   />
                   <select
-                    value={venue.eventMode}
+                    value={venue.mode}
                     onChange={(e) => {
                       const updatedVenues = [...eventVenues];
-                      updatedVenues[index].eventMode = e.target.value;
+                      updatedVenues[index].mode = e.target.value;
                       setEventVenues(updatedVenues);
                     }}
                     required
@@ -642,7 +654,6 @@ const CreateEventPage = () => {
             type="file"
             id="certificateTemplate"
             onChange={(e) => setCertificateTemplate(e.target.files[0])}
-            required
           />
         </div>
         <div className="button-container">
