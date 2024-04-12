@@ -21,6 +21,24 @@ app.get("/events", async (req, res) => {
   }
 });
 
+// Server-side code (e.g., server.js)
+app.get("/events/:eventId", (req, res) => {
+  const { eventId } = req.params;
+  // Check if the event exists in the event table
+  Event.findById(eventId)
+    .then((event) => {
+      if (event) {
+        res.json({ event });
+      } else {
+        res.status(404).json({ error: "Event not found" });
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking event existence:", error);
+      res.status(500).json({ error: "Internal server error" });
+    });
+});
+
 app.post("/createevents", async (req, res) => {
   try {
     const event = await Event.create(req.body);
