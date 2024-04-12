@@ -16,7 +16,10 @@ const AdminRoutes = () => {
       <Route path="/dashboard" element={<AdminDashboardPage />} />
       <Route path="/view-eventdetails" element={<EventDetails />} />
       <Route path="/create-event" element={<CreateEventPage />} />
-      <Route path="/registration-form" element={<RegistrationForm />} />
+      <Route
+        path="/registration-form/:eventId"
+        element={<RegistrationForm />}
+      />
       {/*<Route path="/admin/id-card-generator" element={<IdCardGenerator />} />
       <Route path="/admin/feedback-form" element={<FeedbackForm />} />
       <Route path="/admin/poll" element={<Poll />} /> */}
