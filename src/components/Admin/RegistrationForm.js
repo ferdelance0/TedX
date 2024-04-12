@@ -1,3 +1,5 @@
+import '../../styles/createEventPageStyles.css';
+
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 
@@ -61,7 +63,7 @@
 // };
 
 // export default RegistrationForm;
-
+import '../../styles/createEventPageStyles.css';
 import React from 'react';
 
 const RegistrationForm = () => {
@@ -83,30 +85,45 @@ const RegistrationForm = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        {fieldsData.map((field) => (
-          <div key={field.label}>
-            <label>{field.label}</label>
-            {field.inputType === 'text' && (
-              <input type="text" name={field.label} required />
-            )}
-            {field.inputType === 'number' && (
-              <input type="number" name={field.label} required />
-            )}
-            {field.inputType === 'email' && (
-              <input type="email" name={field.label} required />
-            )}
-            {field.inputType === 'date' && (
-              <input type="date" name={field.label} required />
-            )}
-            {field.inputType === 'file' && (
-              <input type="file" name={field.label} required />
-            )}
-            {/* Add more input types as needed */}
+      <div className="page-container">
+        <h2 className="page-title">Registration Form</h2>
+        <form onSubmit={handleSubmit}>
+          {fieldsData.map((field) => (
+            <div key={field.label} className="form-group">
+              <label>{field.label}</label>
+              {field.inputType === 'text' && (
+                <input type="text" name={field.label} required />
+              )}
+              {field.inputType === 'number' && (
+                <input type="number" name={field.label} required />
+              )}
+              {field.inputType === 'email' && (
+                <input type="email" name={field.label} required />
+              )}
+              {field.inputType === 'date' && (
+                <input type="date" name={field.label} required />
+              )}
+              {field.inputType === 'file' && (
+                <input type="file" name={field.label} required />
+              )}
+              {/* Add more input types as needed */}
+            </div>
+          ))}
+          <div className="button-container">
+            <button type="submit" className="content-button">
+              Submit
+            </button>
           </div>
-        ))}
-        <button type="submit">Submit</button>
-      </form>
+        </form>
+      </div>
+      {/* <div className="progress-bar-container">
+        <div className="progress-bar-fill"></div>
+        <div className="progress-bar-labels">
+          <div className="progress-bar-label active">Step 1</div>
+          <div className="progress-bar-label">Step 2</div>
+          <div className="progress-bar-label">Step 3</div>
+        </div>
+      </div> */}
     </>
   );
 };
