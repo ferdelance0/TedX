@@ -18,6 +18,8 @@ const RegistrationForm = () => {
           setEventExists(true);
           setRegistrationFields(response.data.event.eventregistrationfields);
           setParticipantData({ eventId });
+        } else {
+          return <div>Event not found.</div>;
         }
       })
       .catch((error) => {
@@ -61,10 +63,6 @@ const RegistrationForm = () => {
         console.error("Error creating participant model:", error);
       });
   };
-
-  if (!eventExists) {
-    return <div>Event not found.</div>;
-  }
 
   return (
     <>
