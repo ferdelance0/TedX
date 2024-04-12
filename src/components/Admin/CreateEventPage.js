@@ -741,6 +741,7 @@ const CreateEventPage = () => {
         </button> */}
 
         <ProgressBar currentPage={page} totalPages={totalPages} />
+
         <br></br>
         <form onSubmit={handleSubmit}>
           {page === 1 && renderPageOne()}
