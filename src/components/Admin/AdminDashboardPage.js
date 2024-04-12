@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../../styles/adminStyles.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../styles/adminStyles.css";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -14,60 +14,71 @@ const AdminDashboardPage = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('http://localhost:3000/events');
+      const response = await fetch("http://localhost:3000/events");
       if (response.ok) {
-        console.log('fetch success');
+        console.log("fetch success");
         const data = await response.json();
         setEvents(data);
       } else {
-        console.error('Failed to fetch events');
+        console.error("Failed to fetch events");
       }
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     }
   };
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const updatedEvents = events.map((event) => {
-      if (new Date(event.endDate) < currentDate) {
-        return { ...event, status: 'completed' };
+  const filteredEvents = events
+    .map((event) => {
+      const eventDate = new Date(event.eventscheduleddate);
+      const currentDate = new Date();
+      if (eventDate < currentDate) {
+        return { ...event, status: "completed" };
       }
-      return event;
+      return { ...event, status: "upcoming" };
+    })
+    .filter((event) => {
+      const eventDate = new Date(event.eventscheduleddate);
+      const eventYear = eventDate.getFullYear();
+      const eventMonth = eventDate.getMonth();
+      if (selectedYear !== eventYear) {
+        return false;
+      }
+      if (selectedMonth !== "all" && selectedMonth !== eventMonth.toString()) {
+        return false;
+      }
+      return true;
     });
-    setEvents(updatedEvents);
-  }, []);
-
-  const filteredEvents = events.filter((event) => {
-    const eventDate = new Date(event.startDate);
-    const eventYear = eventDate.getFullYear();
-    const eventMonth = eventDate.getMonth();
-    if (selectedYear !== eventYear) {
-      return false;
-    }
-    if (selectedMonth !== 'all' && selectedMonth !== eventMonth) {
-      return false;
-    }
-    return true;
-  });
 
   const handleCreateEvent = () => {
-    navigate('/admin/create-event');
+    navigate("/admin/create-event");
   };
-  const handleViewEventDetails = () => {
-    navigate('/admin/view-eventdetails');
+  const handleViewEventDetails = (eventId) => {
+    navigate(`/admin/view-eventdetails/${eventId}`);
   };
 
-  const upcomingEventsCount = filteredEvents.filter(
-    (event) => event.status === 'upcoming'
-  ).length;
-  const completedEventsCount = filteredEvents.filter(
-    (event) => event.status === 'completed'
-  ).length;
-  const totalParticipantsCount = filteredEvents.reduce(
-    (total, event) => total + event.registrationFields.length,
-    0
+  // Generate year options
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from(
+    { length: 5 },
+    (_, index) => currentYear - index
   );
+
+  // Generate month options
+  const monthOptions = [
+    { value: "all", label: "All" },
+    { value: "0", label: "January" },
+    { value: "1", label: "February" },
+    { value: "2", label: "March" },
+    { value: "3", label: "April" },
+    { value: "4", label: "May" },
+    { value: "5", label: "June" },
+    { value: "6", label: "July" },
+    { value: "7", label: "August" },
+    { value: "8", label: "September" },
+    { value: "9", label: "October" },
+    { value: "10", label: "November" },
+    { value: "11", label: "December" },
+  ];
 
   return (
     <div className="main-container">
@@ -93,27 +104,63 @@ const AdminDashboardPage = () => {
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                 >
-                  {/* Render year options */}
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
                 </select>
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
                 >
-                  <option value="all">All</option>
-                  {/* Render month options */}
+                  {monthOptions.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
-            <div className="analytics-card-content">{upcomingEventsCount}</div>
+            <div className="analytics-card-content">
+              {
+                filteredEvents.filter((event) => event.status === "upcoming")
+                  .length
+              }
+            </div>
           </div>
           <div className="analytics-card">
             <div className="analytics-card-header">
               <h3>Completed Events</h3>
               <div className="analytics-card-filters">
-                {/* Render year and month dropdowns */}
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                >
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                >
+                  {monthOptions.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="analytics-card-content">{completedEventsCount}</div>
+            <div className="analytics-card-content">
+              {
+                filteredEvents.filter((event) => event.status === "completed")
+                  .length
+              }
+            </div>
           </div>
         </div>
         <div className="event-table">
@@ -123,16 +170,30 @@ const AdminDashboardPage = () => {
                 <th>Event Name</th>
                 <th>Scheduled Date</th>
                 <th>Location</th>
-                <th>Chief Guest</th>
+                <th>Status</th>
+                <th>Registration Form</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
-              {events.map((event) => (
+              {filteredEvents.map((event) => (
                 <tr key={event._id}>
                   <td>{event.eventname}</td>
-                  <td>{event.scheduledDate}</td>
+                  <td>{event.eventscheduleddate}</td>
                   <td>{event.eventvenue}</td>
-                  <td>{event.chiefGuest}</td>
+                  <td>{event.status}</td>
+                  <td>
+                    <a
+                      href={`http://localhost:3001/admin/registration-form/${event._id}`}
+                    >
+                      Register
+                    </a>
+                  </td>
+                  <td>
+                    <button onClick={() => handleViewEventDetails(event._id)}>
+                      View Details
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -142,4 +203,5 @@ const AdminDashboardPage = () => {
     </div>
   );
 };
+
 export default AdminDashboardPage;
