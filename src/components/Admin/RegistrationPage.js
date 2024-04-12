@@ -16,7 +16,7 @@ const RegistrationPage = () => {
     axios
       .get(`http://localhost:3000/events/${eventId}`)
       .then((response) => {
-        if (response.data.event) {
+        if (response.event) {
           setEventExists(true);
           // Retrieve the participant schema for the event
           const participantSchema = generateParticipantSchema(
@@ -27,7 +27,7 @@ const RegistrationPage = () => {
             `Participant_${eventId}`,
             participantSchema
           );
-          setRegistrationFields(response.data.event.registrationFields);
+          setRegistrationFields(response.event.registrationFields);
           setParticipantData({ eventId });
         }
       })

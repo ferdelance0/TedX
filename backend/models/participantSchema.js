@@ -1,4 +1,3 @@
-// participantSchema.js
 const mongoose = require("mongoose");
 
 const generateParticipantSchema = (fields, eventId) => {
@@ -35,5 +34,4 @@ const getMongooseType = (inputType) => {
   }
 };
 
-const Participant = mongoose.model("Participant", generateParticipantSchema);
-module.exports = Participant;
+module.exports = generateParticipantSchema;
