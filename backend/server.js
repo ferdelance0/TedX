@@ -4,6 +4,8 @@ const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
+const generatePDF = require("./certificate-gen/generatecertificate");
+
 
 // Create Express app
 const app = express();
@@ -114,6 +116,16 @@ app.post("/registerParticipant", async (req, res) => {
   } catch (error) {
     console.error("Error registering participant:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/generatepdfs", async (req, res) => {
+  try {
+     const url = await generatePDF("Don C Delish");
+    res.status(200).json({ message: "PDFs generated successfully", url });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to generate PDFs" });
   }
 });
 
