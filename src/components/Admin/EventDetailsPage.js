@@ -1,147 +1,127 @@
-// EventDetailsPage.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ParticipantsTable from '../Admin/ParticipantsTable';
-import '../../styles/adminStyles.css';
-import '../../styles/eventDetailsPageStyles.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const EventDetailsPage = () => {
-  const handlePreview = (item) => {
-    // Handle preview logic for the specified item
-    console.log(`Preview ${item}`);
-  };
+  const { eventId } = useParams();
+  const [event, setEvent] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
 
-  const handleSendLink = (item) => {
-    // Handle send link logic for the specified item
-    console.log(`Send link for ${item}`);
-  };
+  useEffect(() => {
+    console.log("Event ID:", eventId);
+    const fetchEvent = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/events/${eventId}`);
+        console.log("Fetched event:", res.data.event); // Added console.log
+        setEvent(res.data.event);
+      } catch (error) {
+        console.error("Error fetching event:", error); // Added console.error
+      }
+    };
+    fetchEvent();
+  }, [eventId]);
 
-  const navigate = useNavigate();
-  const [eventStatus, setEventStatus] = useState('upcoming');
+  useEffect(() => {
+    console.log("Event ID:", eventId);
+    const fetchParticipants = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/events/${eventId}/participants`
+        );
+        console.log("Fetched participants:", res.data); // Added console.log
+        setParticipants(res.data);
+      } catch (error) {
+        console.error("Error fetching participants:", error); // Added console.error
+      }
+    };
+    fetchParticipants();
+  }, [eventId]);
 
-  const handleBackToDashboard = () => {
-    navigate('/admin/dashboard');
-  };
-
-  const handleToggleStatus = () => {
-    setEventStatus((prevStatus) =>
-      prevStatus === 'upcoming' ? 'completed' : 'upcoming'
+  const handleSelectAllChange = (e) => {
+    setSelectedParticipants(
+      e.target.checked ? participants.map((p) => p._id) : []
     );
   };
 
+  const handleParticipantSelect = (participantId) => {
+    const selectedIndex = selectedParticipants.indexOf(participantId);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedParticipants, participantId);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedParticipants.slice(1));
+    } else if (selectedIndex === selectedParticipants.length - 1) {
+      newSelected = newSelected.concat(selectedParticipants.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedParticipants.slice(0, selectedIndex),
+        selectedParticipants.slice(selectedIndex + 1)
+      );
+    }
+    setSelectedParticipants(newSelected);
+  };
+
+  if (!event) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="main-container">
-      <div className="main-content">
-        <div className="underNav">
-          <button
-            className="back-to-home-btn content-button"
-            onClick={handleBackToDashboard}
-          >
-            Back To Dashboard
-          </button>
-        </div>
-        <div className="event-details-container container-fluid d-grid">
-          <div className="event-details-header">
-            <h2 className="event-title">Event Title</h2>
-            <div className="event-status-toggle">
-              <span
-                onClick={handleToggleStatus}
-                className={`status ${eventStatus}`}
-              >
-                {eventStatus}
-              </span>
-            </div>
-          </div>
-          <div className="event-description">
-            <p>Event description goes here...</p>
-          </div>
-          <div className="container d-flex">
-            <div className="col-lg-8 col-md-12 participants-list ">
-              <ParticipantsTable />
-            </div>
-            <div
-              style={{ backgroundColor: '#f9f9f9' }}
-              className="col-lg-4 col-md-12 controls-section d-grid"
-            >
-              <div className="control-item">
-                <h4>Registration Form</h4>
-                <button
-                  className="preview-btn"
-                  onClick={() => handlePreview('Registration Field')}
-                >
-                  Preview
-                </button>
-                <button
-                  className="send-link-btn"
-                  onClick={() => handleSendLink('Registration Field')}
-                >
-                  Send Link
-                </button>
-              </div>
-              <div className="control-item">
-                <h4>ID Card</h4>
-                <button
-                  className="preview-btn"
-                  onClick={() => handlePreview('ID Card')}
-                >
-                  Preview
-                </button>
-                <button
-                  className="send-link-btn"
-                  onClick={() => handleSendLink('ID Card')}
-                >
-                  Send Link
-                </button>
-              </div>
-              <div className="control-item">
-                <h4>Poll</h4>
-                <button
-                  className="preview-btn"
-                  onClick={() => handlePreview('Poll')}
-                >
-                  Preview
-                </button>
-                <button
-                  className="send-link-btn"
-                  onClick={() => handleSendLink('Poll')}
-                >
-                  Send Link
-                </button>
-              </div>
-              <div className="control-item">
-                <h4>Feedback</h4>
-                <button
-                  className="preview-btn"
-                  onClick={() => handlePreview('Feedback')}
-                >
-                  Preview
-                </button>
-                <button
-                  className="send-link-btn"
-                  onClick={() => handleSendLink('Feedback')}
-                >
-                  Send Link
-                </button>
-              </div>
-              <div className="control-item">
-                <h4>Certificate</h4>
-                <button
-                  className="preview-btn"
-                  onClick={() => handlePreview('Certificate')}
-                >
-                  Preview
-                </button>
-                <button
-                  className="send-link-btn"
-                  onClick={() => handleSendLink('Certificate')}
-                >
-                  Send Link
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div>
+      <h2>Event Details</h2>
+      <p>
+        <strong>Title:</strong> {event.eventname}
+      </p>
+      <p>
+        <strong>Description:</strong> {event.eventdescription}
+      </p>
+      <p>
+        <strong>Organizer:</strong> {event.eventorganizer}
+      </p>
+      {/* Render other event fields */}
+
+      <h2>Participants</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                checked={selectedParticipants.length === participants.length}
+                onChange={handleSelectAllChange}
+              />
+            </th>
+            {event.eventregistrationfields.map((field, index) => (
+              <th key={index}>{field.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {participants.map((participant) => (
+            <tr key={participant._id}>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selectedParticipants.indexOf(participant._id) !== -1}
+                  onChange={() => handleParticipantSelect(participant._id)}
+                />
+              </td>
+              {event.eventregistrationfields.map((field, index) => (
+                <td key={index}>{participant[field.label]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <button
+        onClick={() =>
+          console.log("Mark attendance for:", selectedParticipants)
+        }
+      >
+        Mark Attendance
+      </button>
+      {/* Add more action buttons */}
     </div>
   );
 };
