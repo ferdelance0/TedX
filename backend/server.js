@@ -4,7 +4,7 @@ const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
-const generatePDF = require("./certificate-gen/generatecertificate");
+const {generateCertificatePDF,generateIDPDF} = require("./certificate-gen/generatecertificate");
 
 
 // Create Express app
@@ -141,9 +141,18 @@ app.post("/registerParticipant", async (req, res) => {
   }
 });
 
-app.post("/generatepdfs", async (req, res) => {
+app.post("/generatecertificate", async (req, res) => {
   try {
-     const url = await generatePDF("Don C Delish");
+     const url = await generateCertificatePDF("Don C Delish");
+    res.status(200).json({ message: "PDFs generated successfully", url });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to generate PDFs" });
+  }
+});
+app.post("/generateID", async (req, res) => {
+  try {
+     const url = await generateIDPDF("Don C Delish");
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
