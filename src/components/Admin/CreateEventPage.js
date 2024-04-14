@@ -203,6 +203,7 @@ const CreateEventPage = () => {
       eventscheduleddate: eventScheduledDate,
       eventregistrationfields: registrationFields,
       eventpollquestions: isPollVisible ? pollQuestions : [],
+      eventfeedbackquestions: isFeedbackVisible ? feedbackQuestions : [],
     };
     //the posting details
     // Add eventmode only if multipleVenues is false

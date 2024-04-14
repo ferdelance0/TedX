@@ -7,8 +7,9 @@ import CreateEventPage from '../components/Admin/CreateEventPage';
 import RegistrationForm from '../components/Admin/RegistrationForm';
 import EventDetailsPage from '../components/Admin/EventDetailsPage';
 // import IdCardGenerator from '../components/Admin/IdCardGenerator';
-// import FeedbackForm from '../components/Admin/FeedbackForm';
+import FeedbackForm from '../components/Admin/FeedbackForm';
 import PollQuestionsForm from '../components/Admin/PollQuestionsForm';
+import PollResponsesPage from '../components/Admin/PollResponsesPage';
 // import Certificate from '../components/Admin/Certificate';
 
 const AdminRoutes = () => {
@@ -25,6 +26,14 @@ const AdminRoutes = () => {
       <Route
         path="/poll-question-form/:eventId"
         element={<PollQuestionsForm />}
+      />
+      <Route
+        path="/events/:eventId/pollresponses"
+        element={<PollResponsesPage />}
+      />
+      <Route
+        path="/events/:eventId/feedbackquestions"
+        element={<FeedbackForm />}
       />
       {/*<Route path="/admin/id-card-generator" element={<IdCardGenerator />} />
       <Route path="/admin/feedback-form" element={<FeedbackForm />} />

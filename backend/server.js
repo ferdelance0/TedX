@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Event = require('./models/events.model');
 const SubEvent = require('./models/subevents.model');
+const PollResponse = require('./models/pollResponse.model');
+
 const cors = require('cors');
 const generateParticipantSchema = require('./models/participantSchema');
 const {
@@ -49,6 +51,27 @@ app.get('/events/:eventId', (req, res) => {
     });
 });
 
+app.get('/events/:eventId/participants', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    console.log('Fetching participants for eventId:', eventId);
+    console.log('Participant models:', participantModels);
+
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    if (ParticipantModel) {
+      const participants = await ParticipantModel.find();
+      console.log('Fetched participants:', participants);
+      res.json(participants);
+    } else {
+      console.log('Participant model not found for eventId:', eventId);
+      res.status(404).json({ error: 'Participant model not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching participants:', error);
+    res.status(500).json({ error: 'Error fetching participants' });
+  }
+});
+
 // Endpoint to fetch poll questions for a specific event
 app.get('/events/:eventId/pollquestions', async (req, res) => {
   try {
@@ -68,24 +91,39 @@ app.get('/events/:eventId/pollquestions', async (req, res) => {
   }
 });
 
-app.get('/events/:eventId/participants', async (req, res) => {
+// Endpoint to fetch feedback questions for a specific event
+app.get('/events/:eventId/feedbackquestions', async (req, res) => {
   try {
-    const { eventId } = req.params;
-    console.log('Fetching participants for eventId:', eventId);
-    console.log('Participant models:', participantModels);
+    console.log('tryna fetch feedback ques1');
+    const eventId = req.params.eventId;
+    const event = await Event.findById(eventId);
+    console.log('tryna fetch feedback ques2');
 
-    const ParticipantModel = participantModels[`Participant_${eventId}`];
-    if (ParticipantModel) {
-      const participants = await ParticipantModel.find();
-      console.log('Fetched participants:', participants);
-      res.json(participants);
-    } else {
-      console.log('Participant model not found for eventId:', eventId);
-      res.status(404).json({ error: 'Participant model not found' });
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
     }
+    console.log('tryna fetch feedback ques3');
+    const feedbackQuestions = event.eventfeedbackquestions;
+    console.log('tryna fetch feedback ques4');
+    console.log(feedbackQuestions);
+    res.status(200).json({ feedbackQuestions });
   } catch (error) {
-    console.error('Error fetching participants:', error);
-    res.status(500).json({ error: 'Error fetching participants' });
+    console.error('Error fetching feedback questions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//endpoint to retrieve poll responses for an event
+app.get('/events/:eventId/pollresponses', async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    const pollResponses = await PollResponse.find({ eventId });
+
+    res.status(200).json({ pollResponses });
+  } catch (error) {
+    console.error('Error retrieving poll responses:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -158,6 +196,26 @@ app.post('/registerParticipant', async (req, res) => {
     res.status(200).json({ participant: createdParticipant });
   } catch (error) {
     console.error('Error registering participant:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/events/:eventId/pollresponses', async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { participantId, responses } = req.body;
+
+    const pollResponse = new PollResponse({
+      eventId,
+      participantId,
+      responses,
+    });
+
+    await pollResponse.save();
+
+    res.status(200).json({ message: 'Poll responses submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting poll responses:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
