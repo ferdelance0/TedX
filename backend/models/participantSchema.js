@@ -1,3 +1,5 @@
+//participantSchema.js
+
 const mongoose = require("mongoose");
 
 const generateParticipantSchema = (fields, eventId) => {
