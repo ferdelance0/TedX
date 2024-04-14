@@ -31,6 +31,7 @@ app.get("/events", async (req, res) => {
 // Server-side code (e.g., server.js)
 app.get("/events/:eventId", (req, res) => {
   const { eventId } = req.params;
+  console.log("Event ID:", eventId);
   // Check if the event exists in the event table
   Event.findById(eventId)
     .then((event) => {
@@ -44,6 +45,27 @@ app.get("/events/:eventId", (req, res) => {
       console.error("Error checking event existence:", error);
       res.status(500).json({ error: "Internal server error" });
     });
+});
+
+app.get("/events/:eventId/participants", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    console.log("Fetching participants for eventId:", eventId);
+    console.log("Participant models:", participantModels);
+
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    if (ParticipantModel) {
+      const participants = await ParticipantModel.find();
+      console.log("Fetched participants:", participants);
+      res.json(participants);
+    } else {
+      console.log("Participant model not found for eventId:", eventId);
+      res.status(404).json({ error: "Participant model not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching participants:", error);
+    res.status(500).json({ error: "Error fetching participants" });
+  }
 });
 
 app.post("/createevents", async (req, res) => {
