@@ -5,6 +5,7 @@ import AdminDashboardPage from "../components/Admin/AdminDashboardPage";
 import EventDetails from "../components/Admin/EventDetailsPage";
 import CreateEventPage from "../components/Admin/CreateEventPage";
 import RegistrationForm from "../components/Admin/RegistrationForm";
+import EventDetailsPage from "../components/Admin/EventDetailsPage";
 // import IdCardGenerator from '../components/Admin/IdCardGenerator';
 // import FeedbackForm from '../components/Admin/FeedbackForm';
 // import Poll from '../components/Admin/Poll';
@@ -20,6 +21,7 @@ const AdminRoutes = () => {
         path="/registration-form/:eventId"
         element={<RegistrationForm />}
       />
+      <Route path="/events/:eventId/details" element={<EventDetailsPage />} />
       {/*<Route path="/admin/id-card-generator" element={<IdCardGenerator />} />
       <Route path="/admin/feedback-form" element={<FeedbackForm />} />
       <Route path="/admin/poll" element={<Poll />} /> */}

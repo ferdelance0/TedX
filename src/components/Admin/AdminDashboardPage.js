@@ -53,7 +53,7 @@ const AdminDashboardPage = () => {
     navigate("/admin/create-event");
   };
   const handleViewEventDetails = (eventId) => {
-    navigate(`/admin/view-eventdetails/${eventId}`);
+    navigate(`/admin/events/${eventId}/details`);
   };
 
   // Generate year options
