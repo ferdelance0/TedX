@@ -1,6 +1,10 @@
+// EventDetailsPage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import "../../styles/adminStyles.css";
+import "../../styles/createEventPageStyles.css";
+import "../../styles/eventDetailsPageStyles.css";
 
 const EventDetailsPage = () => {
   const { eventId } = useParams();
@@ -9,33 +13,25 @@ const EventDetailsPage = () => {
   const [selectedParticipants, setSelectedParticipants] = useState([]);
 
   useEffect(() => {
-    console.log("Event ID:", eventId);
-    const fetchEvent = async () => {
+    const fetchEventAndParticipants = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/events/${eventId}`);
-        console.log("Fetched event:", res.data.event); // Added console.log
-        setEvent(res.data.event);
-      } catch (error) {
-        console.error("Error fetching event:", error); // Added console.error
-      }
-    };
-    fetchEvent();
-  }, [eventId]);
+        // Fetch event details
+        const eventResponse = await axios.get(
+          `http://localhost:3000/events/${eventId}`
+        );
+        setEvent(eventResponse.data.event);
 
-  useEffect(() => {
-    console.log("Event ID:", eventId);
-    const fetchParticipants = async () => {
-      try {
-        const res = await axios.get(
+        // Fetch participants for the event
+        const participantsResponse = await axios.get(
           `http://localhost:3000/events/${eventId}/participants`
         );
-        console.log("Fetched participants:", res.data); // Added console.log
-        setParticipants(res.data);
+        setParticipants(participantsResponse.data);
       } catch (error) {
-        console.error("Error fetching participants:", error); // Added console.error
+        console.error("Error fetching event and participants:", error);
       }
     };
-    fetchParticipants();
+
+    fetchEventAndParticipants();
   }, [eventId]);
 
   const handleSelectAllChange = (e) => {
@@ -67,61 +63,70 @@ const EventDetailsPage = () => {
   }
 
   return (
-    <div>
-      <h2>Event Details</h2>
-      <p>
-        <strong>Title:</strong> {event.eventname}
-      </p>
-      <p>
-        <strong>Description:</strong> {event.eventdescription}
-      </p>
-      <p>
-        <strong>Organizer:</strong> {event.eventorganizer}
-      </p>
-      {/* Render other event fields */}
-
-      <h2>Participants</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={selectedParticipants.length === participants.length}
-                onChange={handleSelectAllChange}
-              />
-            </th>
-            {event.eventregistrationfields.map((field, index) => (
-              <th key={index}>{field.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {participants.map((participant) => (
-            <tr key={participant._id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedParticipants.indexOf(participant._id) !== -1}
-                  onChange={() => handleParticipantSelect(participant._id)}
-                />
-              </td>
-              {event.eventregistrationfields.map((field, index) => (
-                <td key={index}>{participant[field.label]}</td>
+    <div className="event-details-container">
+      <div className="event-details-header">
+        <h2 className="event-title">{event.eventname}</h2>
+        <div className="event-status-toggle">
+          <span className="status upcoming">Upcoming</span>
+          <span className="status completed">Completed</span>
+        </div>
+      </div>
+      <div className="event-description">{event.eventdescription}</div>
+      <div className="participants-list">
+        <h3>Participants</h3>
+        <div className="table-wrapper">
+          <table className="participants-table">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedParticipants.length === participants.length
+                    }
+                    onChange={handleSelectAllChange}
+                  />
+                </th>
+                {event.eventregistrationfields.map((field, index) => (
+                  <th key={index}>{field.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {participants.map((participant) => (
+                <tr key={participant._id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedParticipants.indexOf(participant._id) !== -1
+                      }
+                      onChange={() => handleParticipantSelect(participant._id)}
+                    />
+                  </td>
+                  {event.eventregistrationfields.map((field, index) => (
+                    <td key={index}>{participant[field.label]}</td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button
-        onClick={() =>
-          console.log("Mark attendance for:", selectedParticipants)
-        }
-      >
-        Mark Attendance
-      </button>
-      {/* Add more action buttons */}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="controls-section">
+        <div className="control-item">
+          <h4>Mark Attendance</h4>
+          <button
+            className="preview-btn"
+            onClick={() =>
+              console.log("Mark attendance for:", selectedParticipants)
+            }
+          >
+            Mark Attendance
+          </button>
+        </div>
+        {/* Add more control items */}
+      </div>
     </div>
   );
 };
