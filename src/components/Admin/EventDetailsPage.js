@@ -100,6 +100,7 @@ const EventDetailsPage = () => {
                   <th key={index}>{field.label}</th>
                 ))}
                 <th>Download Certificate</th>
+                <th>Download ID Card</th>
               </tr>
             </thead>
             <tbody>
@@ -154,7 +155,47 @@ const EventDetailsPage = () => {
                           });
                       }}
                     >
-                      Download
+                      Download Certificate
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="download-btn"
+                      onClick={() => {
+                        const { _id, Name } = participant; // Extract the required properties
+
+                        fetch("http://localhost:3000/generateID", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            participantId: _id,
+                            Name,
+                            eventId,
+                          }),
+                        })
+                          .then((response) => response.json())
+                          .then((data) => {
+                            console.log("Success:", data);
+
+                            // Create a new 'a' element
+                            let a = document.createElement("a");
+                            a.href = data.url; // Set the href to the URL from the response
+                            a.download = "idcard.pdf"; // Set the download attribute to the desired file name
+                            a.style.display = "none"; // Hide the element
+
+                            document.body.appendChild(a); // Append the 'a' element to the body
+                            a.click(); // Programmatically click the 'a' element to start the download
+
+                            document.body.removeChild(a); // Remove the 'a' element from the body
+                          })
+                          .catch((error) => {
+                            console.error("Error:", error);
+                          });
+                      }}
+                    >
+                      Download ID Card
                     </button>
                   </td>
                 </tr>
