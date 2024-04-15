@@ -1,5 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("./models/user.model")
 const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const PollResponse = require("./models/pollResponse.model");
@@ -253,6 +256,54 @@ app.post("/generateID", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Failed to generate PDFs" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  console.log(email,password);
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    // Verify the password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+    const jwtsecret = "MySecretKEy"
+    // If email and password are correct, generate JWT token
+    const token = jwt.sign({ userId: user._id }, jwtsecret, {
+      expiresIn: "1h", // Token expires in 1 hour
+    });
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/signup", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    // Create a new user
+    const newUser = new User({ email, password });
+    await newUser.save();
+
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    console.error("Error during signup:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
