@@ -260,7 +260,8 @@ app.post("/generatecertificate", async (req, res) => {
 
 app.post("/generateID", async (req, res) => {
   try {
-    const url = await generateIDPDF("Don C Delish");
+    const { Name } = req.body; // Extract name from request body
+    const url = await generateIDPDF(Name);
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
