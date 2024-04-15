@@ -110,12 +110,12 @@ const generateIDPDF = async (name) => {
     // Save the modified PDF
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync("output.pdf", pdfBytes);
-    // const pdfRef = ref(storage, `ID/${name}.pdf`);
-    // await uploadBytes(pdfRef, pdfBytes);
-    // const downloadURL = await getDownloadURL(pdfRef);
+    const pdfRef = ref(storage, `ID/${name}.pdf`);
+    await uploadBytes(pdfRef, pdfBytes);
+    const downloadURL = await getDownloadURL(pdfRef);
 
-    // console.log("PDF generated successfully.");
-    // return (downloadURL);
+    console.log("PDF generated successfully.");
+    return (downloadURL);
 };
 
 module.exports = {generateCertificatePDF,generateIDPDF};
