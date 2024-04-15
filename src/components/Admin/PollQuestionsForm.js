@@ -28,14 +28,21 @@ const PollQuestionForm = () => {
     }));
   };
 
+  // PollQuestionForm.js
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Convert pollAnswers to the expected format
+    const pollResponses = {
+      participantId: 'YOUR_PARTICIPANT_ID', // Replace with the actual participant ID
+      responses: Object.values(pollAnswers),
+    };
 
     // Send poll answers to the backend
     axios
       .post(
         `http://localhost:3000/events/${eventId}/pollresponses`,
-        pollAnswers
+        pollResponses
       )
       .then((response) => {
         console.log('Poll responses submitted:', response.data);

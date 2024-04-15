@@ -1,7 +1,7 @@
 // EventDetailsPage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import "../../styles/adminStyles.css";
 import "../../styles/createEventPageStyles.css";
 import "../../styles/eventDetailsPageStyles.css";
@@ -66,12 +66,21 @@ const EventDetailsPage = () => {
     <div className="event-details-container">
       <div className="event-details-header">
         <h2 className="event-title">{event.eventname}</h2>
-        <div className="event-status-toggle">
+        {/* <div className="event-status-toggle">
           <span className="status upcoming">Upcoming</span>
           <span className="status completed">Completed</span>
-        </div>
+        </div> */}
       </div>
       <div className="event-description">{event.eventdescription}</div>
+      <div>
+        <Link to={`/admin/poll-question-form/${eventId}`}>
+          <button>Go to Poll Form</button>
+        </Link>
+        <Link to={`/admin/events/${eventId}/pollresponses`}>
+          <button>View Poll Responses</button>
+        </Link>
+        {/* Add more action buttons */}
+      </div>
       <div className="participants-list">
         <h3>Participants</h3>
         <div className="table-wrapper">

@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("./models/user.model")
+const User = require("./models/user.model");
 const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const PollResponse = require("./models/pollResponse.model");
@@ -117,11 +117,12 @@ app.get("/events/:eventId/feedbackquestions", async (req, res) => {
   }
 });
 
-//endpoint to retrieve poll responses for an event
+//endpoint to retrieve poll responses for an event// server.js
 app.get("/events/:eventId/pollresponses", async (req, res) => {
   try {
     const eventId = req.params.eventId;
 
+    // Find all poll responses for the given event ID
     const pollResponses = await PollResponse.find({ eventId });
 
     res.status(200).json({ pollResponses });
@@ -224,6 +225,11 @@ app.post("/events/:eventId/pollresponses", async (req, res) => {
     const eventId = req.params.eventId;
     const { participantId, responses } = req.body;
 
+    // Validate the incoming data
+    if (!eventId || !participantId || !responses || !Array.isArray(responses)) {
+      return res.status(400).json({ error: "Invalid request data" });
+    }
+
     const pollResponse = new PollResponse({
       eventId,
       participantId,
@@ -264,7 +270,7 @@ app.post("/generateID", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(email,password);
+  console.log(email, password);
   try {
     // Check if the user exists
     const user = await User.findOne({ email });
@@ -276,7 +282,7 @@ app.post("/login", async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-    const jwtsecret = "MySecretKEy"
+    const jwtsecret = "MySecretKEy";
     // If email and password are correct, generate JWT token
     const token = jwt.sign({ userId: user._id }, jwtsecret, {
       expiresIn: "1h", // Token expires in 1 hour
