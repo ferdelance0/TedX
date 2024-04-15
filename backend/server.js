@@ -251,6 +251,7 @@ app.post("/generatecertificate", async (req, res) => {
     console.log(req.body);
     const { Name } = req.body; // Extract name from request body
     const url = await generateCertificatePDF(Name); // Use the name to generate the certificate
+    console.log(url);
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
