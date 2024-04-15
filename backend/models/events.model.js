@@ -1,3 +1,4 @@
+// event.model.js
 const mongoose = require("mongoose");
 
 const EventSchema = new mongoose.Schema(
@@ -12,9 +13,8 @@ const EventSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    strict: false, // Allow additional fields not defined in the schema
+    strict: false,
   }
 );
 
-const Event = mongoose.model("Event", EventSchema);
-module.exports = Event;
+module.exports = mongoose.model("Event", EventSchema);
