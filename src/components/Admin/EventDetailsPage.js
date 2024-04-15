@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, Link } from 'react-router-dom';
 
 const EventDetailsPage = () => {
   const { eventId } = useParams();
@@ -9,30 +9,30 @@ const EventDetailsPage = () => {
   const [selectedParticipants, setSelectedParticipants] = useState([]);
 
   useEffect(() => {
-    console.log("Event ID:", eventId);
+    console.log('Event ID:', eventId);
     const fetchEvent = async () => {
       try {
         const res = await axios.get(`http://localhost:3000/events/${eventId}`);
-        console.log("Fetched event:", res.data.event); // Added console.log
+        console.log('Fetched event:', res.data.event); // Added console.log
         setEvent(res.data.event);
       } catch (error) {
-        console.error("Error fetching event:", error); // Added console.error
+        console.error('Error fetching event:', error); // Added console.error
       }
     };
     fetchEvent();
   }, [eventId]);
 
   useEffect(() => {
-    console.log("Event ID:", eventId);
+    console.log('Event ID:', eventId);
     const fetchParticipants = async () => {
       try {
         const res = await axios.get(
           `http://localhost:3000/events/${eventId}/participants`
         );
-        console.log("Fetched participants:", res.data); // Added console.log
+        console.log('Fetched participants:', res.data); // Added console.log
         setParticipants(res.data);
       } catch (error) {
-        console.error("Error fetching participants:", error); // Added console.error
+        console.error('Error fetching participants:', error); // Added console.error
       }
     };
     fetchParticipants();
@@ -79,7 +79,15 @@ const EventDetailsPage = () => {
         <strong>Organizer:</strong> {event.eventorganizer}
       </p>
       {/* Render other event fields */}
-
+      <div>
+        <Link to={`/admin/poll-question-form/${eventId}`}>
+          <button>Go to Poll Form</button>
+        </Link>
+        <Link to={`/admin/events/${eventId}/pollresponses`}>
+          <button>View Poll Responses</button>
+        </Link>
+        {/* Add more action buttons */}
+      </div>
       <h2>Participants</h2>
       <table>
         <thead>
@@ -116,7 +124,7 @@ const EventDetailsPage = () => {
 
       <button
         onClick={() =>
-          console.log("Mark attendance for:", selectedParticipants)
+          console.log('Mark attendance for:', selectedParticipants)
         }
       >
         Mark Attendance

@@ -113,11 +113,12 @@ app.get('/events/:eventId/feedbackquestions', async (req, res) => {
   }
 });
 
-//endpoint to retrieve poll responses for an event
+//endpoint to retrieve poll responses for an event// server.js
 app.get('/events/:eventId/pollresponses', async (req, res) => {
   try {
     const eventId = req.params.eventId;
 
+    // Find all poll responses for the given event ID
     const pollResponses = await PollResponse.find({ eventId });
 
     res.status(200).json({ pollResponses });
@@ -126,7 +127,6 @@ app.get('/events/:eventId/pollresponses', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 app.post('/createevents', async (req, res) => {
   try {
     const event = await Event.create(req.body);
@@ -199,11 +199,16 @@ app.post('/registerParticipant', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+// server.js
 app.post('/events/:eventId/pollresponses', async (req, res) => {
   try {
     const eventId = req.params.eventId;
     const { participantId, responses } = req.body;
+
+    // Validate the incoming data
+    if (!eventId || !participantId || !responses || !Array.isArray(responses)) {
+      return res.status(400).json({ error: 'Invalid request data' });
+    }
 
     const pollResponse = new PollResponse({
       eventId,
