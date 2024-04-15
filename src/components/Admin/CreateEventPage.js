@@ -1,27 +1,27 @@
 // CreateEventPage.js
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../../styles/adminStyles.css";
-import "../../styles/createEventPageStyles.css";
-import ProgressBar from "./ProgressBar";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../../styles/adminStyles.css';
+import '../../styles/createEventPageStyles.css';
+import ProgressBar from './ProgressBar';
+import axios from 'axios';
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
   const [registrationFields, setRegistrationFields] = useState(fields);
-  const [customField, setCustomField] = useState("");
-  const [customFieldType, setCustomFieldType] = useState("text");
+  const [customField, setCustomField] = useState('');
+  const [customFieldType, setCustomFieldType] = useState('text');
   useEffect(() => {
     onFieldsChange(registrationFields);
   }, [registrationFields, onFieldsChange]);
 
   const handleAddField = () => {
-    if (customField.trim() !== "") {
+    if (customField.trim() !== '') {
       setRegistrationFields([
         ...registrationFields,
         { label: customField, checked: true, inputType: customFieldType },
       ]);
-      setCustomField("");
-      setCustomFieldType("text");
+      setCustomField('');
+      setCustomFieldType('text');
     }
   };
 
@@ -153,39 +153,41 @@ const CreateEventPage = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const totalPages = 6;
-  const [eventName, setEventName] = useState("");
-  const [eventDescription, setEventDescription] = useState("");
-  const [eventOrganiser, setEventOrganiser] = useState("");
-  const [eventMode, setEventMode] = useState("Offline");
-  const [eventScheduledDate, setEventScheduledDate] = useState("");
-  const [eventLocation, setEventLocation] = useState("");
+  const [eventName, setEventName] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [eventOrganiser, setEventOrganiser] = useState('');
+  const [eventMode, setEventMode] = useState('Offline');
+  const [eventScheduledDate, setEventScheduledDate] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
+  const [isPollVisible, setIsPollVisible] = useState(false);
+  const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
   const [eventVenues, setEventVenues] = useState([
     {
-      name: "",
-      venue: "",
-      state: "",
-      date: "",
-      time: "",
-      duration: "",
-      mode: "Offline",
+      name: '',
+      venue: '',
+      state: '',
+      date: '',
+      time: '',
+      duration: '',
+      mode: 'Offline',
     },
   ]);
   const [registrationFields, setRegistrationFields] = useState([
-    { label: "Name", checked: true, inputType: "text" },
-    { label: "Phone", checked: true, inputType: "number" },
-    { label: "Email", checked: true, inputType: "email" },
+    { label: 'Name', checked: true, inputType: 'text' },
+    { label: 'Phone', checked: true, inputType: 'number' },
+    { label: 'Email', checked: true, inputType: 'email' },
   ]);
-  const [customField, setCustomField] = useState("");
+  const [customField, setCustomField] = useState('');
   const [idCardFields, setIdCardFields] = useState([]);
   const [pollQuestions, setPollQuestions] = useState([
-    { question: "", options: [""] },
+    { question: '', options: [''] },
   ]);
-  const [feedbackEvent, setFeedbackEvent] = useState("");
+  const [feedbackEvent, setFeedbackEvent] = useState('');
   const [feedbackQuestions, setFeedbackQuestions] = useState([
-    { question: "", inputType: "short" },
+    { question: '', inputType: 'short' },
   ]);
-  const [certificateEvent, setCertificateEvent] = useState("");
+  const [certificateEvent, setCertificateEvent] = useState('');
   const [certificateTemplate, setCertificateTemplate] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -200,27 +202,29 @@ const CreateEventPage = () => {
       eventhassubevents: multipleVenues,
       eventscheduleddate: eventScheduledDate,
       eventregistrationfields: registrationFields,
+      eventpollquestions: isPollVisible ? pollQuestions : [],
+      eventfeedbackquestions: isFeedbackVisible ? feedbackQuestions : [],
     };
     //the posting details
     // Add eventmode only if multipleVenues is false
     if (!multipleVenues) {
-      newEvent.eventmode = eventMode || "Offline";
+      newEvent.eventmode = eventMode || 'Offline';
     }
     try {
       // Send a POST request to create the event
       const response = await axios.post(
-        "http://localhost:3000/createevents",
+        'http://localhost:3000/createevents',
         newEvent
       );
       const createdEvent = response.data.event;
-      console.log("Created event:", createdEvent);
-      console.log("Created event id", createdEvent._id);
+      console.log('Created event:', createdEvent);
+      console.log('Created event id', createdEvent._id);
 
       if (multipleVenues) {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: venue.mode || "Offline", // Set default value if venue.mode is falsy
+          subeventmode: venue.mode || 'Offline', // Set default value if venue.mode is falsy
           subeventdescription: venue.description,
           subeventvenue: venue.venue,
           subeventorganizer: venue.organiser, // Add the organizer field if needed
@@ -230,44 +234,44 @@ const CreateEventPage = () => {
 
         // Send a POST request to create the subevents
         await axios.post(
-          "http://localhost:3000/createsubevents",
+          'http://localhost:3000/createsubevents',
           subeventsData
         );
       }
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error('Error creating event:', error);
       // Handle error scenario
     }
     // Reset form fields and state
     setPage(1);
-    setEventName("");
-    setEventDescription("");
-    setEventOrganiser("");
-    setEventScheduledDate("");
-    setEventMode("");
-    setEventLocation("");
+    setEventName('');
+    setEventDescription('');
+    setEventOrganiser('');
+    setEventScheduledDate('');
+    setEventMode('');
+    setEventLocation('');
     setEventVenues([
       {
-        name: "",
-        venue: "",
-        state: "",
-        date: "",
-        time: "",
-        duration: "",
-        mode: "Offline",
+        name: '',
+        venue: '',
+        state: '',
+        date: '',
+        time: '',
+        duration: '',
+        mode: 'Offline',
       },
     ]);
     setRegistrationFields([
-      { label: "Name", checked: false },
-      { label: "Phone", checked: false },
-      { label: "Email", checked: false },
+      { label: 'Name', checked: false },
+      { label: 'Phone', checked: false },
+      { label: 'Email', checked: false },
     ]);
-    setCustomField("");
+    setCustomField('');
     setIdCardFields([]);
-    setPollQuestions([{ question: "", options: [""] }]);
-    setFeedbackEvent("");
-    setFeedbackQuestions([{ question: "", inputType: "short" }]);
-    setCertificateEvent("");
+    setPollQuestions([{ question: '', options: [''] }]);
+    setFeedbackEvent('');
+    setFeedbackQuestions([{ question: '', inputType: 'short' }]);
+    setCertificateEvent('');
     setCertificateTemplate(null);
     // Redirect back to the admin dashboard
     // navigate('/admin/dashboard');
@@ -281,7 +285,7 @@ const CreateEventPage = () => {
     setPage(page - 1);
   };
   const handleBackToDashboard = () => {
-    navigate("/admin/dashboard");
+    navigate('/admin/dashboard');
   };
 
   const handleRegistrationFieldsChange = (fields) => {
@@ -297,7 +301,7 @@ const CreateEventPage = () => {
       const selectedDate = new Date(e.target.value);
       const currentDate = new Date();
       if (selectedDate < currentDate) {
-        alert("Start date cannot be prior to the current date");
+        alert('Start date cannot be prior to the current date');
       } else {
         setEventScheduledDate(e.target.value);
       }
@@ -503,12 +507,12 @@ const CreateEventPage = () => {
                   setEventVenues([
                     ...eventVenues,
                     {
-                      name: "",
-                      venue: "",
-                      state: "",
-                      date: "",
-                      time: "",
-                      duration: "",
+                      name: '',
+                      venue: '',
+                      state: '',
+                      date: '',
+                      time: '',
+                      duration: '',
                     },
                   ])
                 }
@@ -554,146 +558,173 @@ const CreateEventPage = () => {
     <>
       <div className="page-container">
         <h2 className="page-title">Poll</h2>
-        {pollQuestions.map((question, index) => (
-          <div key={index}>
-            <div className="form-group">
-              <label>Question {index + 1}</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => {
-                  const updatedQuestions = [...pollQuestions];
-                  updatedQuestions[index].question = e.target.value;
-                  setPollQuestions(updatedQuestions);
-                }}
-                required
-              />
-            </div>
-            {question.options.map((option, optionIndex) => (
-              <div key={optionIndex} className="form-group">
-                <label>Option {optionIndex + 1}</label>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => {
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={isPollVisible}
+              onChange={(e) => setIsPollVisible(e.target.checked)}
+            />
+            Enable Poll
+          </label>
+        </div>
+        {isPollVisible && (
+          <>
+            {pollQuestions.map((question, index) => (
+              <div key={index}>
+                <div className="form-group">
+                  <label>Question {index + 1}</label>
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => {
+                      const updatedQuestions = [...pollQuestions];
+                      updatedQuestions[index].question = e.target.value;
+                      setPollQuestions(updatedQuestions);
+                    }}
+                    required
+                  />
+                </div>
+                {question.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="form-group">
+                    <label>Option {optionIndex + 1}</label>
+                    <input
+                      type="text"
+                      value={option}
+                      onChange={(e) => {
+                        const updatedQuestions = [...pollQuestions];
+                        updatedQuestions[index].options[optionIndex] =
+                          e.target.value;
+                        setPollQuestions(updatedQuestions);
+                      }}
+                      required
+                    />
+                  </div>
+                ))}
+                <button
+                  className="content-button"
+                  type="button"
+                  onClick={() => {
                     const updatedQuestions = [...pollQuestions];
-                    updatedQuestions[index].options[optionIndex] =
-                      e.target.value;
+                    updatedQuestions[index].options.push('');
                     setPollQuestions(updatedQuestions);
                   }}
-                  required
-                />
+                >
+                  Add Option
+                </button>
               </div>
             ))}
             <button
-              className="content-button "
+              className="content-button"
               type="button"
-              onClick={() => {
-                const updatedQuestions = [...pollQuestions];
-                updatedQuestions[index].options.push("");
-                setPollQuestions(updatedQuestions);
-              }}
+              onClick={() =>
+                setPollQuestions([
+                  ...pollQuestions,
+                  { question: '', options: [''] },
+                ])
+              }
             >
-              Add Option
+              Add Question
             </button>
-          </div>
-        ))}
-        <button
-          className="content-button "
-          type="button"
-          onClick={() =>
-            setPollQuestions([
-              ...pollQuestions,
-              { question: "", options: [""] },
-            ])
-          }
-        >
-          Add Question
-        </button>
+          </>
+        )}
         <div className="button-container">
-          <button className="content-button " onClick={handlePrevious}>
+          <button className="content-button" onClick={handlePrevious}>
             Previous
           </button>
-          <button className="content-button " onClick={handleNext}>
+          <button className="content-button" onClick={handleNext}>
             Save and Continue
           </button>
         </div>
       </div>
     </>
   );
-
   const renderPageFive = () => (
     <>
       <div className="page-container">
         <h2 className="page-title">Feedback Form</h2>
         <div className="form-group">
-          <label htmlFor="feedbackEvent">Select Event</label>
-          <select
-            id="feedbackEvent"
-            value={feedbackEvent}
-            onChange={(e) => setFeedbackEvent(e.target.value)}
-            required
-          >
-            {/* ... */}
-          </select>
+          <label>
+            <input
+              type="checkbox"
+              checked={isFeedbackVisible}
+              onChange={(e) => setIsFeedbackVisible(e.target.checked)}
+            />
+            Enable Feedback Form
+          </label>
         </div>
-        {feedbackQuestions.map((question, index) => (
-          <div key={index}>
+        {isFeedbackVisible && (
+          <>
             <div className="form-group">
-              <label>Question {index + 1}</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => {
-                  const updatedQuestions = [...feedbackQuestions];
-                  updatedQuestions[index].question = e.target.value;
-                  setFeedbackQuestions(updatedQuestions);
-                }}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Input Type</label>
+              <label htmlFor="feedbackEvent">Select Event</label>
               <select
-                value={question.inputType}
-                onChange={(e) => {
-                  const updatedQuestions = [...feedbackQuestions];
-                  updatedQuestions[index].inputType = e.target.value;
-                  setFeedbackQuestions(updatedQuestions);
-                }}
+                id="feedbackEvent"
+                value={feedbackEvent}
+                onChange={(e) => setFeedbackEvent(e.target.value)}
                 required
               >
-                <option value="short">Short Text</option>
-                <option value="multiple">Multiple Choice</option>
-                <option value="rating">Rating</option>
+                <option value="">Select an event</option>
+                {/* Add options for events */}
               </select>
             </div>
-          </div>
-        ))}
-        <button
-          className="content-button "
-          type="button"
-          onClick={() =>
-            setFeedbackQuestions([
-              ...feedbackQuestions,
-              { question: "", inputType: "short" },
-            ])
-          }
-        >
-          Add Question
-        </button>
+            {feedbackQuestions.map((question, index) => (
+              <div key={index}>
+                <div className="form-group">
+                  <label>Question {index + 1}</label>
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => {
+                      const updatedQuestions = [...feedbackQuestions];
+                      updatedQuestions[index].question = e.target.value;
+                      setFeedbackQuestions(updatedQuestions);
+                    }}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Input Type</label>
+                  <select
+                    value={question.inputType}
+                    onChange={(e) => {
+                      const updatedQuestions = [...feedbackQuestions];
+                      updatedQuestions[index].inputType = e.target.value;
+                      setFeedbackQuestions(updatedQuestions);
+                    }}
+                    required
+                  >
+                    <option value="short">Short Text</option>
+                    <option value="multiple">Multiple Choice</option>
+                    <option value="rating">Rating</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+            <button
+              className="content-button"
+              type="button"
+              onClick={() =>
+                setFeedbackQuestions([
+                  ...feedbackQuestions,
+                  { question: '', inputType: 'short' },
+                ])
+              }
+            >
+              Add Question
+            </button>
+          </>
+        )}
         <div className="button-container">
-          <button className="content-button " onClick={handlePrevious}>
+          <button className="content-button" onClick={handlePrevious}>
             Previous
           </button>
-          <button className="content-button " onClick={handleNext}>
+          <button className="content-button" onClick={handleNext}>
             Save and Continue
           </button>
         </div>
       </div>
     </>
   );
-
   const renderPageSix = () => (
     <>
       <div className="page-container">
@@ -731,7 +762,7 @@ const CreateEventPage = () => {
   return (
     <div className="container">
       <div className="main-content">
-        <h1 style={{ color: "black" }}>Create New Event</h1>
+        <h1 style={{ color: 'black' }}>Create New Event</h1>
 
         {/* <button
           className="back-to-home-btn content-button"

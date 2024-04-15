@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const SubEventSchema = new mongoose.Schema(
   {
@@ -15,5 +15,5 @@ const SubEventSchema = new mongoose.Schema(
     strict: false, // Allow additional fields not defined in the schema
   }
 );
-const SubEvent = mongoose.model("SubEvent", SubEventSchema);
+const SubEvent = mongoose.model('SubEvent', SubEventSchema);
 module.exports = SubEvent;

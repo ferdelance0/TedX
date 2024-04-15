@@ -2,10 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
+const PollResponse = require("./models/pollResponse.model");
+const ParticipantModelCache = require("./models/participantModelCache.model");
+
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
-const {generateCertificatePDF,generateIDPDF} = require("./certificate-gen/generatecertificate");
-
+const {
+  generateCertificatePDF,
+  generateIDPDF,
+} = require("./certificate-gen/generatecertificate");
 
 // Create Express app
 const app = express();
@@ -68,6 +73,61 @@ app.get("/events/:eventId/participants", async (req, res) => {
   }
 });
 
+// Endpoint to fetch poll questions for a specific event
+app.get("/events/:eventId/pollquestions", async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    const pollQuestions = event.eventpollquestions;
+
+    res.status(200).json({ pollQuestions });
+  } catch (error) {
+    console.error("Error fetching poll questions:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Endpoint to fetch feedback questions for a specific event
+app.get("/events/:eventId/feedbackquestions", async (req, res) => {
+  try {
+    console.log("tryna fetch feedback ques1");
+    const eventId = req.params.eventId;
+    const event = await Event.findById(eventId);
+    console.log("tryna fetch feedback ques2");
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    console.log("tryna fetch feedback ques3");
+    const feedbackQuestions = event.eventfeedbackquestions;
+    console.log("tryna fetch feedback ques4");
+    console.log(feedbackQuestions);
+    res.status(200).json({ feedbackQuestions });
+  } catch (error) {
+    console.error("Error fetching feedback questions:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//endpoint to retrieve poll responses for an event
+app.get("/events/:eventId/pollresponses", async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    const pollResponses = await PollResponse.find({ eventId });
+
+    res.status(200).json({ pollResponses });
+  } catch (error) {
+    console.error("Error retrieving poll responses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.post("/createevents", async (req, res) => {
   try {
     const event = await Event.create(req.body);
@@ -86,7 +146,18 @@ app.post("/createsubevents", async (req, res) => {
   }
 });
 
-app.post("/createParticipantModel", (req, res) => {
+async function loadParticipantModelsFromCache() {
+  const cachedModels = await ParticipantModelCache.find();
+  cachedModels.forEach((model) => {
+    const participantSchema = generateParticipantSchema(model.fields);
+    const ParticipantModel = mongoose.model(model.modelName, participantSchema);
+    participantModels[model.modelName] = ParticipantModel;
+  });
+}
+
+// server.js
+// server.js
+app.post("/createParticipantModel", async (req, res) => {
   const { eventId, registrationFields } = req.body;
 
   try {
@@ -95,15 +166,19 @@ app.post("/createParticipantModel", (req, res) => {
 
     if (!ParticipantModel) {
       // Create and compile the participant model if it doesn't exist
-      const participantSchema = generateParticipantSchema(
-        registrationFields,
-        eventId
-      );
+      const participantSchema = generateParticipantSchema(registrationFields);
       ParticipantModel = mongoose.model(
         `Participant_${eventId}`,
         participantSchema
       );
-      participantModels[`Participant_${eventId}`] = ParticipantModel; // Store the compiled model in the cache
+      participantModels[`Participant_${eventId}`] = ParticipantModel;
+
+      // Save the participant fields to the cache collection
+      const cacheModel = new ParticipantModelCache({
+        modelName: `Participant_${eventId}`,
+        fields: registrationFields,
+      });
+      await cacheModel.save();
     }
 
     res.status(200).json({ message: "Participant model created successfully" });
@@ -141,18 +216,39 @@ app.post("/registerParticipant", async (req, res) => {
   }
 });
 
+app.post("/events/:eventId/pollresponses", async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { participantId, responses } = req.body;
+
+    const pollResponse = new PollResponse({
+      eventId,
+      participantId,
+      responses,
+    });
+
+    await pollResponse.save();
+
+    res.status(200).json({ message: "Poll responses submitted successfully" });
+  } catch (error) {
+    console.error("Error submitting poll responses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.post("/generatecertificate", async (req, res) => {
   try {
-     const url = await generateCertificatePDF("Don C Delish");
+    const url = await generateCertificatePDF("Don C Delish");
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Failed to generate PDFs" });
   }
 });
+
 app.post("/generateID", async (req, res) => {
   try {
-     const url = await generateIDPDF("Don C Delish");
+    const url = await generateIDPDF("Don C Delish");
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
@@ -163,9 +259,13 @@ app.post("/generateID", async (req, res) => {
 // Connect to MongoDB Atlas
 mongoose
   .connect(mongoURI)
-  .then(() => {
+  .then(async () => {
+    console.log("MongoDB connected");
+
+    // Load participant models from the cache collection
+    await loadParticipantModelsFromCache();
+
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    console.log("MongoDB connected");
   })
   .catch((err) => console.error(err));
