@@ -91,7 +91,9 @@ const AdminDashboardPage = () => {
         </button>
         <button className="create-event-btn">View Upcoming Events</button>
         <button className="create-event-btn">View Completed Events</button>
-        <button className="create-event-btn">Log Out</button>
+        <button className="create-event-btn" onClick={() => navigate("/login")}>
+          Log Out
+        </button>
       </div>
       <div className="main-content">
         <h1>Admin Dashboard</h1>

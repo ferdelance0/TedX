@@ -160,6 +160,8 @@ const CreateEventPage = () => {
   const [eventScheduledDate, setEventScheduledDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
+  const [isPollVisible, setIsPollVisible] = useState(false);
+  const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
   const [eventVenues, setEventVenues] = useState([
     {
       name: "",
@@ -200,6 +202,8 @@ const CreateEventPage = () => {
       eventhassubevents: multipleVenues,
       eventscheduleddate: eventScheduledDate,
       eventregistrationfields: registrationFields,
+      eventpollquestions: isPollVisible ? pollQuestions : [],
+      eventfeedbackquestions: isFeedbackVisible ? feedbackQuestions : [],
     };
     //the posting details
     // Add eventmode only if multipleVenues is false
@@ -554,146 +558,173 @@ const CreateEventPage = () => {
     <>
       <div className="page-container">
         <h2 className="page-title">Poll</h2>
-        {pollQuestions.map((question, index) => (
-          <div key={index}>
-            <div className="form-group">
-              <label>Question {index + 1}</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => {
-                  const updatedQuestions = [...pollQuestions];
-                  updatedQuestions[index].question = e.target.value;
-                  setPollQuestions(updatedQuestions);
-                }}
-                required
-              />
-            </div>
-            {question.options.map((option, optionIndex) => (
-              <div key={optionIndex} className="form-group">
-                <label>Option {optionIndex + 1}</label>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => {
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={isPollVisible}
+              onChange={(e) => setIsPollVisible(e.target.checked)}
+            />
+            Enable Poll
+          </label>
+        </div>
+        {isPollVisible && (
+          <>
+            {pollQuestions.map((question, index) => (
+              <div key={index}>
+                <div className="form-group">
+                  <label>Question {index + 1}</label>
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => {
+                      const updatedQuestions = [...pollQuestions];
+                      updatedQuestions[index].question = e.target.value;
+                      setPollQuestions(updatedQuestions);
+                    }}
+                    required
+                  />
+                </div>
+                {question.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="form-group">
+                    <label>Option {optionIndex + 1}</label>
+                    <input
+                      type="text"
+                      value={option}
+                      onChange={(e) => {
+                        const updatedQuestions = [...pollQuestions];
+                        updatedQuestions[index].options[optionIndex] =
+                          e.target.value;
+                        setPollQuestions(updatedQuestions);
+                      }}
+                      required
+                    />
+                  </div>
+                ))}
+                <button
+                  className="content-button"
+                  type="button"
+                  onClick={() => {
                     const updatedQuestions = [...pollQuestions];
-                    updatedQuestions[index].options[optionIndex] =
-                      e.target.value;
+                    updatedQuestions[index].options.push("");
                     setPollQuestions(updatedQuestions);
                   }}
-                  required
-                />
+                >
+                  Add Option
+                </button>
               </div>
             ))}
             <button
-              className="content-button "
+              className="content-button"
               type="button"
-              onClick={() => {
-                const updatedQuestions = [...pollQuestions];
-                updatedQuestions[index].options.push("");
-                setPollQuestions(updatedQuestions);
-              }}
+              onClick={() =>
+                setPollQuestions([
+                  ...pollQuestions,
+                  { question: "", options: [""] },
+                ])
+              }
             >
-              Add Option
+              Add Question
             </button>
-          </div>
-        ))}
-        <button
-          className="content-button "
-          type="button"
-          onClick={() =>
-            setPollQuestions([
-              ...pollQuestions,
-              { question: "", options: [""] },
-            ])
-          }
-        >
-          Add Question
-        </button>
+          </>
+        )}
         <div className="button-container">
-          <button className="content-button " onClick={handlePrevious}>
+          <button className="content-button" onClick={handlePrevious}>
             Previous
           </button>
-          <button className="content-button " onClick={handleNext}>
+          <button className="content-button" onClick={handleNext}>
             Save and Continue
           </button>
         </div>
       </div>
     </>
   );
-
   const renderPageFive = () => (
     <>
       <div className="page-container">
         <h2 className="page-title">Feedback Form</h2>
         <div className="form-group">
-          <label htmlFor="feedbackEvent">Select Event</label>
-          <select
-            id="feedbackEvent"
-            value={feedbackEvent}
-            onChange={(e) => setFeedbackEvent(e.target.value)}
-            required
-          >
-            {/* ... */}
-          </select>
+          <label>
+            <input
+              type="checkbox"
+              checked={isFeedbackVisible}
+              onChange={(e) => setIsFeedbackVisible(e.target.checked)}
+            />
+            Enable Feedback Form
+          </label>
         </div>
-        {feedbackQuestions.map((question, index) => (
-          <div key={index}>
+        {isFeedbackVisible && (
+          <>
             <div className="form-group">
-              <label>Question {index + 1}</label>
-              <input
-                type="text"
-                value={question.question}
-                onChange={(e) => {
-                  const updatedQuestions = [...feedbackQuestions];
-                  updatedQuestions[index].question = e.target.value;
-                  setFeedbackQuestions(updatedQuestions);
-                }}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Input Type</label>
+              <label htmlFor="feedbackEvent">Select Event</label>
               <select
-                value={question.inputType}
-                onChange={(e) => {
-                  const updatedQuestions = [...feedbackQuestions];
-                  updatedQuestions[index].inputType = e.target.value;
-                  setFeedbackQuestions(updatedQuestions);
-                }}
+                id="feedbackEvent"
+                value={feedbackEvent}
+                onChange={(e) => setFeedbackEvent(e.target.value)}
                 required
               >
-                <option value="short">Short Text</option>
-                <option value="multiple">Multiple Choice</option>
-                <option value="rating">Rating</option>
+                <option value="">Select an event</option>
+                {/* Add options for events */}
               </select>
             </div>
-          </div>
-        ))}
-        <button
-          className="content-button "
-          type="button"
-          onClick={() =>
-            setFeedbackQuestions([
-              ...feedbackQuestions,
-              { question: "", inputType: "short" },
-            ])
-          }
-        >
-          Add Question
-        </button>
+            {feedbackQuestions.map((question, index) => (
+              <div key={index}>
+                <div className="form-group">
+                  <label>Question {index + 1}</label>
+                  <input
+                    type="text"
+                    value={question.question}
+                    onChange={(e) => {
+                      const updatedQuestions = [...feedbackQuestions];
+                      updatedQuestions[index].question = e.target.value;
+                      setFeedbackQuestions(updatedQuestions);
+                    }}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Input Type</label>
+                  <select
+                    value={question.inputType}
+                    onChange={(e) => {
+                      const updatedQuestions = [...feedbackQuestions];
+                      updatedQuestions[index].inputType = e.target.value;
+                      setFeedbackQuestions(updatedQuestions);
+                    }}
+                    required
+                  >
+                    <option value="short">Short Text</option>
+                    <option value="multiple">Multiple Choice</option>
+                    <option value="rating">Rating</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+            <button
+              className="content-button"
+              type="button"
+              onClick={() =>
+                setFeedbackQuestions([
+                  ...feedbackQuestions,
+                  { question: "", inputType: "short" },
+                ])
+              }
+            >
+              Add Question
+            </button>
+          </>
+        )}
         <div className="button-container">
-          <button className="content-button " onClick={handlePrevious}>
+          <button className="content-button" onClick={handlePrevious}>
             Previous
           </button>
-          <button className="content-button " onClick={handleNext}>
+          <button className="content-button" onClick={handleNext}>
             Save and Continue
           </button>
         </div>
       </div>
     </>
   );
-
   const renderPageSix = () => (
     <>
       <div className="page-container">

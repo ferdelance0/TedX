@@ -2,11 +2,10 @@
 
 const mongoose = require("mongoose");
 
-const generateParticipantSchema = (fields, eventId) => {
+const generateParticipantSchema = (fields) => {
   const schemaFields = {
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Event",
       required: true,
     },
   };

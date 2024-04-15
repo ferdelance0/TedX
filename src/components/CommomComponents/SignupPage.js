@@ -1,44 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../../styles/loginpageStyles.css';
+import '../../styles/signupPageStyles.css'; // Assuming you have a separate CSS file for signup page styles
 
-function LoginPage() {
+function SignUpPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Add validation for matching passwords
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post("http://localhost:3000/signup", {
         email: username,
         password: password
       });
+      console.log(response)
 
-      if (response.status === 200) {
-        navigate("/admin/dashboard");
+      if (response.status === 201) {
+        navigate("/login"); // Redirect to login page after successful signup
       } else {
-        // Login failed, handle error
         setError(response.data.error);
       }
     } catch (error) {
-      setError("An error occurred during login.");
-      console.error("Error during login:", error);
+      setError("An error occurred during signup.");
+      console.error("Error during signup:", error);
     }
   };
 
-  const handleRegisterRedirect = () => {
-    navigate("/signup");
-  };
-
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2 className="login-header">Login</h2>
+    <div className="signup-container">
+      <div className="signup-card">
+        <h2 className="signup-header">Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <input
@@ -58,24 +60,24 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <label className="checkbox-label">
+          <div className="input-group">
             <input
-              type="checkbox"
-              className="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+              type="password"
+              className="input"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            Remember me
-          </label>
-          <button type="submit" className="login-button">
-            Login
+          </div>
+          <button type="submit" className="signup-button">
+            Sign Up
           </button>
           {error && <p className="error-message">{error}</p>}
-          <p className="register-link" onClick={handleRegisterRedirect}>Don't have an account? Register</p>
+          <p className="login-link">Already have an account? <a href="/login">Login</a></p>
         </form>
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default SignUpPage;
