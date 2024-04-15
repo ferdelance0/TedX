@@ -1,10 +1,9 @@
 // EventDetailsPage.js
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams, Link } from "react-router-dom";
-import "../../styles/adminStyles.css";
-import "../../styles/createEventPageStyles.css";
-import "../../styles/eventDetailsPageStyles.css";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, Link } from 'react-router-dom';
+import '../../styles/adminStyles.css';
+import '../../styles/createEventPageStyles.css';
 
 const EventDetailsPage = () => {
   const { eventId } = useParams();
@@ -27,7 +26,7 @@ const EventDetailsPage = () => {
         );
         setParticipants(participantsResponse.data);
       } catch (error) {
-        console.error("Error fetching event and participants:", error);
+        console.error('Error fetching event and participants:', error);
       }
     };
 
@@ -73,7 +72,7 @@ const EventDetailsPage = () => {
       </div>
       <div className="event-description">{event.eventdescription}</div>
       <div>
-        <Link to={`/admin/poll-question-form/${eventId}`}>
+        <Link to={`/poll-question-form/${eventId}`}>
           <button className="content-button">Go to Poll Form</button>
         </Link>
         <Link to={`/admin/events/${eventId}/pollresponses`}>
@@ -123,10 +122,10 @@ const EventDetailsPage = () => {
                       onClick={() => {
                         const { _id, Name } = participant; // Extract the required properties
 
-                        fetch("http://localhost:3000/generatecertificate", {
-                          method: "POST",
+                        fetch('http://localhost:3000/generatecertificate', {
+                          method: 'POST',
                           headers: {
-                            "Content-Type": "application/json",
+                            'Content-Type': 'application/json',
                           },
                           body: JSON.stringify({
                             participantId: _id,
@@ -136,13 +135,13 @@ const EventDetailsPage = () => {
                         })
                           .then((response) => response.json())
                           .then((data) => {
-                            console.log("Success:", data);
+                            console.log('Success:', data);
 
                             // Create a new 'a' element
-                            let a = document.createElement("a");
+                            let a = document.createElement('a');
                             a.href = data.url; // Set the href to the URL from the response
-                            a.download = "certificate.pdf"; // Set the download attribute to the desired file name
-                            a.style.display = "none"; // Hide the element
+                            a.download = 'certificate.pdf'; // Set the download attribute to the desired file name
+                            a.style.display = 'none'; // Hide the element
 
                             document.body.appendChild(a); // Append the 'a' element to the body
                             a.click(); // Programmatically click the 'a' element to start the download
@@ -150,7 +149,7 @@ const EventDetailsPage = () => {
                             document.body.removeChild(a); // Remove the 'a' element from the body
                           })
                           .catch((error) => {
-                            console.error("Error:", error);
+                            console.error('Error:', error);
                           });
                       }}
                     >
@@ -169,7 +168,7 @@ const EventDetailsPage = () => {
           <button
             className="preview-btn"
             onClick={() =>
-              console.log("Mark attendance for:", selectedParticipants)
+              console.log('Mark attendance for:', selectedParticipants)
             }
           >
             Mark Attendance
