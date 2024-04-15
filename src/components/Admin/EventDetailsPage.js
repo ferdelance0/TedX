@@ -74,10 +74,10 @@ const EventDetailsPage = () => {
       <div className="event-description">{event.eventdescription}</div>
       <div>
         <Link to={`/admin/poll-question-form/${eventId}`}>
-          <button>Go to Poll Form</button>
+          <button className="content-button">Go to Poll Form</button>
         </Link>
         <Link to={`/admin/events/${eventId}/pollresponses`}>
-          <button>View Poll Responses</button>
+          <button className="content-button">View Poll Responses</button>
         </Link>
         {/* Add more action buttons */}
       </div>
