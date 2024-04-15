@@ -238,7 +238,10 @@ app.post("/events/:eventId/pollresponses", async (req, res) => {
 
 app.post("/generatecertificate", async (req, res) => {
   try {
-    const url = await generateCertificatePDF("Don C Delish");
+    console.log("hiii");
+    console.log(req.body);
+    const { Name } = req.body; // Extract name from request body
+    const url = await generateCertificatePDF(Name); // Use the name to generate the certificate
     res.status(200).json({ message: "PDFs generated successfully", url });
   } catch (error) {
     console.log(error);
