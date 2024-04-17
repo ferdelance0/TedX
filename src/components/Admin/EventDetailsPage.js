@@ -62,6 +62,27 @@ const EventDetailsPage = () => {
     return <div>Loading...</div>;
   }
 
+  const handleSendBulkEmail = async () => {
+    try {
+      const subject = prompt("Enter the email subject:");
+      const message = prompt("Enter the email message:");
+
+      if (subject && message) {
+        await axios.post(
+          `http://localhost:3000/events/${eventId}/send-bulk-email`,
+          {
+            subject,
+            message,
+          }
+        );
+        alert("Bulk email sent successfully");
+      }
+    } catch (error) {
+      console.error("Error sending bulk email:", error);
+      alert("Failed to send bulk email");
+    }
+  };
+
   return (
     <div className="event-details-container">
       <div className="event-details-header">
@@ -79,7 +100,9 @@ const EventDetailsPage = () => {
         <Link to={`/admin/events/${eventId}/pollresponses`}>
           <button className="content-button">View Poll Responses</button>
         </Link>
-        {/* Add more action buttons */}
+        <button className="send-bulk-email-btn" onClick={handleSendBulkEmail}>
+          Send Bulk Email
+        </button>
       </div>
       <div className="participants-list">
         <h3>Participants</h3>

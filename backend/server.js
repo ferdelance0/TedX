@@ -7,6 +7,7 @@ const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const PollResponse = require("./models/pollResponse.model");
 const ParticipantModelCache = require("./models/participantModelCache.model");
+const nodemailer = require("nodemailer");
 
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
@@ -73,6 +74,47 @@ app.get("/events/:eventId/participants", async (req, res) => {
   } catch (error) {
     console.error("Error fetching participants:", error);
     res.status(500).json({ error: "Error fetching participants" });
+  }
+});
+
+app.post("/events/:eventId/send-bulk-email", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { subject, message } = req.body;
+
+    // Create a nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      // Configure your email service provider settings
+      // For example, using Gmail SMTP:
+      service: "gmail",
+      auth: {
+        user: "akhilhakkim@gmail.com",
+        pass: "ewbiysoxlesjayku",
+      },
+    });
+
+    // Fetch the participants for the event
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    const participants = await ParticipantModel.find();
+
+    // Send email to each participant
+    for (const participant of participants) {
+      const { Name, Email } = participant;
+
+      const mailOptions = {
+        from: "your-email@gmail.com",
+        to: Email,
+        subject,
+        html: `<p>Dear ${Name},</p><p>${message}</p>`,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    res.status(200).json({ message: "Bulk email sent successfully" });
+  } catch (error) {
+    console.error("Error sending bulk email:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
