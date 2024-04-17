@@ -7,8 +7,7 @@ import ProgressBar from "./ProgressBar";
 import axios from "axios";
 
 const RegistrationFields = ({ fields, onFieldsChange, onPrevious, onNext }) => {
-  const [registrationFields, 
-  ] = useState(fields);
+  const [registrationFields, setRegistrationFields] = useState(fields);
   const [customField, setCustomField] = useState("");
   const [customFieldType, setCustomFieldType] = useState("text");
   useEffect(() => {
