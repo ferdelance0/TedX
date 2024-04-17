@@ -11,8 +11,7 @@ function SignUpPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
+    e.preventDefault();    
     // Add validation for matching passwords
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -43,31 +42,13 @@ function SignUpPage() {
         <h2 className="signup-header">Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <input
-              type="text"
-              className="input"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <input type="text" className="input" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
           </div>
           <div className="input-group">
-            <input
-              type="password"
-              className="input"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input type="password" className="input" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
           </div>
           <div className="input-group">
-            <input
-              type="password"
-              className="input"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <input type="password" className="input" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
           <button type="submit" className="signup-button">
             Sign Up
