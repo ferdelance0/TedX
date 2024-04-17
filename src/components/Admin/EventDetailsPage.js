@@ -11,6 +11,9 @@ const EventDetailsPage = () => {
   const [event, setEvent] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [showBulkEmailModal, setShowBulkEmailModal] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailContent, setEmailContent] = useState("");
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -40,6 +43,28 @@ const EventDetailsPage = () => {
     );
   };
 
+  const handleMarkAttendance = async () => {
+    try {
+      await axios.post(
+        `http://localhost:3000/events/${eventId}/mark-attendance`,
+        {
+          participantIds: selectedParticipants,
+        }
+      );
+      // Update the local state to reflect the updated attendance status
+      const updatedParticipants = participants.map((participant) => {
+        if (selectedParticipants.includes(participant._id)) {
+          return { ...participant, status: "Attended" };
+        }
+        return participant;
+      });
+      setParticipants(updatedParticipants);
+      setSelectedParticipants([]);
+    } catch (error) {
+      console.error("Error marking attendance:", error);
+    }
+  };
+
   const handleParticipantSelect = (participantId) => {
     const selectedIndex = selectedParticipants.indexOf(participantId);
     let newSelected = [];
@@ -57,23 +82,25 @@ const EventDetailsPage = () => {
     }
     setSelectedParticipants(newSelected);
   };
+
   const handleMassGenerateCertificates = async () => {
     try {
       // Make a GET request with event ID in the request body
-      console.log(eventId)
-      await axios.get(`http://localhost:3000/masscertgen?eventId=${eventId}`)
-      .then((response) => {
-        console.log(response.data.certificate)
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'certificates.csv');
-        document.body.appendChild(link);
-        link.click();
-      })
-      .catch((error) => {
-        console.error('Error downloading CSV file:', error);
-      });
+      console.log(eventId);
+      await axios
+        .get(`http://localhost:3000/masscertgen?eventId=${eventId}`)
+        .then((response) => {
+          console.log(response.data.certificate);
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "certificates.csv");
+          document.body.appendChild(link);
+          link.click();
+        })
+        .catch((error) => {
+          console.error("Error downloading CSV file:", error);
+        });
       // Handle success
       console.log("Mass certificate generation request successfully!");
     } catch (error) {
@@ -81,41 +108,41 @@ const EventDetailsPage = () => {
       console.error("Error generating mass certificates:", error);
     }
   };
-  
 
-  if (!event) {
-    return <div>Loading...</div>;
-  }
+  const handleSendBulkEmail = () => {
+    console.log("Send Bulk Email button clicked");
+    setShowBulkEmailModal(true);
+  };
 
-  const handleSendBulkEmail = async () => {
+  const handleCloseBulkEmailModal = () => {
+    setShowBulkEmailModal(false);
+  };
+
+  const handleSendEmail = async () => {
     try {
-      const subject = prompt("Enter the email subject:");
-      const message = prompt("Enter the email message:");
-
-      if (subject && message) {
-        await axios.post(
-          `http://localhost:3000/events/${eventId}/send-bulk-email`,
-          {
-            subject,
-            message,
-          }
-        );
-        alert("Bulk email sent successfully");
-      }
+      await axios.post(
+        `http://localhost:3000/events/${eventId}/send-bulk-email`,
+        {
+          subject: emailSubject,
+          content: emailContent,
+        }
+      );
+      alert("Bulk email sent successfully");
+      handleCloseBulkEmailModal();
     } catch (error) {
       console.error("Error sending bulk email:", error);
       alert("Failed to send bulk email");
     }
   };
 
+  if (!event) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="event-details-container">
       <div className="event-details-header">
         <h2 className="event-title">{event.eventname}</h2>
-        {/* <div className="event-status-toggle">
-          <span className="status upcoming">Upcoming</span>
-          <span className="status completed">Completed</span>
-        </div> */}
       </div>
       <div className="event-description">{event.eventdescription}</div>
       <div>
@@ -147,8 +174,9 @@ const EventDetailsPage = () => {
                 {event.eventregistrationfields.map((field, index) => (
                   <th key={index}>{field.label}</th>
                 ))}
-                <th>Download Certificate</th>
-                <th>Download ID Card</th>
+                <th>Certificate</th>
+                <th>ID Card</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -170,7 +198,7 @@ const EventDetailsPage = () => {
                     <button
                       className="download-btn"
                       onClick={() => {
-                        const { _id, Name } = participant; // Extract the required properties
+                        const { _id, Name } = participant;
 
                         fetch("http://localhost:3000/generatecertificate", {
                           method: "POST",
@@ -187,16 +215,15 @@ const EventDetailsPage = () => {
                           .then((data) => {
                             console.log("Success:", data);
 
-                            // Create a new 'a' element
                             let a = document.createElement("a");
-                            a.href = data.url; // Set the href to the URL from the response
-                            a.download = "certificate.pdf"; // Set the download attribute to the desired file name
-                            a.style.display = "none"; // Hide the element
+                            a.href = data.url;
+                            a.download = "certificate.pdf";
+                            a.style.display = "none";
 
-                            document.body.appendChild(a); // Append the 'a' element to the body
-                            a.click(); // Programmatically click the 'a' element to start the download
+                            document.body.appendChild(a);
+                            a.click();
 
-                            document.body.removeChild(a); // Remove the 'a' element from the body
+                            document.body.removeChild(a);
                           })
                           .catch((error) => {
                             console.error("Error:", error);
@@ -210,7 +237,7 @@ const EventDetailsPage = () => {
                     <button
                       className="download-btn"
                       onClick={() => {
-                        const { _id, Name } = participant; // Extract the required properties
+                        const { _id, Name } = participant;
 
                         fetch("http://localhost:3000/generateID", {
                           method: "POST",
@@ -227,16 +254,15 @@ const EventDetailsPage = () => {
                           .then((data) => {
                             console.log("Success:", data);
 
-                            // Create a new 'a' element
                             let a = document.createElement("a");
-                            a.href = data.url; // Set the href to the URL from the response
-                            a.download = "idcard.pdf"; // Set the download attribute to the desired file name
-                            a.style.display = "none"; // Hide the element
+                            a.href = data.url;
+                            a.download = "idcard.pdf";
+                            a.style.display = "none";
 
-                            document.body.appendChild(a); // Append the 'a' element to the body
-                            a.click(); // Programmatically click the 'a' element to start the download
+                            document.body.appendChild(a);
+                            a.click();
 
-                            document.body.removeChild(a); // Remove the 'a' element from the body
+                            document.body.removeChild(a);
                           })
                           .catch((error) => {
                             console.error("Error:", error);
@@ -245,6 +271,17 @@ const EventDetailsPage = () => {
                     >
                       Download ID Card
                     </button>
+                  </td>
+                  <td>
+                    <span
+                      className={`status-pill ${
+                        participant.status === "Attended"
+                          ? "attended"
+                          : "registered"
+                      }`}
+                    >
+                      {participant.status}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -255,12 +292,7 @@ const EventDetailsPage = () => {
       <div className="controls-section">
         <div className="control-item">
           <h4>Mark Attendance</h4>
-          <button
-            className="preview-btn"
-            onClick={() =>
-              console.log("Mark attendance for:", selectedParticipants)
-            }
-          >
+          <button className="preview-btn" onClick={handleMarkAttendance}>
             Mark Attendance
           </button>
         </div>
@@ -273,8 +305,36 @@ const EventDetailsPage = () => {
             Mass Generate Certificates
           </button>
         </div>
-        {/* Add more control items */}
       </div>
+      {showBulkEmailModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Send Bulk Email</h3>
+            <input
+              type="text"
+              placeholder="Subject"
+              value={emailSubject}
+              onChange={(e) => setEmailSubject(e.target.value)}
+            />
+            <textarea
+              placeholder="Email Content"
+              value={emailContent}
+              onChange={(e) => setEmailContent(e.target.value)}
+            ></textarea>
+            <p>
+              Use the following markers for templating:
+              <br />
+              {`{{Name}}`}: Participant's name
+              <br />
+              {`{{Email}}`}: Participant's email
+            </p>
+            <div className="modal-buttons">
+              <button onClick={handleSendEmail}>Send</button>
+              <button onClick={handleCloseBulkEmailModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

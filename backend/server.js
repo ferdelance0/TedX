@@ -88,7 +88,7 @@ app.get("/events/:eventId/participants", async (req, res) => {
 app.post("/events/:eventId/send-bulk-email", async (req, res) => {
   try {
     const { eventId } = req.params;
-    const { subject, message } = req.body;
+    const { subject, content } = req.body;
 
     // Create a nodemailer transporter
     const transporter = nodemailer.createTransport({
@@ -109,11 +109,16 @@ app.post("/events/:eventId/send-bulk-email", async (req, res) => {
     for (const participant of participants) {
       const { Name, Email } = participant;
 
+      // Replace the template markers with actual values
+      const emailContent = content
+        .replace(/{{Name}}/g, Name)
+        .replace(/{{Email}}/g, Email);
+
       const mailOptions = {
         from: "your-email@gmail.com",
         to: Email,
         subject,
-        html: `<p>Dear ${Name},</p><p>${message}</p>`,
+        html: emailContent,
       };
 
       await transporter.sendMail(mailOptions);
@@ -291,6 +296,24 @@ app.post("/events/:eventId/pollresponses", async (req, res) => {
     res.status(200).json({ message: "Poll responses submitted successfully" });
   } catch (error) {
     console.error("Error submitting poll responses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/events/:eventId/mark-attendance", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { participantIds } = req.body;
+
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    await ParticipantModel.updateMany(
+      { _id: { $in: participantIds } },
+      { $set: { status: "Attended" } }
+    );
+
+    res.status(200).json({ message: "Attendance marked successfully" });
+  } catch (error) {
+    console.error("Error marking attendance:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
