@@ -1,10 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { Bar, Line, Pie } from "react-chartjs-2";
+import {
+  Chart,
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+Chart.register(
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
 
 const PollResponsesPage = () => {
   const { eventId } = useParams();
@@ -22,7 +41,7 @@ const PollResponsesPage = () => {
         );
         setPollQuestions(response.data.pollQuestions);
       } catch (error) {
-        console.error('Error fetching poll questions:', error);
+        console.error("Error fetching poll questions:", error);
       }
     };
 
@@ -41,8 +60,8 @@ const PollResponsesPage = () => {
         );
         setPollResponses(response.data.pollResponses);
       } catch (error) {
-        setError('Error fetching poll responses');
-        console.error('Error fetching poll responses:', error);
+        setError("Error fetching poll responses");
+        console.error("Error fetching poll responses:", error);
       } finally {
         setIsLoading(false);
       }
@@ -72,11 +91,11 @@ const PollResponsesPage = () => {
         {
           data: counts,
           backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
+            "#FF6384",
+            "#36A2EB",
+            "#FFCE56",
+            "#4BC0C0",
+            "#9966FF",
           ],
         },
       ],

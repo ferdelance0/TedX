@@ -7,9 +7,10 @@ const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
 const PollResponse = require("./models/pollResponse.model");
 const ParticipantModelCache = require("./models/participantModelCache.model");
-const { parse } = require('json2csv');
-const path = require('path');
-const fs = require('fs')
+const nodemailer = require("nodemailer");
+const { parse } = require("json2csv");
+const path = require("path");
+const fs = require("fs");
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
 const {
@@ -81,6 +82,52 @@ app.get("/events/:eventId/participants", async (req, res) => {
   } catch (error) {
     console.error("Error fetching participants:", error);
     res.status(500).json({ error: "Error fetching participants" });
+  }
+});
+
+app.post("/events/:eventId/send-bulk-email", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { subject, content } = req.body;
+
+    // Create a nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      // Configure your email service provider settings
+      // For example, using Gmail SMTP:
+      service: "gmail",
+      auth: {
+        user: "akhilhakkim@gmail.com",
+        pass: "ewbiysoxlesjayku",
+      },
+    });
+
+    // Fetch the participants for the event
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    const participants = await ParticipantModel.find();
+
+    // Send email to each participant
+    for (const participant of participants) {
+      const { Name, Email } = participant;
+
+      // Replace the template markers with actual values
+      const emailContent = content
+        .replace(/{{Name}}/g, Name)
+        .replace(/{{Email}}/g, Email);
+
+      const mailOptions = {
+        from: "your-email@gmail.com",
+        to: Email,
+        subject,
+        html: emailContent,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    res.status(200).json({ message: "Bulk email sent successfully" });
+  } catch (error) {
+    console.error("Error sending bulk email:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -253,6 +300,24 @@ app.post("/events/:eventId/pollresponses", async (req, res) => {
   }
 });
 
+app.post("/events/:eventId/mark-attendance", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { participantIds } = req.body;
+
+    const ParticipantModel = participantModels[`Participant_${eventId}`];
+    await ParticipantModel.updateMany(
+      { _id: { $in: participantIds } },
+      { $set: { status: "Attended" } }
+    );
+
+    res.status(200).json({ message: "Attendance marked successfully" });
+  } catch (error) {
+    console.error("Error marking attendance:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.post("/generatecertificate", async (req, res) => {
   try {
     console.log("hiii");
@@ -334,42 +399,54 @@ app.get("/masscertgen", async (req, res) => {
     // Check the status of certificate generation for the specified event
     if (generationStatus.has(eventId)) {
       const status = generationStatus.get(eventId);
-      if (status === 'in-progress') {
+      if (status === "in-progress") {
         // Certificate generation is already in progress for this event
-        return res.status(409).json({ error: "Certificate generation is already in progress for this event" });
-      } else if (status === 'completed') {
+        return res.status(409).json({
+          error: "Certificate generation is already in progress for this event",
+        });
+      } else if (status === "completed") {
         // Certificate generation has already completed for this event
         // Retrieve the generated certificates or URLs from the database
 
         // Fetch participants from the database for the specified event ID
-        const participants = await participantModels[`Participant_${eventId}`].find();
+        const participants = await participantModels[
+          `Participant_${eventId}`
+        ].find();
 
         if (!participants || participants.length === 0) {
           // No participants found for the event
-          return res.status(404).json({ error: "No participants found for the event" });
+          return res
+            .status(404)
+            .json({ error: "No participants found for the event" });
         }
 
         // Prepare the response with generated certificate URLs
-        const certificateUrls = participants.map(participant => ({
+        const certificateUrls = participants.map((participant) => ({
           Participant_ID: participant._id,
           Name: participant.Name,
-          Certificate_URL: participant.certificateUrl
+          Certificate_URL: participant.certificateUrl,
         }));
 
-        return res.status(200).json({ message: "Certificates already generated", certificateUrls });
+        return res
+          .status(200)
+          .json({ message: "Certificates already generated", certificateUrls });
       }
     }
 
     // Start the generation process for the event
-    generationStatus.set(eventId, 'in-progress');
-    
+    generationStatus.set(eventId, "in-progress");
+
     // Fetch participants from the database for the specified event ID
-    const participants = await participantModels[`Participant_${eventId}`].find();
-    
+    const participants = await participantModels[
+      `Participant_${eventId}`
+    ].find();
+
     if (!participants || participants.length === 0) {
       // No participants found for the event
-      generationStatus.set(eventId, 'completed');
-      return res.status(404).json({ error: "No participants found for the event" });
+      generationStatus.set(eventId, "completed");
+      return res
+        .status(404)
+        .json({ error: "No participants found for the event" });
     }
 
     // Generate certificates for participants without existing certificate URLs
@@ -382,22 +459,23 @@ app.get("/masscertgen", async (req, res) => {
         participant.certificateUrl = url;
         // Save updated participant with certificate URL
         await participant.save(); // Use save method to update the participant in the database
-        console.log(url,Name,_id);
-
+        console.log(url, Name, _id);
       }
     }
 
     // Set status to 'completed' after generating certificates for all participants
-    generationStatus.set(eventId, 'completed');
-    console.log(certificateUrls)
+    generationStatus.set(eventId, "completed");
+    console.log(certificateUrls);
     // Return the generated certificate URLs
-    res.status(200).json({ message: "Certificates generated and stored successfully", certificateUrls });
+    res.status(200).json({
+      message: "Certificates generated and stored successfully",
+      certificateUrls,
+    });
   } catch (error) {
     console.error("Error generating and storing certificates:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 // Connect to MongoDB Atlas
 mongoose

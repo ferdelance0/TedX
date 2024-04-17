@@ -7,7 +7,11 @@ const generateParticipantSchema = (fields) => {
       required: true,
     },
     certificateUrl: {
-      type: String, // Assuming the certificate URL is a string
+      type: String,
+    },
+    status: {
+      type: String,
+      default: "Registered",
     },
   };
 
