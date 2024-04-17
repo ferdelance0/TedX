@@ -8,7 +8,9 @@ const SubEvent = require("./models/subevents.model");
 const PollResponse = require("./models/pollResponse.model");
 const ParticipantModelCache = require("./models/participantModelCache.model");
 const nodemailer = require("nodemailer");
-
+const { parse } = require("json2csv");
+const path = require("path");
+const fs = require("fs");
 const cors = require("cors");
 const generateParticipantSchema = require("./models/participantSchema");
 const {
@@ -41,6 +43,12 @@ app.get("/events", async (req, res) => {
 app.get("/events/:eventId", (req, res) => {
   const { eventId } = req.params;
   console.log("Event ID:", eventId);
+
+  // Check if eventId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ error: "Invalid event ID" });
+  }
+
   // Check if the event exists in the event table
   Event.findById(eventId)
     .then((event) => {
@@ -356,6 +364,92 @@ app.post("/signup", async (req, res) => {
     res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error("Error during signup:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+const generationStatus = new Map();
+app.get("/masscertgen", async (req, res) => {
+  const { eventId } = req.query;
+
+  try {
+    // Check the status of certificate generation for the specified event
+    if (generationStatus.has(eventId)) {
+      const status = generationStatus.get(eventId);
+      if (status === "in-progress") {
+        // Certificate generation is already in progress for this event
+        return res.status(409).json({
+          error: "Certificate generation is already in progress for this event",
+        });
+      } else if (status === "completed") {
+        // Certificate generation has already completed for this event
+        // Retrieve the generated certificates or URLs from the database
+
+        // Fetch participants from the database for the specified event ID
+        const participants = await participantModels[
+          `Participant_${eventId}`
+        ].find();
+
+        if (!participants || participants.length === 0) {
+          // No participants found for the event
+          return res
+            .status(404)
+            .json({ error: "No participants found for the event" });
+        }
+
+        // Prepare the response with generated certificate URLs
+        const certificateUrls = participants.map((participant) => ({
+          Participant_ID: participant._id,
+          Name: participant.Name,
+          Certificate_URL: participant.certificateUrl,
+        }));
+
+        return res
+          .status(200)
+          .json({ message: "Certificates already generated", certificateUrls });
+      }
+    }
+
+    // Start the generation process for the event
+    generationStatus.set(eventId, "in-progress");
+
+    // Fetch participants from the database for the specified event ID
+    const participants = await participantModels[
+      `Participant_${eventId}`
+    ].find();
+
+    if (!participants || participants.length === 0) {
+      // No participants found for the event
+      generationStatus.set(eventId, "completed");
+      return res
+        .status(404)
+        .json({ error: "No participants found for the event" });
+    }
+
+    // Generate certificates for participants without existing certificate URLs
+    const certificateUrls = [];
+
+    for (const participant of participants) {
+      if (!participant.certificateUrl) {
+        const { _id, Name } = participant;
+        const url = await generateCertificatePDF(Name); // Generate certificate for each participant
+        participant.certificateUrl = url;
+        // Save updated participant with certificate URL
+        await participant.save(); // Use save method to update the participant in the database
+        console.log(url, Name, _id);
+      }
+    }
+
+    // Set status to 'completed' after generating certificates for all participants
+    generationStatus.set(eventId, "completed");
+    console.log(certificateUrls);
+    // Return the generated certificate URLs
+    res.status(200).json({
+      message: "Certificates generated and stored successfully",
+      certificateUrls,
+    });
+  } catch (error) {
+    console.error("Error generating and storing certificates:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

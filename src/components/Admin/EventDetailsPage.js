@@ -57,6 +57,31 @@ const EventDetailsPage = () => {
     }
     setSelectedParticipants(newSelected);
   };
+  const handleMassGenerateCertificates = async () => {
+    try {
+      // Make a GET request with event ID in the request body
+      console.log(eventId)
+      await axios.get(`http://localhost:3000/masscertgen?eventId=${eventId}`)
+      .then((response) => {
+        console.log(response.data.certificate)
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'certificates.csv');
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((error) => {
+        console.error('Error downloading CSV file:', error);
+      });
+      // Handle success
+      console.log("Mass certificate generation request successfully!");
+    } catch (error) {
+      // Handle errors
+      console.error("Error generating mass certificates:", error);
+    }
+  };
+  
 
   if (!event) {
     return <div>Loading...</div>;
@@ -95,7 +120,7 @@ const EventDetailsPage = () => {
       <div className="event-description">{event.eventdescription}</div>
       <div>
         <Link to={`/admin/poll-question-form/${eventId}`}>
-          <button className="content-button">Go to Poll Form</button>
+          <button className="content-button">Poll Form</button>
         </Link>
         <Link to={`/admin/events/${eventId}/pollresponses`}>
           <button className="content-button">View Poll Responses</button>
@@ -237,6 +262,15 @@ const EventDetailsPage = () => {
             }
           >
             Mark Attendance
+          </button>
+        </div>
+        <div className="control-item">
+          <h4>Mass Generate Certificates</h4>
+          <button
+            className="preview-btn"
+            onClick={handleMassGenerateCertificates}
+          >
+            Mass Generate Certificates
           </button>
         </div>
         {/* Add more control items */}
