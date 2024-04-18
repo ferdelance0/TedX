@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ksitmlogo from '../../images/logobanner.png';
 import '../../styles/adminStyles.css';
 import '../../styles/createEventPageStyles.css';
+import '../../styles/sideNavbarStyles.css';
+import { FaBars } from 'react-icons/fa';
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [events, setEvents] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -49,7 +53,9 @@ const AdminDashboardPage = () => {
       }
       return true;
     });
-
+  const toggleNav = () => {
+    setIsOpen(!isOpen);
+  };
   const handleCreateEvent = () => {
     navigate('/admin/create-event');
   };
@@ -82,131 +88,151 @@ const AdminDashboardPage = () => {
   ];
 
   return (
-    <div className="main-container">
-      <div className="sidebar">
-        <button
-          className="create-event-btn"
-          onClick={() => handleCreateEvent()}
-        >
-          Create Event
-        </button>
-        <button className="create-event-btn">View Upcoming Events</button>
-        <button className="create-event-btn">View Completed Events</button>
-        <button className="create-event-btn" onClick={() => navigate('/login')}>
-          Log Out
-        </button>
-      </div>
-      <div className="main-content">
-        <h1>Admin Dashboard</h1>
-        <div className="analytics-section">
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3>Upcoming Events</h3>
-              <div className="analytics-card-filters">
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(Number(e.target.value))}
-                >
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                >
-                  {monthOptions.map((month) => (
-                    <option key={month.value} value={month.value}>
-                      {month.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="analytics-card-content">
-              {
-                filteredEvents.filter((event) => event.status === 'upcoming')
-                  .length
-              }
-            </div>
-          </div>
-          <div className="analytics-card">
-            <div className="analytics-card-header">
-              <h3>Completed Events</h3>
-              <div className="analytics-card-filters">
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(Number(e.target.value))}
-                >
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                >
-                  {monthOptions.map((month) => (
-                    <option key={month.value} value={month.value}>
-                      {month.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="analytics-card-content">
-              {
-                filteredEvents.filter((event) => event.status === 'completed')
-                  .length
-              }
-            </div>
-          </div>
+    <>
+      <div
+        className="sidebar-overlay"
+        onClick={toggleNav}
+        style={{ display: isOpen ? 'block' : 'none' }}
+      ></div>
+      <div className="main-container">
+        <div className="sidebar-header">
+          <button className="sidebar-toggle" onClick={toggleNav}>
+            {isOpen ? null : <FaBars />}
+          </button>
         </div>
-        <div className="event-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Event Name</th>
-                <th>Scheduled Date</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Registration Form</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEvents.map((event) => (
-                <tr key={event._id}>
-                  <td>{event.eventname}</td>
-                  <td>{event.eventscheduleddate}</td>
-                  <td>{event.eventvenue}</td>
-                  <td>{event.status}</td>
-                  <td>
-                    <a
-                      href={`http://localhost:3001/admin/registration-form/${event._id}`}
-                    >
-                      Register
-                    </a>
-                  </td>
-                  <td>
-                    <button
-                      className="content-button"
-                      onClick={() => handleViewEventDetails(event._id)}
-                    >
-                      View Details
-                    </button>
-                  </td>
+        <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
+          <ul className={`sidebar-menu ${isOpen ? 'open' : ''}`}>
+            <li>
+              <img src={ksitmlogo} alt="Logo" className="logo" />
+            </li>
+            <li>
+              <button className="sidebar-item" onClick={handleCreateEvent}>
+                Create Event
+              </button>
+            </li>
+
+            <li>
+              <button
+                className="sidebar-item"
+                onClick={() => navigate('/login')}
+              >
+                Log Out
+              </button>
+            </li>
+          </ul>
+        </nav>
+        <div className="main-content">
+          <h1>Admin Dashboard</h1>
+          <div className="analytics-section">
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3>Upcoming Events</h3>
+                <div className="analytics-card-filters">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  >
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                  >
+                    {monthOptions.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="analytics-card-content">
+                {
+                  filteredEvents.filter((event) => event.status === 'upcoming')
+                    .length
+                }
+              </div>
+            </div>
+            <div className="analytics-card">
+              <div className="analytics-card-header">
+                <h3>Completed Events</h3>
+                <div className="analytics-card-filters">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  >
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                  >
+                    {monthOptions.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="analytics-card-content">
+                {
+                  filteredEvents.filter((event) => event.status === 'completed')
+                    .length
+                }
+              </div>
+            </div>
+          </div>
+          <div className="event-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event Name</th>
+                  <th>Scheduled Date</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Registration Form</th>
+                  <th>Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredEvents.map((event) => (
+                  <tr key={event._id}>
+                    <td>{event.eventname}</td>
+                    <td>{event.eventscheduleddate}</td>
+                    <td>{event.eventvenue}</td>
+                    <td>{event.status}</td>
+                    <td>
+                      <a
+                        href={`http://localhost:3001/registration-form/${event._id}`}
+                      >
+                        Register
+                      </a>
+                    </td>
+                    <td>
+                      <button
+                        className="content-button"
+                        onClick={() => handleViewEventDetails(event._id)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

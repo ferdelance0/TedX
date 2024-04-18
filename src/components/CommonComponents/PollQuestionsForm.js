@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../../styles/adminStyles.css';
-import '../../styles/createEventPageStyles.css';
 
 const PollQuestionForm = () => {
   const { eventId } = useParams();

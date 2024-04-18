@@ -1,11 +1,18 @@
 // EventDetailsPage.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { MdOutlineFileDownload } from 'react-icons/md';
+import ksitmlogo from '../../images/logobanner.png';
+
 import '../../styles/adminStyles.css';
 import '../../styles/createEventPageStyles.css';
+import '../../styles/eventDetailsPageStyles.css';
+import '../../styles/sideNavbarStyles.css';
 
 const EventDetailsPage = () => {
+  const navigate = useNavigate();
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [participants, setParticipants] = useState([]);
@@ -13,6 +20,8 @@ const EventDetailsPage = () => {
   const [showBulkEmailModal, setShowBulkEmailModal] = useState(false);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailContent, setEmailContent] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState(null);
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -41,7 +50,23 @@ const EventDetailsPage = () => {
       e.target.checked ? participants.map((p) => p._id) : []
     );
   };
-
+  const toggleNav = () => {
+    setIsOpen(!isOpen);
+  };
+  const handleBackToAdminDashboard = () => {
+    navigate('/admin/dashboard');
+  };
+  const handleViewPollForm = () => {
+    console.log('poll ques form');
+    console.log(eventId);
+    navigate(`/poll-question-form/${eventId}`);
+  };
+  const handleViewPollResponses = () => {
+    navigate(`/admin/events/${eventId}/pollresponses`);
+  };
+  const toggleSubItems = (item) => {
+    setActiveItem(activeItem === item ? null : item);
+  };
   const handleMarkAttendance = async () => {
     try {
       await axios.post(
@@ -139,203 +164,328 @@ const EventDetailsPage = () => {
   }
 
   return (
-    <div className="event-details-container">
-      <div className="event-details-header">
-        <h2 className="event-title">{event.eventname}</h2>
-      </div>
-      <div className="event-description">{event.eventdescription}</div>
-      <div>
-        <Link to={`/admin/poll-question-form/${eventId}`}>
-          <button className="content-button">Poll Form</button>
-        </Link>
-        <Link to={`/admin/events/${eventId}/pollresponses`}>
-          <button className="content-button">View Poll Responses</button>
-        </Link>
-        <button className="send-bulk-email-btn" onClick={handleSendBulkEmail}>
-          Send Bulk Email
-        </button>
-      </div>
-      <div className="participants-list">
-        <h3>Participants</h3>
-        <div className="table-wrapper">
-          <table className="participants-table">
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedParticipants.length === participants.length
-                    }
-                    onChange={handleSelectAllChange}
-                  />
-                </th>
-                {event.eventregistrationfields.map((field, index) => (
-                  <th key={index}>{field.label}</th>
-                ))}
-                <th>Certificate</th>
-                <th>ID Card</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {participants.map((participant) => (
-                <tr key={participant._id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedParticipants.indexOf(participant._id) !== -1
-                      }
-                      onChange={() => handleParticipantSelect(participant._id)}
-                    />
-                  </td>
-                  {event.eventregistrationfields.map((field, index) => (
-                    <td key={index}>{participant[field.label]}</td>
+    <>
+      <div
+        className="sidebar-overlay"
+        onClick={toggleNav}
+        style={{ display: isOpen ? 'block' : 'none' }}
+      ></div>
+      <div className="d-flex justify-content-around">
+        {/* side nav bar beginning */}
+        <div className="sidebar-header">
+          <button className="sidebar-toggle" onClick={toggleNav}>
+            {isOpen ? null : <FaBars />}
+          </button>
+        </div>
+        <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
+          <ul className={`sidebar-menu ${isOpen ? 'open' : ''}`}>
+            <button className="sidebar-toggle" onClick={toggleNav}>
+              {isOpen ? <FaTimes /> : <FaBars />}
+            </button>
+            <li>
+              <img src={ksitmlogo} alt="Logo" className="logo" />
+            </li>
+            <li>
+              <button
+                className="sidebar-item"
+                onClick={handleBackToAdminDashboard}
+              >
+                Back To Dashboard
+              </button>
+            </li>
+            <li>
+              <button
+                className="send-bulk-email-btn sidebar-item"
+                onClick={handleSendBulkEmail}
+              >
+                Send Bulk Email
+              </button>
+            </li>
+            <li>
+              <button
+                className={`sidebar-item ${
+                  activeItem === 'registration' ? 'active' : ''
+                }`}
+                onClick={() => toggleSubItems('registration')}
+              >
+                Registration
+              </button>
+              <ul
+                className={`sub-menu ${
+                  activeItem === 'registration' ? 'open' : ''
+                }`}
+              >
+                <li>
+                  <a
+                    href={`http://localhost:3001/registration-form/${event._id}`}
+                  >
+                    <button className="sub-item">View Registration Form</button>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <button
+                className={`sidebar-item ${
+                  activeItem === 'idCard' ? 'active' : ''
+                }`}
+                onClick={() => toggleSubItems('idCard')}
+              >
+                ID Card
+              </button>
+              <ul
+                className={`sub-menu ${activeItem === 'idCard' ? 'open' : ''}`}
+              >
+                <li>
+                  <button className="sub-item">View ID Card</button>
+                </li>
+                <li>
+                  <button className="sub-item">
+                    Send out ID cards to Registrants
+                  </button>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <button
+                className={`sidebar-item ${
+                  activeItem === 'poll' ? 'active' : ''
+                }`}
+                onClick={() => toggleSubItems('poll')}
+              >
+                Poll
+              </button>
+              <ul className={`sub-menu ${activeItem === 'poll' ? 'open' : ''}`}>
+                <li>
+                  <button className="sub-item" onClick={handleViewPollForm}>
+                    {' '}
+                    View Poll Form
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="sub-item"
+                    onClick={handleViewPollResponses}
+                  >
+                    View Poll Responses
+                  </button>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <button
+                className={`sidebar-item ${
+                  activeItem === 'certificate' ? 'active' : ''
+                }`}
+                onClick={() => toggleSubItems('certificate')}
+              >
+                Certificate
+              </button>
+              <ul
+                className={`sub-menu ${
+                  activeItem === 'certificate' ? 'open' : ''
+                }`}
+              >
+                <li>
+                  <button className="sub-item">View Certificate</button>
+                </li>
+                <li>
+                  <button
+                    className="sub-item"
+                    onClick={handleMassGenerateCertificates}
+                  >
+                    Mass Generate Certificates
+                  </button>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+        {/* side nav bar ending */}
+
+        <div className="event-details-container">
+          <div className="event-details-header">
+            <h2 className="event-title">{event.eventname}</h2>
+          </div>
+          <div className="event-description">{event.eventdescription}</div>
+
+          <div></div>
+          <div className="participants-list">
+            <h3>Participants</h3>
+            <div className="table-wrapper">
+              <table className="participants-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedParticipants.length === participants.length
+                        }
+                        onChange={handleSelectAllChange}
+                      />
+                    </th>
+                    {event.eventregistrationfields.map((field, index) => (
+                      <th key={index}>{field.label}</th>
+                    ))}
+                    <th>Certificate</th>
+                    <th>ID Card</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {participants.map((participant) => (
+                    <tr key={participant._id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedParticipants.indexOf(participant._id) !== -1
+                          }
+                          onChange={() =>
+                            handleParticipantSelect(participant._id)
+                          }
+                        />
+                      </td>
+                      {event.eventregistrationfields.map((field, index) => (
+                        <td key={index}>{participant[field.label]}</td>
+                      ))}
+                      <td>
+                        <button
+                          className="download-btn"
+                          onClick={() => {
+                            const { _id, Name } = participant;
+
+                            fetch('http://localhost:3000/generatecertificate', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                participantId: _id,
+                                Name,
+                                eventId,
+                              }),
+                            })
+                              .then((response) => response.json())
+                              .then((data) => {
+                                console.log('Success:', data);
+
+                                // Create a new 'a' element
+                                let a = document.createElement('a');
+                                a.href = data.url; // Set the href to the URL from the response
+                                a.download = 'certificate.pdf'; // Set the download attribute to the desired file name
+                                a.style.display = 'none'; // Hide the element
+
+                                document.body.appendChild(a);
+                                a.click();
+
+                                document.body.removeChild(a);
+                              })
+                              .catch((error) => {
+                                console.error('Error:', error);
+                              });
+                          }}
+                        >
+                          <MdOutlineFileDownload />
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          className="download-btn"
+                          onClick={() => {
+                            const { _id, Name } = participant;
+
+                            fetch('http://localhost:3000/generateID', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                participantId: _id,
+                                Name,
+                                eventId,
+                              }),
+                            })
+                              .then((response) => response.json())
+                              .then((data) => {
+                                console.log('Success:', data);
+
+                                let a = document.createElement('a');
+                                a.href = data.url;
+                                a.download = 'idcard.pdf';
+                                a.style.display = 'none';
+
+                                document.body.appendChild(a);
+                                a.click();
+
+                                document.body.removeChild(a);
+                              })
+                              .catch((error) => {
+                                console.error('Error:', error);
+                              });
+                          }}
+                        >
+                          <MdOutlineFileDownload />
+                        </button>
+                      </td>
+                      <td>
+                        <span
+                          className={`status-pill ${
+                            participant.status === 'Attended'
+                              ? 'attended'
+                              : 'registered'
+                          }`}
+                        >
+                          {participant.status}
+                        </span>
+                      </td>
+                    </tr>
                   ))}
-                  <td>
-                    <button
-                      className="download-btn"
-                      onClick={() => {
-                        const { _id, Name } = participant;
-
-                        fetch('http://localhost:3000/generatecertificate', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            participantId: _id,
-                            Name,
-                            eventId,
-                          }),
-                        })
-                          .then((response) => response.json())
-                          .then((data) => {
-                            console.log('Success:', data);
-
-                            // Create a new 'a' element
-                            let a = document.createElement('a');
-                            a.href = data.url; // Set the href to the URL from the response
-                            a.download = 'certificate.pdf'; // Set the download attribute to the desired file name
-                            a.style.display = 'none'; // Hide the element
-
-                            document.body.appendChild(a);
-                            a.click();
-
-                            document.body.removeChild(a);
-                          })
-                          .catch((error) => {
-                            console.error('Error:', error);
-                          });
-                      }}
-                    >
-                      Download Certificate
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="download-btn"
-                      onClick={() => {
-                        const { _id, Name } = participant;
-
-                        fetch('http://localhost:3000/generateID', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            participantId: _id,
-                            Name,
-                            eventId,
-                          }),
-                        })
-                          .then((response) => response.json())
-                          .then((data) => {
-                            console.log('Success:', data);
-
-                            let a = document.createElement('a');
-                            a.href = data.url;
-                            a.download = 'idcard.pdf';
-                            a.style.display = 'none';
-
-                            document.body.appendChild(a);
-                            a.click();
-
-                            document.body.removeChild(a);
-                          })
-                          .catch((error) => {
-                            console.error('Error:', error);
-                          });
-                      }}
-                    >
-                      Download ID Card
-                    </button>
-                  </td>
-                  <td>
-                    <span
-                      className={`status-pill ${
-                        participant.status === 'Attended'
-                          ? 'attended'
-                          : 'registered'
-                      }`}
-                    >
-                      {participant.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div className="controls-section">
-        <div className="control-item">
-          <h4>Mark Attendance</h4>
-          <button className="preview-btn" onClick={handleMarkAttendance}>
-            Mark Attendance
-          </button>
-        </div>
-        <div className="control-item">
-          <h4>Mass Generate Certificates</h4>
-          <button
-            className="preview-btn"
-            onClick={handleMassGenerateCertificates}
-          >
-            Mass Generate Certificates
-          </button>
-        </div>
-      </div>
-      {showBulkEmailModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Send Bulk Email</h3>
-            <input
-              type="text"
-              placeholder="Subject"
-              value={emailSubject}
-              onChange={(e) => setEmailSubject(e.target.value)}
-            />
-            <textarea
-              placeholder="Email Content"
-              value={emailContent}
-              onChange={(e) => setEmailContent(e.target.value)}
-            ></textarea>
-            <p>
-              Use the following markers for templating:
-              <br />
-              {`{{Name}}`}: Participant's name
-              <br />
-              {`{{Email}}`}: Participant's email
-            </p>
-            <div className="modal-buttons">
-              <button onClick={handleSendEmail}>Send</button>
-              <button onClick={handleCloseBulkEmailModal}>Cancel</button>
+                </tbody>
+              </table>
             </div>
           </div>
+          <div className="controls-section">
+            <div className="control-item">
+              <h4>Mark Attendance</h4>
+              <button className="preview-btn" onClick={handleMarkAttendance}>
+                Mark Attendance
+              </button>
+            </div>
+          </div>
+          {showBulkEmailModal && (
+            <div className="modal">
+              <div className="modal-content">
+                <h3>Send Bulk Email</h3>
+                <input
+                  type="text"
+                  placeholder="Subject"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                />
+                <textarea
+                  placeholder="Email Content"
+                  value={emailContent}
+                  onChange={(e) => setEmailContent(e.target.value)}
+                ></textarea>
+                <p>
+                  Use the following markers for templating:
+                  <br />
+                  {`{{Name}}`}: Participant's name
+                  <br />
+                  {`{{Email}}`}: Participant's email
+                </p>
+                <div className="modal-buttons">
+                  <button onClick={handleSendEmail}>Send</button>
+                  <button onClick={handleCloseBulkEmailModal}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
