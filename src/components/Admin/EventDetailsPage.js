@@ -5,7 +5,26 @@ import { useParams, Link } from "react-router-dom";
 import "../../styles/adminStyles.css";
 import "../../styles/createEventPageStyles.css";
 import "../../styles/eventDetailsPageStyles.css";
-
+import Modal from "react-modal";
+const customModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    maxWidth: "500px",
+    width: "100%",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+};
+Modal.setAppElement("#root");
 const EventDetailsPage = () => {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
@@ -110,11 +129,14 @@ const EventDetailsPage = () => {
   };
 
   const handleSendBulkEmail = () => {
-    console.log("Send Bulk Email button clicked");
+    console.log(showBulkEmailModal);
+    console.log("handlesendbulkmail fired");
     setShowBulkEmailModal(true);
+    console.log(showBulkEmailModal);
   };
 
   const handleCloseBulkEmailModal = () => {
+    console.log("close modal thingie fired");
     setShowBulkEmailModal(false);
   };
 
@@ -289,6 +311,7 @@ const EventDetailsPage = () => {
           </table>
         </div>
       </div>
+
       <div className="controls-section">
         <div className="control-item">
           <h4>Mark Attendance</h4>
@@ -306,35 +329,46 @@ const EventDetailsPage = () => {
           </button>
         </div>
       </div>
-      {showBulkEmailModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Send Bulk Email</h3>
-            <input
-              type="text"
-              placeholder="Subject"
-              value={emailSubject}
-              onChange={(e) => setEmailSubject(e.target.value)}
-            />
-            <textarea
-              placeholder="Email Content"
-              value={emailContent}
-              onChange={(e) => setEmailContent(e.target.value)}
-            ></textarea>
-            <p>
-              Use the following markers for templating:
-              <br />
-              {`{{Name}}`}: Participant's name
-              <br />
-              {`{{Email}}`}: Participant's email
-            </p>
-            <div className="modal-buttons">
-              <button onClick={handleSendEmail}>Send</button>
-              <button onClick={handleCloseBulkEmailModal}>Cancel</button>
-            </div>
-          </div>
+
+      <Modal
+        isOpen={showBulkEmailModal}
+        onRequestClose={handleCloseBulkEmailModal}
+        style={customModalStyles}
+        contentLabel="Bulk Email Modal"
+      >
+        <h3>Send Bulk Email</h3>
+        <input
+          type="text"
+          placeholder="Subject"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+          className="modal-input"
+        />
+        <textarea
+          placeholder="Email Content"
+          value={emailContent}
+          onChange={(e) => setEmailContent(e.target.value)}
+          className="modal-textarea"
+        ></textarea>
+        <p>
+          Use the following markers for templating:
+          <br />
+          {`{{Name}}`}: Participant's name
+          <br />
+          {`{{Email}}`}: Participant's email
+        </p>
+        <div className="modal-buttons">
+          <button onClick={handleSendEmail} className="modal-send-button">
+            Send
+          </button>
+          <button
+            onClick={handleCloseBulkEmailModal}
+            className="modal-cancel-button"
+          >
+            Cancel
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };
