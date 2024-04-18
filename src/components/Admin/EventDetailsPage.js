@@ -6,6 +6,8 @@ import "../../styles/adminStyles.css";
 import "../../styles/createEventPageStyles.css";
 import "../../styles/eventDetailsPageStyles.css";
 import Modal from "react-modal";
+import { FaSpinner, FaCheckCircle } from "react-icons/fa";
+
 const customModalStyles = {
   content: {
     top: "50%",
@@ -33,6 +35,8 @@ const EventDetailsPage = () => {
   const [showBulkEmailModal, setShowBulkEmailModal] = useState(false);
   const [emailSubject, setEmailSubject] = useState("");
   const [emailContent, setEmailContent] = useState("");
+  const [isSending, setIsSending] = useState(false); // New state for sending status
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // New state for success modal
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -129,10 +133,7 @@ const EventDetailsPage = () => {
   };
 
   const handleSendBulkEmail = () => {
-    console.log(showBulkEmailModal);
-    console.log("handlesendbulkmail fired");
     setShowBulkEmailModal(true);
-    console.log(showBulkEmailModal);
   };
 
   const handleCloseBulkEmailModal = () => {
@@ -142,18 +143,21 @@ const EventDetailsPage = () => {
 
   const handleSendEmail = async () => {
     try {
+      setIsSending(true); // Set sending status to true
       await axios.post(
         `http://localhost:3000/events/${eventId}/send-bulk-email`,
         {
           subject: emailSubject,
-          content: emailContent,
+          content: emailContent.replace(/\n/g, "<br>"),
         }
       );
-      alert("Bulk email sent successfully");
+      setShowSuccessModal(true); // Show success modal
       handleCloseBulkEmailModal();
     } catch (error) {
       console.error("Error sending bulk email:", error);
       alert("Failed to send bulk email");
+    } finally {
+      setIsSending(false); // Set sending status to false
     }
   };
 
@@ -343,12 +347,14 @@ const EventDetailsPage = () => {
           value={emailSubject}
           onChange={(e) => setEmailSubject(e.target.value)}
           className="modal-input"
+          disabled={isSending} // Disable input when sending
         />
         <textarea
           placeholder="Email Content"
           value={emailContent}
           onChange={(e) => setEmailContent(e.target.value)}
           className="modal-textarea"
+          disabled={isSending} // Disable textarea when sending
         ></textarea>
         <p>
           Use the following markers for templating:
@@ -356,19 +362,54 @@ const EventDetailsPage = () => {
           {`{{Name}}`}: Participant's name
           <br />
           {`{{Email}}`}: Participant's email
+          <br />
+          {`{{Certificate_URL}}`}: Participant's certificate URL
+          <br />
+          {`{{Status}}`}: Participant's attendance status
         </p>
         <div className="modal-buttons">
-          <button onClick={handleSendEmail} className="modal-send-button">
-            Send
+          <button
+            onClick={handleSendEmail}
+            className="modal-send-button"
+            disabled={isSending} // Disable send button when sending
+          >
+            {isSending ? ( // Display spinner when sending
+              <FaSpinner className="spinning" />
+            ) : (
+              "Send"
+            )}
           </button>
           <button
             onClick={handleCloseBulkEmailModal}
             className="modal-cancel-button"
+            disabled={isSending} // Disable cancel button when sending
           >
             Cancel
           </button>
         </div>
       </Modal>
+      {showSuccessModal && (
+        <Modal
+          isOpen={showSuccessModal}
+          onRequestClose={() => setShowSuccessModal(false)}
+          style={customModalStyles}
+          contentLabel="Success Modal"
+        >
+          <div className="success-modal-content">
+            <h3>
+              <FaCheckCircle className="success-icon" /> Bulk Email Sent
+              Successfully
+            </h3>
+            <p>Your bulk email has been sent to all participants.</p>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="modal-close-button"
+            >
+              Close
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

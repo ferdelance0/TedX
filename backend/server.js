@@ -109,17 +109,26 @@ app.post("/events/:eventId/send-bulk-email", async (req, res) => {
 
     // Send email to each participant
     for (const participant of participants) {
-      const { Name, Email } = participant;
+      const { Name, Email, certificateUrl, status } = participant;
 
       // Replace the template markers with actual values
+      const emailSubject = subject
+        .replace(/{{Name}}/g, Name)
+        .replace(/{{Email}}/g, Email)
+        .replace(/{{Certificate_URL}}/g, certificateUrl)
+        .replace(/{{Status}}/g, status);
+
       const emailContent = content
         .replace(/{{Name}}/g, Name)
-        .replace(/{{Email}}/g, Email);
+        .replace(/{{Email}}/g, Email)
+        .replace(/{{Certificate_URL}}/g, certificateUrl)
+        .replace(/{{Status}}/g, status)
+        .replace(/\n/g, "<br>");
 
       const mailOptions = {
         from: "your-email@gmail.com",
         to: Email,
-        subject,
+        subject: emailSubject,
         html: emailContent,
       };
 
