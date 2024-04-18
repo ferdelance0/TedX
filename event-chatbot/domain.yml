@@ -1,0 +1,40 @@
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - create_event
+  - provide_event_name
+  - provide_event_description
+  - provide_event_date
+  - provide_event_location
+
+actions:
+  - action_create_event
+
+responses:
+  utter_greet:
+    - text: "Hello! How can I assist you today?"
+  utter_goodbye:
+    - text: "Goodbye! Have a great day!"
+  utter_iamabot:
+    - text: "I am an AI assistant. How can I help you today?"
+  utter_happy:
+    - text: "Great, carry on!"
+  utter_ask_event_name:
+    - text: "Please provide the name of the event."
+  utter_ask_event_description:
+    - text: "Please provide a description for the event."
+  utter_ask_event_date:
+    - text: "Please provide the date of the event (e.g., YYYY-MM-DD)."
+  utter_ask_event_location:
+    - text: "Please provide the location of the event."
+  utter_event_created:
+    - text: "Event created successfully!"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

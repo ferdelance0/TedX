@@ -1,0 +1,44 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-event_date",
+      "2": "I-event_date",
+      "3": "L-event_date",
+      "4": "U-event_date",
+      "5": "B-event_description",
+      "6": "I-event_description",
+      "7": "L-event_description",
+      "8": "U-event_description",
+      "9": "B-event_location",
+      "10": "I-event_location",
+      "11": "L-event_location",
+      "12": "U-event_location",
+      "13": "B-event_name",
+      "14": "I-event_name",
+      "15": "L-event_name",
+      "16": "U-event_name",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-event_date": 1,
+      "I-event_date": 2,
+      "L-event_date": 3,
+      "U-event_date": 4,
+      "B-event_description": 5,
+      "I-event_description": 6,
+      "L-event_description": 7,
+      "U-event_description": 8,
+      "B-event_location": 9,
+      "I-event_location": 10,
+      "L-event_location": 11,
+      "U-event_location": 12,
+      "B-event_name": 13,
+      "I-event_name": 14,
+      "L-event_name": 15,
+      "U-event_name": 16,
+      "O": 0
+    },
+    "num_tags": 17
+  }
+]

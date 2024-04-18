@@ -1,0 +1,141 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - hey
+      - hello
+      - hi
+      - hello there
+      - good morning
+      - good evening
+      - moin
+      - hey there
+      - let's go
+      - hey dude
+      - goodmorning
+      - goodevening
+      - good afternoon
+
+  - intent: goodbye
+    examples: |
+      - cu
+      - good by
+      - cee you later
+      - good night
+      - bye
+      - goodbye
+      - have a nice day
+      - see you around
+      - bye bye
+      - see you later
+
+  - intent: affirm
+    examples: |
+      - yes
+      - y
+      - indeed
+      - of course
+      - that sounds good
+      - correct
+
+  - intent: deny
+    examples: |
+      - no
+      - n
+      - never
+      - I don't think so
+      - don't like that
+      - no way
+      - not really
+
+  - intent: mood_great
+    examples: |
+      - perfect
+      - great
+      - amazing
+      - feeling like a king
+      - wonderful
+      - I am feeling very good
+      - I am great
+      - I am amazing
+      - I am going to save the world
+      - super stoked
+      - extremely good
+      - so so perfect
+      - so good
+      - so perfect
+
+  - intent: mood_unhappy
+    examples: |
+      - my day was horrible
+      - I am sad
+      - I don't feel very well
+      - I am disappointed
+      - super sad
+      - I'm so sad
+      - sad
+      - very sad
+      - unhappy
+      - not good
+      - not very good
+      - extremly sad
+      - so saad
+      - so sad
+
+  - intent: bot_challenge
+    examples: |
+      - are you a bot?
+      - are you a human?
+      - am I talking to a bot?
+      - am I talking to a human?
+
+  - intent: create_event
+    examples: |
+      - I want to create a new event
+      - Create an event
+      - Set up a new event
+      - Add a new event
+
+  - intent: provide_event_name
+    examples: |
+      - The event name is [Python Conference 2023](event_name)
+      - [Annual Sales Summit](event_name)
+      - [Tech Expo](event_name)
+      - [TechMagic](event_name)
+      - [Tech Magnificent](event_name)
+      - The event is called [TechFest](event_name)
+      - It's [TechMagic](event_name)
+      - The name of the event is [TechFest](event_name)
+      - The event name is [Python Conference 2023](event_name)
+      - [Annual Sales Summit](event_name)
+      - [Tech Expo](event_name)
+      - [TechMagic](event_name)
+      - [Tech Magnificent](event_name)
+      - The event is called [TechFest](event_name)
+      - It's [TechMagic](event_name)
+      - The name of the event is [TechFest](event_name)
+      - name of event: [TechMagic](event_name)
+      - the name of event is [techshow](event_name)
+      - [Tech Magicia](event_name)
+      - [tech magic](event_name)
+      - [Tech Magic](event_name)
+      - [TechMagic](event_name)
+
+  - intent: provide_event_description
+    examples: |
+      - The event description is [A conference for Python enthusiasts](event_description)
+      - [Discuss the latest trends in sales and marketing](event_description)
+      - [Showcase the latest technology advancements](event_description)
+
+  - intent: provide_event_date
+    examples: |
+      - The event date is [2023-07-15](event_date)
+      - [2023-09-20](event_date)
+      - [2023-11-05](event_date)
+
+  - intent: provide_event_location
+    examples: |
+      - The event location is [New York](event_location)
+      - [London](event_location)
+      - [San Francisco](event_location)
