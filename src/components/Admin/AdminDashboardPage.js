@@ -5,7 +5,7 @@ import '../../styles/adminStyles.css';
 import '../../styles/createEventPageStyles.css';
 import '../../styles/sideNavbarStyles.css';
 import { FaBars } from 'react-icons/fa';
-
+import {removeToken} from '../../auth/auth'
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -53,14 +53,24 @@ const AdminDashboardPage = () => {
       }
       return true;
     });
+
   const toggleNav = () => {
     setIsOpen(!isOpen);
   };
+
   const handleCreateEvent = () => {
     navigate('/admin/create-event');
   };
+
   const handleViewEventDetails = (eventId) => {
     navigate(`/admin/events/${eventId}/details`);
+  };
+
+  const handleLogout = () => {
+    
+    removeToken();
+    // Redirect to login page
+    navigate('/login');
   };
 
   // Generate year options
@@ -112,10 +122,7 @@ const AdminDashboardPage = () => {
             </li>
 
             <li>
-              <button
-                className="sidebar-item"
-                onClick={() => navigate('/login')}
-              >
+              <button className="sidebar-item" onClick={handleLogout}>
                 Log Out
               </button>
             </li>

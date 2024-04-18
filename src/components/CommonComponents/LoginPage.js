@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/loginpageStyles.css';
-
+import { saveToken } from '../../auth/auth';
 function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -20,6 +20,7 @@ function LoginPage() {
       });
 
       if (response.status === 200) {
+        saveToken(response.data.token); 
         navigate('/admin/dashboard');
       } else {
         // Login failed, handle error
