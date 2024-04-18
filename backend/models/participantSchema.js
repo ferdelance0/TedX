@@ -1,5 +1,3 @@
-//participantSchema.js
-
 const mongoose = require("mongoose");
 
 const generateParticipantSchema = (fields) => {
@@ -7,6 +5,13 @@ const generateParticipantSchema = (fields) => {
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+    },
+    certificateUrl: {
+      type: String,
+    },
+    status: {
+      type: String,
+      default: "Registered",
     },
   };
 
