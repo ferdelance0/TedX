@@ -14,25 +14,25 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post('http://localhost:3000/login', {
         email: username,
-        password: password
+        password: password,
       });
 
       if (response.status === 200) {
-        navigate("/admin/dashboard");
+        navigate('/admin/dashboard');
       } else {
         // Login failed, handle error
         setError(response.data.error);
       }
     } catch (error) {
-      setError("An error occurred during login.");
-      console.error("Error during login:", error);
+      setError('An error occurred during login.');
+      console.error('Error during login:', error);
     }
   };
 
   const handleRegisterRedirect = () => {
-    navigate("/signup");
+    navigate('../Admin/Signup');
   };
 
   return (
@@ -71,7 +71,9 @@ function LoginPage() {
             Login
           </button>
           {error && <p className="error-message">{error}</p>}
-          <p className="register-link" onClick={handleRegisterRedirect}>Don't have an account? Register</p>
+          <p className="register-link" onClick={handleRegisterRedirect}>
+            Don't have an account? Register
+          </p>
         </form>
       </div>
     </div>

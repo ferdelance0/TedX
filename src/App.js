@@ -3,8 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import AdminRoutes from './pages/AdminRoutes';
 import SecurityRoutes from './pages/SecurityRoutes';
-import LoginPage from './components/CommomComponents/LoginPage'
-import SignUpPage from './components/CommomComponents/SignupPage'
+import CommonRoutes from './pages/CommonRoutes';
+import LoginPage from './components/CommonComponents/LoginPage';
 
 const App = () => {
   return (
@@ -13,8 +13,7 @@ const App = () => {
         <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/security/*" element={<SecurityRoutes />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        
+        <Route path="/*" element={<CommonRoutes />} />
       </Routes>
     </Router>
   );

@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import { Bar, Line, Pie } from "react-chartjs-2";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { Pie } from 'react-chartjs-2';
+import '../../styles/adminStyles.css';
+import '../../styles/createEventPageStyles.css';
+import '../../styles/eventDetailsPageStyles.css';
+import '../../styles/sideNavbarStyles.css';
 import {
   Chart,
   LinearScale,
@@ -12,7 +16,7 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-} from "chart.js";
+} from 'chart.js';
 
 Chart.register(
   LinearScale,
@@ -41,7 +45,7 @@ const PollResponsesPage = () => {
         );
         setPollQuestions(response.data.pollQuestions);
       } catch (error) {
-        console.error("Error fetching poll questions:", error);
+        console.error('Error fetching poll questions:', error);
       }
     };
 
@@ -54,14 +58,13 @@ const PollResponsesPage = () => {
       try {
         setIsLoading(true);
         setError(null);
-
         const response = await axios.get(
           `http://localhost:3000/events/${eventId}/pollresponses`
         );
         setPollResponses(response.data.pollResponses);
       } catch (error) {
-        setError("Error fetching poll responses");
-        console.error("Error fetching poll responses:", error);
+        setError('Error fetching poll responses');
+        console.error('Error fetching poll responses:', error);
       } finally {
         setIsLoading(false);
       }
@@ -80,6 +83,7 @@ const PollResponsesPage = () => {
         (optionIndex) =>
           optionIndex === question.options.indexOf(options[optionIndex])
       );
+
       if (selectedOption !== undefined) {
         counts[selectedOption] += 1;
       }
@@ -91,11 +95,11 @@ const PollResponsesPage = () => {
         {
           data: counts,
           backgroundColor: [
-            "#FF6384",
-            "#36A2EB",
-            "#FFCE56",
-            "#4BC0C0",
-            "#9966FF",
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
           ],
         },
       ],
@@ -113,26 +117,20 @@ const PollResponsesPage = () => {
   }
 
   return (
-    <div>
-      <h2>Poll Responses</h2>
+    <div className="page-container">
+      <h2 className="page-title">Poll Responses</h2>
       {pollQuestions.map((question, index) => (
-        <div key={index}>
+        <div key={index} className="poll-question">
           <h3>{question.question}</h3>
           <Pie
             data={generatePieChartData(question, pollResponses)}
             options={
               {
-                //responsive: true,
-                //maintainAspectRatio: false,
-                // plugins: {
-                //   legend: {
-                //     position: 'bottom',
-                //   },
-                // },
+                // Pie chart options
               }
             }
-            height={50} // Adjust the desired height here
-            width={50} // Adjust the desired width here
+            height={50}
+            width={50}
           />
         </div>
       ))}
