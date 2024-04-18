@@ -114,3 +114,45 @@ input[type='checkbox'] {
 .progress-bar-label.active {
   color: #00963f;
 }
+
+/* Poll Question Form Styles */
+.poll-question {
+  margin-bottom: 2rem;
+}
+
+.poll-options {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.poll-option {
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+.poll-option-radio {
+  appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 2px solid #555;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.poll-option-radio:checked {
+  background-color: #00963f;
+  border-color: #00963f;
+}
+
+.poll-option-label {
+  margin-left: 0.5rem;
+  font-size: 1rem;
+  color: #555;
+}
+
+.content-button {
+  margin-top: 2rem;
+}

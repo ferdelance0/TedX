@@ -8,18 +8,6 @@ const FeedbackForm = () => {
   const [responses, setResponses] = useState({});
 
   useEffect(() => {
-    // const fetchFeedbackQuestions = async () => {
-    //   try {
-    //     const response = await axios.get(
-    //       `/events/${eventId}/feedbackquestions`
-    //     );
-    //     setFeedbackQuestions(response.data.feedbackQuestions);
-    //   } catch (error) {
-    //     console.error('Error fetching feedback questions:', error);
-    //   }
-    // };
-
-    // fetchFeedbackQuestions();
     axios
       .get(`http://localhost:3000/events/${eventId}/feedbackquestions`)
       .then((response) => {
@@ -53,7 +41,7 @@ const FeedbackForm = () => {
   };
 
   return (
-    <div>
+    <div className="page-container">
       <h2>Feedback Form</h2>
       <form onSubmit={handleSubmit}>
         {feedbackQuestions.map((question) => (
@@ -96,7 +84,9 @@ const FeedbackForm = () => {
             )}
           </div>
         ))}
-        <button type="submit">Submit Feedback</button>
+        <button className="content-button" type="submit">
+          Submit Feedback
+        </button>
       </form>
     </div>
   );

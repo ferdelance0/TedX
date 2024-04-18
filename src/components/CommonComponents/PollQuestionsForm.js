@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import '../../styles/adminStyles.css';
 
 const PollQuestionForm = () => {
   const { eventId } = useParams();
@@ -54,32 +55,39 @@ const PollQuestionForm = () => {
   };
 
   return (
-    <div>
-      <h2>Poll Questions</h2>
-      <form onSubmit={handleSubmit}>
-        {pollQuestions.map((question, questionIndex) => (
-          <div key={questionIndex}>
-            <h3>{question.question}</h3>
-            {question.options.map((option, optionIndex) => (
-              <div key={optionIndex}>
-                <label>
-                  <input
-                    type="radio"
-                    name={`question-${questionIndex}`}
-                    value={optionIndex}
-                    checked={pollAnswers[questionIndex] === optionIndex}
-                    onChange={() =>
-                      handleOptionChange(questionIndex, optionIndex)
-                    }
-                  />
-                  {option}
-                </label>
+    <div className="main-content">
+      <div className="page-container">
+        <h1 className="page-title">Poll Questions</h1>
+        <form onSubmit={handleSubmit}>
+          {pollQuestions.map((question, questionIndex) => (
+            <div key={questionIndex} className="poll-question">
+              <h4>{question.question}</h4>
+              <div className="poll-options">
+                {question.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="poll-option">
+                    <label>
+                      <input
+                        type="radio"
+                        name={`question-${questionIndex}`}
+                        value={optionIndex}
+                        checked={pollAnswers[questionIndex] === optionIndex}
+                        onChange={() =>
+                          handleOptionChange(questionIndex, optionIndex)
+                        }
+                        className="poll-option-radio"
+                      />
+                      <span className="poll-option-label">{option}</span>
+                    </label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ))}
-        <button type="submit">Submit</button>
-      </form>
+            </div>
+          ))}
+          <button className="content-button" type="submit">
+            Submit
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

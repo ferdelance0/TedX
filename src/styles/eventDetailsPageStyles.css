@@ -149,6 +149,10 @@
   color: #555;
 }
 
+button.download-btn {
+  border: none;
+  background-color: white;
+}
 /* participants-table stylings */
 .participants-list {
   padding: 20px;

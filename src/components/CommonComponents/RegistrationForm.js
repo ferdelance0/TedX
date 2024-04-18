@@ -1,8 +1,8 @@
 //RegistrationForm.js
-import "../../styles/createEventPageStyles.css";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useParams } from "react-router-dom";
+import '../../styles/adminStyles.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const RegistrationForm = () => {
   const { eventId } = useParams();
@@ -24,7 +24,7 @@ const RegistrationForm = () => {
         }
       })
       .catch((error) => {
-        console.error("Error checking event existence:", error);
+        console.error('Error checking event existence:', error);
       });
   }, [eventId]);
 
@@ -40,28 +40,28 @@ const RegistrationForm = () => {
 
     // Create a new participant model on the server
     axios
-      .post("http://localhost:3000/createParticipantModel", {
+      .post('http://localhost:3000/createParticipantModel', {
         eventId,
         registrationFields,
       })
       .then(() => {
         // Register the participant
         axios
-          .post("http://localhost:3000/registerParticipant", {
+          .post('http://localhost:3000/registerParticipant', {
             eventId,
             registrationFields,
             participantData,
           })
           .then((response) => {
-            console.log("Participant registered:", response.data.participant);
+            console.log('Participant registered:', response.data.participant);
             // Reset form data or redirect to a success page
           })
           .catch((error) => {
-            console.error("Error registering participant:", error);
+            console.error('Error registering participant:', error);
           });
       })
       .catch((error) => {
-        console.error("Error creating participant model:", error);
+        console.error('Error creating participant model:', error);
       });
   };
 
@@ -73,51 +73,51 @@ const RegistrationForm = () => {
           {registrationFields.map((field) => (
             <div key={field.label} className="form-group">
               <label>{field.label}</label>
-              {field.inputType === "text" && (
+              {field.inputType === 'text' && (
                 <input
                   type="text"
                   name={field.label}
-                  value={participantData[field.label] || ""}
+                  value={participantData[field.label] || ''}
                   onChange={(e) =>
                     handleInputChange(field.label, e.target.value)
                   }
                   required
                 />
               )}
-              {field.inputType === "number" && (
+              {field.inputType === 'number' && (
                 <input
                   type="number"
                   name={field.label}
-                  value={participantData[field.label] || ""}
+                  value={participantData[field.label] || ''}
                   onChange={(e) =>
                     handleInputChange(field.label, e.target.value)
                   }
                   required
                 />
               )}
-              {field.inputType === "email" && (
+              {field.inputType === 'email' && (
                 <input
                   type="email"
                   name={field.label}
-                  value={participantData[field.label] || ""}
+                  value={participantData[field.label] || ''}
                   onChange={(e) =>
                     handleInputChange(field.label, e.target.value)
                   }
                   required
                 />
               )}
-              {field.inputType === "date" && (
+              {field.inputType === 'date' && (
                 <input
                   type="date"
                   name={field.label}
-                  value={participantData[field.label] || ""}
+                  value={participantData[field.label] || ''}
                   onChange={(e) =>
                     handleInputChange(field.label, e.target.value)
                   }
                   required
                 />
               )}
-              {field.inputType === "file" && (
+              {field.inputType === 'file' && (
                 <input
                   type="file"
                   name={field.label}
