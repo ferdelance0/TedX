@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes } from 'react-icons/fa';
-import { MdOutlineFileDownload } from 'react-icons/md';
+import { FaBars, FaTimes, FaDownload } from 'react-icons/fa';
+
 import ksitmlogo from '../../images/logobanner.png';
 
 import '../../styles/adminStyles.css';
@@ -387,7 +387,7 @@ const EventDetailsPage = () => {
                               });
                           }}
                         >
-                          <MdOutlineFileDownload />
+                          <FaDownload />
                         </button>
                       </td>
                       <td>
@@ -426,7 +426,7 @@ const EventDetailsPage = () => {
                               });
                           }}
                         >
-                          <MdOutlineFileDownload />
+                          <FaDownload />
                         </button>
                       </td>
                       <td>
