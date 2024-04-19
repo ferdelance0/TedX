@@ -1,0 +1,18 @@
+version: "3.1"
+
+stories:
+  - story: create event
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: create_event
+      - action: utter_ask_event_name
+      - intent: provide_event_name
+      - action: utter_ask_event_description
+      - intent: provide_event_description
+      - action: utter_ask_event_date
+      - intent: provide_event_date
+      - action: utter_ask_event_location
+      - intent: provide_event_location
+      - action: action_create_event
+      - action: utter_event_created

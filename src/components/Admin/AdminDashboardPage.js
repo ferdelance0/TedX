@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ksitmlogo from '../../images/logobanner.png';
-import '../../styles/adminStyles.css';
-import '../../styles/createEventPageStyles.css';
-import '../../styles/sideNavbarStyles.css';
-import { FaBars } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ksitmlogo from "../../images/logobanner.png";
+import "../../styles/adminStyles.css";
+import "../../styles/createEventPageStyles.css";
+import "../../styles/sideNavbarStyles.css";
+import { FaBars } from "react-icons/fa";
+import Chatbot from "./Chatbot"; // Import the 'Chatbot' component
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [events, setEvents] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -19,16 +20,16 @@ const AdminDashboardPage = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('http://localhost:3000/events');
+      const response = await fetch("http://localhost:3000/events");
       if (response.ok) {
-        console.log('fetch success');
+        console.log("fetch success");
         const data = await response.json();
         setEvents(data);
       } else {
-        console.error('Failed to fetch events');
+        console.error("Failed to fetch events");
       }
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error("Error fetching events:", error);
     }
   };
 
@@ -37,9 +38,9 @@ const AdminDashboardPage = () => {
       const eventDate = new Date(event.eventscheduleddate);
       const currentDate = new Date();
       if (eventDate < currentDate) {
-        return { ...event, status: 'completed' };
+        return { ...event, status: "completed" };
       }
-      return { ...event, status: 'upcoming' };
+      return { ...event, status: "upcoming" };
     })
     .filter((event) => {
       const eventDate = new Date(event.eventscheduleddate);
@@ -48,7 +49,7 @@ const AdminDashboardPage = () => {
       if (selectedYear !== eventYear) {
         return false;
       }
-      if (selectedMonth !== 'all' && selectedMonth !== eventMonth.toString()) {
+      if (selectedMonth !== "all" && selectedMonth !== eventMonth.toString()) {
         return false;
       }
       return true;
@@ -57,7 +58,7 @@ const AdminDashboardPage = () => {
     setIsOpen(!isOpen);
   };
   const handleCreateEvent = () => {
-    navigate('/admin/create-event');
+    navigate("/admin/create-event");
   };
   const handleViewEventDetails = (eventId) => {
     navigate(`/admin/events/${eventId}/details`);
@@ -72,19 +73,19 @@ const AdminDashboardPage = () => {
 
   // Generate month options
   const monthOptions = [
-    { value: 'all', label: 'All' },
-    { value: '0', label: 'January' },
-    { value: '1', label: 'February' },
-    { value: '2', label: 'March' },
-    { value: '3', label: 'April' },
-    { value: '4', label: 'May' },
-    { value: '5', label: 'June' },
-    { value: '6', label: 'July' },
-    { value: '7', label: 'August' },
-    { value: '8', label: 'September' },
-    { value: '9', label: 'October' },
-    { value: '10', label: 'November' },
-    { value: '11', label: 'December' },
+    { value: "all", label: "All" },
+    { value: "0", label: "January" },
+    { value: "1", label: "February" },
+    { value: "2", label: "March" },
+    { value: "3", label: "April" },
+    { value: "4", label: "May" },
+    { value: "5", label: "June" },
+    { value: "6", label: "July" },
+    { value: "7", label: "August" },
+    { value: "8", label: "September" },
+    { value: "9", label: "October" },
+    { value: "10", label: "November" },
+    { value: "11", label: "December" },
   ];
 
   return (
@@ -92,7 +93,7 @@ const AdminDashboardPage = () => {
       <div
         className="sidebar-overlay"
         onClick={toggleNav}
-        style={{ display: isOpen ? 'block' : 'none' }}
+        style={{ display: isOpen ? "block" : "none" }}
       ></div>
       <div className="main-container">
         <div className="sidebar-header">
@@ -100,8 +101,8 @@ const AdminDashboardPage = () => {
             {isOpen ? null : <FaBars />}
           </button>
         </div>
-        <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
-          <ul className={`sidebar-menu ${isOpen ? 'open' : ''}`}>
+        <nav className={`sidebar ${isOpen ? "open" : ""}`}>
+          <ul className={`sidebar-menu ${isOpen ? "open" : ""}`}>
             <li>
               <img src={ksitmlogo} alt="Logo" className="logo" />
             </li>
@@ -114,7 +115,7 @@ const AdminDashboardPage = () => {
             <li>
               <button
                 className="sidebar-item"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
               >
                 Log Out
               </button>
@@ -152,7 +153,7 @@ const AdminDashboardPage = () => {
               </div>
               <div className="analytics-card-content">
                 {
-                  filteredEvents.filter((event) => event.status === 'upcoming')
+                  filteredEvents.filter((event) => event.status === "upcoming")
                     .length
                 }
               </div>
@@ -185,7 +186,7 @@ const AdminDashboardPage = () => {
               </div>
               <div className="analytics-card-content">
                 {
-                  filteredEvents.filter((event) => event.status === 'completed')
+                  filteredEvents.filter((event) => event.status === "completed")
                     .length
                 }
               </div>
@@ -231,6 +232,9 @@ const AdminDashboardPage = () => {
             </table>
           </div>
         </div>
+      </div>
+      <div>
+        <Chatbot />
       </div>
     </>
   );
