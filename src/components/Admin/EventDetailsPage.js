@@ -278,8 +278,8 @@ const EventDetailsPage = () => {
                   <button className="sub-item">View ID Card</button>
                 </li>
                 <li>
-                  <button className="sub-item">
-                    Send out ID cards to Registrants
+                  <button className="sub-item" onClick={handleMassGenerateIDCards}>
+                    Mass Generate ID Cards
                   </button>
                 </li>
               </ul>
@@ -455,14 +455,14 @@ const EventDetailsPage = () => {
                               });
                           }}
                         >
-                          Download ID Card
+                          <FaDownload />
                         </button>
                       </td>
                       <td>
                         <span
                           className={`status-pill ${participant.status === "Attended"
-                              ? "attended"
-                              : "registered"
+                            ? "attended"
+                            : "registered"
                             }`}
                         >
                           {participant.status}
@@ -482,24 +482,7 @@ const EventDetailsPage = () => {
                 Mark Attendance
               </button>
             </div>
-            <div className="control-item">
-              <h4>Mass Generate Certificates</h4>
-              <button
-                className="preview-btn"
-                onClick={handleMassGenerateCertificates}
-              >
-                Mass Generate Certificates
-              </button>
-            </div>
-            <div className="control-item">
-          <h4>Mass Generate ID Cards</h4>
-          <button
-            className="preview-btn"
-            onClick={handleMassGenerateIDCards}
-          >
-            Mass Generate ID Cards
-          </button>
-        </div>
+            
           </div>
 
           <Modal
