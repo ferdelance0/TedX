@@ -6,6 +6,9 @@ const generateParticipantSchema = (fields) => {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
+    idCardUrl: {
+      type: String,
+    },
     certificateUrl: {
       type: String,
     },
