@@ -8,6 +8,7 @@ import AdminRoutes from './pages/AdminRoutes';
 import SecurityRoutes from './pages/SecurityRoutes';
 import CommonRoutes from './pages/CommonRoutes';
 import LoginPage from './components/CommonComponents/LoginPage';
+import SignUpPage from './components/Admin/SignupPage';
 
 // Define a higher-order component (HOC) for protecting routes
 const ProtectedRoute = ({ element, ...rest }) => {
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/security/*" element={<ProtectedRoute element={<SecurityRoutes />} />}/> 
         <Route path="/*" element={<ProtectedRoute element={<CommonRoutes />} />}/>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Routes>
     </Router>
   );

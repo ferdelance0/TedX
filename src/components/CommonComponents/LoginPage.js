@@ -33,7 +33,7 @@ function LoginPage() {
   };
 
   const handleRegisterRedirect = () => {
-    navigate('../Admin/Signup');
+    navigate('/signup');
   };
 
   return (
