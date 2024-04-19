@@ -179,6 +179,26 @@ const EventDetailsPage = () => {
       setIsSending(false);
     }
   };
+  const handleMassGenerateIDCards = async () => {
+    try {
+      await axios
+        .get(`http://localhost:3000/massidcardgen?eventId=${eventId}`)
+        .then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "id_cards.csv");
+          document.body.appendChild(link);
+          link.click();
+        })
+        .catch((error) => {
+          console.error("Error downloading CSV file:", error);
+        });
+      console.log("Mass ID card generation request successful!");
+    } catch (error) {
+      console.error("Error generating mass ID cards:", error);
+    }
+  };
 
   if (!event) {
     return <div>Loading...</div>;
@@ -224,17 +244,15 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === "registration" ? "active" : ""
-                }`}
+                className={`sidebar-item ${activeItem === "registration" ? "active" : ""
+                  }`}
                 onClick={() => toggleSubItems("registration")}
               >
                 Registration
               </button>
               <ul
-                className={`sub-menu ${
-                  activeItem === "registration" ? "open" : ""
-                }`}
+                className={`sub-menu ${activeItem === "registration" ? "open" : ""
+                  }`}
               >
                 <li>
                   <a
@@ -247,9 +265,8 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === "idCard" ? "active" : ""
-                }`}
+                className={`sidebar-item ${activeItem === "idCard" ? "active" : ""
+                  }`}
                 onClick={() => toggleSubItems("idCard")}
               >
                 ID Card
@@ -269,9 +286,8 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === "poll" ? "active" : ""
-                }`}
+                className={`sidebar-item ${activeItem === "poll" ? "active" : ""
+                  }`}
                 onClick={() => toggleSubItems("poll")}
               >
                 Poll
@@ -294,17 +310,15 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === "certificate" ? "active" : ""
-                }`}
+                className={`sidebar-item ${activeItem === "certificate" ? "active" : ""
+                  }`}
                 onClick={() => toggleSubItems("certificate")}
               >
                 Certificate
               </button>
               <ul
-                className={`sub-menu ${
-                  activeItem === "certificate" ? "open" : ""
-                }`}
+                className={`sub-menu ${activeItem === "certificate" ? "open" : ""
+                  }`}
               >
                 <li>
                   <button className="sub-item">View Certificate</button>
@@ -446,11 +460,10 @@ const EventDetailsPage = () => {
                       </td>
                       <td>
                         <span
-                          className={`status-pill ${
-                            participant.status === "Attended"
+                          className={`status-pill ${participant.status === "Attended"
                               ? "attended"
                               : "registered"
-                          }`}
+                            }`}
                         >
                           {participant.status}
                         </span>
@@ -478,6 +491,15 @@ const EventDetailsPage = () => {
                 Mass Generate Certificates
               </button>
             </div>
+            <div className="control-item">
+          <h4>Mass Generate ID Cards</h4>
+          <button
+            className="preview-btn"
+            onClick={handleMassGenerateIDCards}
+          >
+            Mass Generate ID Cards
+          </button>
+        </div>
           </div>
 
           <Modal
