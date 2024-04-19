@@ -3,12 +3,30 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../../styles/adminStyles.css';
-
+import Modal from 'react-modal';
+const customModalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    maxWidth: '500px',
+    width: '100%',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
 const PollQuestionForm = () => {
   const { eventId } = useParams();
   const [pollQuestions, setPollQuestions] = useState([]);
   const [pollAnswers, setPollAnswers] = useState({});
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   useEffect(() => {
     // Fetch poll questions from the backend based on the event ID
     axios
@@ -47,6 +65,7 @@ const PollQuestionForm = () => {
       )
       .then((response) => {
         console.log('Poll responses submitted:', response.data);
+        setShowSuccessModal(true);
         // Reset form data or redirect to a success page
       })
       .catch((error) => {
@@ -88,6 +107,25 @@ const PollQuestionForm = () => {
           </button>
         </form>
       </div>
+
+      <Modal
+        isOpen={showSuccessModal}
+        onRequestClose={() => setShowSuccessModal(false)}
+        style={customModalStyles}
+        contentLabel="Success Modal"
+      >
+        <h2>Success!</h2>
+        <p>Your response has been submitted</p>
+        <button
+          className="content-button"
+          onClick={() => {
+            setShowSuccessModal(false);
+            // Optionally, you can redirect to the dashboard or perform any other action
+          }}
+        >
+          OK
+        </button>
+      </Modal>
     </div>
   );
 };

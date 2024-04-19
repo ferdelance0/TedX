@@ -3,12 +3,33 @@ import '../../styles/adminStyles.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import Modal from 'react-modal';
 
+const customModalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    maxWidth: '500px',
+    width: '100%',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
+Modal.setAppElement('#root');
 const RegistrationForm = () => {
   const { eventId } = useParams();
   const [eventExists, setEventExists] = useState(false);
   const [registrationFields, setRegistrationFields] = useState([]);
   const [participantData, setParticipantData] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     // Check if the event exists in the event table
@@ -55,6 +76,7 @@ const RegistrationForm = () => {
           .then((response) => {
             console.log('Participant registered:', response.data.participant);
             // Reset form data or redirect to a success page
+            setShowSuccessModal(true);
           })
           .catch((error) => {
             console.error('Error registering participant:', error);
@@ -136,6 +158,25 @@ const RegistrationForm = () => {
             </button>
           </div>
         </form>
+
+        <Modal
+          isOpen={showSuccessModal}
+          onRequestClose={() => setShowSuccessModal(false)}
+          style={customModalStyles}
+          contentLabel="Success Modal"
+        >
+          <h2>Success!</h2>
+          <p>You have been registered for this event!</p>
+          <button
+            className="content-button"
+            onClick={() => {
+              setShowSuccessModal(false);
+              // Optionally, you can redirect to the dashboard or perform any other action
+            }}
+          >
+            OK
+          </button>
+        </Modal>
       </div>
     </>
   );
