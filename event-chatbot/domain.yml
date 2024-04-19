@@ -12,6 +12,31 @@ intents:
   - provide_event_date
   - provide_event_location
 
+entities:
+  - event_name
+
+slots:
+  event_name:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: event_name
+  event_description:
+    type: text
+    mappings:
+      - type: from_text
+        intent: provide_event_description
+  event_date:
+    type: text
+    mappings:
+      - type: from_text
+        intent: provide_event_date
+  event_location:
+    type: text
+    mappings:
+      - type: from_text
+        intent: provide_event_location
+
 actions:
   - action_create_event
 

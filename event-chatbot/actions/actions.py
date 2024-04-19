@@ -15,10 +15,6 @@ class ActionCreateEvent(Action):
         event_date = tracker.get_slot("event_date")
         event_location = tracker.get_slot("event_location")
 
-        if not event_name:
-            dispatcher.utter_message(text="Sorry, I couldn't understand the event name. Please provide a valid event name.")
-            return []
-
         # Make a POST request to the server to create the event
         response = requests.post("http://localhost:3000/createevents", json={
             "eventname": event_name,
