@@ -1,7 +1,7 @@
 const fs = require("fs");
 const { PDFDocument, rgb } = require("pdf-lib");
 const fontkit = require("fontkit");
-const { initializeApp } = require("firebase/app");
+const firebase = require('../certificate-gen/firebase')
 const {
   getStorage,
   ref,
@@ -9,18 +9,7 @@ const {
   getDownloadURL,
 } = require("firebase/storage");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDoxIsof993-vbK3aqSsl1HCTSLoSN2RhQ",
-  authDomain: "storage-cee65.firebaseapp.com",
-  projectId: "storage-cee65",
-  storageBucket: "storage-cee65.appspot.com",
-  messagingSenderId: "542807162743",
-  appId: "1:542807162743:web:9a500ca41c2080a1e9eb72",
-  measurementId: "G-HDBML2V7R3",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = firebase;
 const storage = getStorage();
 
 const generateCertificatePDF = async (name) => {
@@ -66,10 +55,13 @@ const generateCertificatePDF = async (name) => {
   const pdfRef = ref(storage, `Certs/${name}.pdf`);
   await uploadBytes(pdfRef, pdfBytes);
   const downloadURL = await getDownloadURL(pdfRef);
+  console.log(downloadURL)
+  
 
   console.log("PDF generated successfully.");
   return downloadURL;
 };
+
 
 const generateIDPDF = async (name) => {
   const position = "Attendee";
