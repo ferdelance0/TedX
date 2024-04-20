@@ -133,22 +133,19 @@ const EventDetailsPage = () => {
 
   const handleMassGenerateCertificates = async () => {
     try {
-      await axios
-        .get(`http://localhost:3000/masscertgen?eventId=${eventId}`)
-        .then((response) => {
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'certificates.csv');
-          document.body.appendChild(link);
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Error downloading CSV file:', error);
-        });
-      console.log('Mass certificate generation request successfully!');
+      const response = await axios.get(`http://localhost:3000/masscertgen?eventId=${eventId}`);
+      const certificates = response.data.certificateUrls;
+      const csvContent = "Participant_ID,Name,Certificate_URL\n" + certificates.map(cert => `${cert.Participant_ID},${cert.Name},${cert.Certificate_URL}`).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'certificates.csv');
+      document.body.appendChild(link);
+      link.click();
+      console.log('CSV file downloaded successfully!');
     } catch (error) {
-      console.error('Error generating mass certificates:', error);
+      console.error('Error generating CSV file:', error);
     }
   };
 
@@ -184,10 +181,14 @@ const EventDetailsPage = () => {
       await axios
         .get(`http://localhost:3000/massidcardgen?eventId=${eventId}`)
         .then((response) => {
-          const url = window.URL.createObjectURL(new Blob([response.data]));
+          console.log(response.data)
+          const certificates = response.data.idCardUrls;
+          const csvContent = "Participant_ID,Name,Certificate_URL\n" + certificates.map(cert => `${cert.Participant_ID},${cert.Name},${cert.idCardUrl}`).join("\n");
+          const blob = new Blob([csvContent], { type: "text/csv" });
+          const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.setAttribute('download', 'id_cards.csv');
+          link.setAttribute('download', 'certificates.csv');
           document.body.appendChild(link);
           link.click();
         })
@@ -244,17 +245,15 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === 'registration' ? 'active' : ''
-                }`}
+                className={`sidebar-item ${activeItem === 'registration' ? 'active' : ''
+                  }`}
                 onClick={() => toggleSubItems('registration')}
               >
                 Registration
               </button>
               <ul
-                className={`sub-menu ${
-                  activeItem === 'registration' ? 'open' : ''
-                }`}
+                className={`sub-menu ${activeItem === 'registration' ? 'open' : ''
+                  }`}
               >
                 <li>
                   <a
@@ -267,9 +266,8 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === 'idCard' ? 'active' : ''
-                }`}
+                className={`sidebar-item ${activeItem === 'idCard' ? 'active' : ''
+                  }`}
                 onClick={() => toggleSubItems('idCard')}
               >
                 ID Card
@@ -289,9 +287,8 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === 'poll' ? 'active' : ''
-                }`}
+                className={`sidebar-item ${activeItem === 'poll' ? 'active' : ''
+                  }`}
                 onClick={() => toggleSubItems('poll')}
               >
                 Poll
@@ -314,17 +311,15 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${
-                  activeItem === 'certificate' ? 'active' : ''
-                }`}
+                className={`sidebar-item ${activeItem === 'certificate' ? 'active' : ''
+                  }`}
                 onClick={() => toggleSubItems('certificate')}
               >
                 Certificate
               </button>
               <ul
-                className={`sub-menu ${
-                  activeItem === 'certificate' ? 'open' : ''
-                }`}
+                className={`sub-menu ${activeItem === 'certificate' ? 'open' : ''
+                  }`}
               >
                 <li>
                   <button className="sub-item">View Certificate</button>
@@ -466,11 +461,10 @@ const EventDetailsPage = () => {
                       </td>
                       <td>
                         <span
-                          className={`status-pill ${
-                            participant.status === 'Attended'
-                              ? 'attended'
-                              : 'registered'
-                          }`}
+                          className={`status-pill ${participant.status === 'Attended'
+                            ? 'attended'
+                            : 'registered'
+                            }`}
                         >
                           {participant.status}
                         </span>
@@ -489,7 +483,7 @@ const EventDetailsPage = () => {
                 Mark Attendance
               </button>
             </div>
-            
+
           </div>
 
           <Modal
