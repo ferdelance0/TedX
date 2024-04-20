@@ -420,7 +420,6 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-const generationStatus = new Map();
 app.get("/masscertgen", async (req, res) => {
     const { eventId } = req.query;
 
@@ -458,80 +457,33 @@ app.get("/masscertgen", async (req, res) => {
     }
 });
 
-
-const idCardGenerationStatus = new Map();
 app.get("/massidcardgen", async (req, res) => {
     const { eventId } = req.query;
 
     try {
-        // Check the status of ID card generation for the specified event
-        if (idCardGenerationStatus.has(eventId)) {
-            const status = idCardGenerationStatus.get(eventId);
-            if (status === "in-progress") {
-                // ID card generation is already in progress for this event
-                return res.status(409).json({
-                    error: "ID card generation is already in progress for this event",
-                });
-            } else if (status === "completed") {
-                // ID card generation has already completed for this event
-                // Retrieve the generated ID cards or URLs from the database
-
-                // Fetch participants from the database for the specified event ID
-                const participants = await participantModels[
-                    `Participant_${eventId}`
-                ].find();
-
-                if (!participants || participants.length === 0) {
-                    // No participants found for the event
-                    return res
-                        .status(404)
-                        .json({ error: "No participants found for the event" });
-                }
-
-                // Prepare the response with generated ID card URLs
-                const idCardUrls = participants.map((participant) => ({
-                    Participant_ID: participant._id,
-                    Name: participant.Name,
-                    ID_Card_URL: participant.idCardUrl,
-                }));
-                return res
-                    .status(200)
-                    .json({ message: "ID cards already generated", idCardUrls });
-            }
-        }
-
-        // Start the generation process for the event
-        idCardGenerationStatus.set(eventId, "in-progress");
-
         // Fetch participants from the database for the specified event ID
-        const participants = await participantModels[
-            `Participant_${eventId}`
-        ].find();
+        const participants = await participantModels[`Participant_${eventId}`].find();
 
         if (!participants || participants.length === 0) {
-            // No participants found for the event
-            idCardGenerationStatus.set(eventId, "completed");
-            return res
-                .status(404)
-                .json({ error: "No participants found for the event" });
+            return res.status(404).json({ error: "No participants found for the event" });
         }
-
-        // Generate ID cards for participants without existing ID card URLs
-        const idCardUrls = [];
 
         for (const participant of participants) {
             if (!participant.idCardUrl) {
                 const { _id, Name } = participant;
                 const url = await generateIDPDF(Name); // Generate ID card for each participant
                 participant.idCardUrl = url;
-
-                // Save updated participant with ID card URL
                 await participant.save(); // Use save method to update the participant in the database
+                console.log(url, Name, _id);
             }
         }
 
-        // Set status to 'completed' after generating ID cards for all participants
-        idCardGenerationStatus.set(eventId, "completed");
+        // Construct the response with generated ID card URLs
+        const idCardUrls = participants.map((participant) => ({
+            Participant_ID: participant._id,
+            Name: participant.Name,
+            ID_Card_URL: participant.idCardUrl,
+        }));
 
         // Return the generated ID card URLs
         res.status(200).json({
@@ -543,6 +495,7 @@ app.get("/massidcardgen", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 // Connect to MongoDB Atlas
 mongoose
