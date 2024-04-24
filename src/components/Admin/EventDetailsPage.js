@@ -50,36 +50,38 @@ const EventDetailsPage = () => {
 
   const [subevents, setSubevents] = useState([]);
 
-  useEffect(() => {
-    const fetchEventAndParticipants = async () => {
-      try {
-        const eventResponse = await axios.get(
-          `http://localhost:3000/events/${eventId}`
-        );
-        setEvent(eventResponse.data.event);
+useEffect(() => {
+  const fetchEventAndParticipants = async () => {
+    try {
+      const eventResponse = await axios.get(
+        `http://localhost:3000/events/${eventId}`
+      );
+      setEvent(eventResponse.data.event);
+      console.log("Fetched event:", eventResponse.data.event);
 
-        const participantsResponse = await axios.get(
-          `http://localhost:3000/events/${eventId}/participants`
-        );
-        setParticipants(participantsResponse.data);
+      const participantsResponse = await axios.get(
+        `http://localhost:3000/events/${eventId}/participants`
+      );
+      setParticipants(participantsResponse.data);
+      console.log("Fetched participants:", participantsResponse.data);
 
-        if (eventResponse.data.event.eventhassubevents) {
-          const subeventsResponse = await axios.get(
-            `http://localhost:3000/api/subevents/${eventId}`
-          );
-          setSubevents(subeventsResponse.data);
-        }
-      } catch (error) {
-        console.error(
-          "Error fetching event, participants, and subevents:",
-          error
+      if (eventResponse.data.event.eventhassubevents) {
+        const subeventsResponse = await axios.get(
+          `http://localhost:3000/api/subevents/${eventId}`
         );
+        setSubevents(subeventsResponse.data);
+        console.log("Fetched subevents:", subeventsResponse.data);
       }
-    };
+    } catch (error) {
+      console.error(
+        "Error fetching event, participants, and subevents:",
+        error
+      );
+    }
+  };
 
-    fetchEventAndParticipants();
-  }, [eventId]);
-
+  fetchEventAndParticipants();
+}, [eventId]);
   const handleSelectAllChange = (e) => {
     setSelectedParticipants(
       e.target.checked ? participants.map((p) => p._id) : []
@@ -231,23 +233,38 @@ const EventDetailsPage = () => {
     }
   };
 
-  const handleSubeventFilter = (e) => {
-    setSelectedSubevent(e.target.value);
+  const handleSubeventFilter = (subeventId) => {
+    setSelectedSubevent(subeventId);
   };
+
   useEffect(() => {
     const filterParticipants = () => {
+      console.log("Filtering participants...");
+      console.log("Selected subevent:", selectedSubevent);
+      console.log("Event:", event);
+      console.log("Participants:", participants);
+      
       const filtered = participants.filter((participant) => {
         if (selectedSubevent === "All" || !event || !event.eventhassubevents) {
+       
+          console.log(`Participant ${participant.Name} included (All or no subevents)`);
           return true;
         } else {
-          return participant.subevents.some(
-            (subevent) => subevent.subeventname === selectedSubevent
-          );
+          const isIncluded = participant.subevents.some((subevent) => subevent.subeventName=== selectedSubevent);
+          console.log("participant subevents in the else",participant.subevents);
+          if (isIncluded) {
+            console.log(`Participant ${participant.Name} included (Registered for subevent ${selectedSubevent})`);
+          } else {
+            console.log(`Participant ${participant.Name} excluded (Not registered for subevent ${selectedSubevent})`);
+          }
+          return isIncluded;
         }
       });
+  
+      console.log("Filtered participants:", filtered);
       setFilteredParticipants(filtered);
     };
-
+  
     filterParticipants();
   }, [selectedSubevent, participants, event]);
 
@@ -406,19 +423,28 @@ const EventDetailsPage = () => {
             <h3>Participants</h3>
             {event.eventhassubevents && subevents.length > 0 && (
               <div className="subevent-filter">
-                <label htmlFor="subevent-select">Filter by Subevent:</label>
-                <select
-                  id="subevent-select"
-                  value={selectedSubevent}
-                  onChange={handleSubeventFilter}
+                <button
+                  className={`subevent-filter-btn ${
+                    selectedSubevent === "All" ? "active" : ""
+                  }`}
+                  onClick={() => handleSubeventFilter("All")}
                 >
-                  <option value="All">All Participants</option>
-                  {subevents.map((subevent) => (
-                    <option key={subevent._id} value={subevent.subeventname}>
-                      {subevent.subeventname}
-                    </option>
-                  ))}
-                </select>
+                  
+                  All
+                </button>
+                {subevents.map((subevent) => (
+                  <button
+                    key={subevent._id}
+                    className={`subevent-filter-btn ${
+                      selectedSubevent === subevent.subeventname
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() => handleSubeventFilter(subevent.subeventname)}
+                  >
+                    {subevent.subeventname}
+                  </button>
+                ))}
               </div>
             )}
             <div className="table-wrapper">
@@ -461,14 +487,18 @@ const EventDetailsPage = () => {
                         <td key={index}>{participant[field.label]}</td>
                       ))}
                       {event.eventhassubevents && (
-                        <td>
-                          {participant.subevents.map((subevent) => (
-                            <span key={subevent._id}>
-                              {subevent.subeventname}
-                              {", "}
-                            </span>
-                          ))}
-                        </td>
+                         <td>
+                         {participant.subevents.map((subevent) => {
+                           console.log("Subevent:", subevent);
+                           console.log("Subevent ID:", subevent.subeventId);
+                           return (
+                             <span key={subevent.subeventId._id || subevent._id}>
+                               {subevent.subeventName || "bleeeee"}
+                               {participant.subevents.length > 1 && ", "}
+                             </span>
+                           );
+                         })}
+                       </td>
                       )}
                       <td>
                         <button

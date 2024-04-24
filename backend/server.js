@@ -68,24 +68,28 @@ app.get("/events/:eventId", (req, res) => {
 
 app.get("/events/:eventId/participants", async (req, res) => {
     try {
-        const { eventId } = req.params;
-        console.log("Fetching participants for eventId:", eventId);
-        console.log("Participant models:", participantModels);
-
-        const ParticipantModel = participantModels[`Participant_${eventId}`];
-        if (ParticipantModel) {
-            const participants = await ParticipantModel.find();
-            console.log("Fetched participants:", participants);
-            res.json(participants);
-        } else {
-            console.log("Participant model not found for eventId:", eventId);
-            res.status(404).json({ error: "Participant model not found" });
-        }
+      const { eventId } = req.params;
+      console.log("Fetching participants for eventId:", eventId);
+      console.log("Participant models:", participantModels);
+  
+      const ParticipantModel = participantModels[`Participant_${eventId}`];
+      if (ParticipantModel) {
+        console.log("ParticipantModel found:", ParticipantModel);
+        const participants = await ParticipantModel.find().populate({
+          path: "subevents.subeventId",
+          select: "subeventname",
+        });
+        console.log("Fetched participants:", participants);
+        res.json(participants);
+      } else {
+        console.log("Participant model not found for eventId:", eventId);
+        res.status(404).json({ error: "Participant model not found" });
+      }
     } catch (error) {
-        console.error("Error fetching participants:", error);
-        res.status(500).json({ error: "Error fetching participants" });
+      console.error("Error fetching participants:", error);
+      res.status(500).json({ error: "Error fetching participants" });
     }
-});
+  });
 
 app.post("/events/:eventId/send-bulk-email", async (req, res) => {
     try {
@@ -236,9 +240,9 @@ app.post("/registerParticipant", async (req, res) => {
     }
 
     const createdParticipant = await ParticipantModel.create({
-      ...participantData,
-      subevents: selectedSubevents,
-    });
+        ...participantData,
+        subevents: selectedSubevents.map((subevent) => ({ subeventId: subevent._id })),
+      });
     res.status(200).json({ participant: createdParticipant });
   } catch (error) {
     console.error("Error registering participant:", error);
