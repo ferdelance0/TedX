@@ -46,6 +46,9 @@ const EventDetailsPage = () => {
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedSubevent, setSelectedSubevent] = useState("All");
+
+  const [subevents, setSubevents] = useState([]);
+
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
       try {
@@ -58,8 +61,18 @@ const EventDetailsPage = () => {
           `http://localhost:3000/events/${eventId}/participants`
         );
         setParticipants(participantsResponse.data);
+
+        if (eventResponse.data.event.eventhassubevents) {
+          const subeventsResponse = await axios.get(
+            `http://localhost:3000/api/subevents/${eventId}`
+          );
+          setSubevents(subeventsResponse.data);
+        }
       } catch (error) {
-        console.error("Error fetching event and participants:", error);
+        console.error(
+          "Error fetching event, participants, and subevents:",
+          error
+        );
       }
     };
 
@@ -221,11 +234,13 @@ const EventDetailsPage = () => {
     setSelectedSubevent(e.target.value);
   };
   const filteredParticipants = participants.filter((participant) => {
-    if (selectedSubevent === "All") {
+    if (selectedSubevent === "All" || !event.eventhassubevents) {
       return true;
     } else {
       return participant.subevents.some(
-        (subevent) => subevent.subeventName === selectedSubevent
+        (subevent) =>
+          subevent._id.subeventparentevent === eventId &&
+          subevent._id.subeventname === selectedSubevent
       );
     }
   });
@@ -381,11 +396,9 @@ const EventDetailsPage = () => {
             <h2 className="event-title">{event.eventname}</h2>
           </div>
           <div className="event-description">{event.eventdescription}</div>
-
-          <div></div>
           <div className="participants-list">
             <h3>Participants</h3>
-            {event.eventhassubevents && event.subevents && (
+            {event.eventhassubevents && subevents.length > 0 && (
               <div className="subevent-filter">
                 <label htmlFor="subevent-select">Filter by Subevent:</label>
                 <select
@@ -394,9 +407,9 @@ const EventDetailsPage = () => {
                   onChange={handleSubeventFilter}
                 >
                   <option value="All">All Participants</option>
-                  {event.subevents.map((subevent) => (
-                    <option key={subevent._id} value={subevent.subeventName}>
-                      {subevent.subeventName}
+                  {subevents.map((subevent) => (
+                    <option key={subevent._id} value={subevent.subeventname}>
+                      {subevent.subeventname}
                     </option>
                   ))}
                 </select>
@@ -443,11 +456,10 @@ const EventDetailsPage = () => {
                       ))}
                       {event.eventhassubevents && (
                         <td>
-                          {participant.subevents.map((subevent, index) => (
-                            <span key={index}>
-                              {subevent.subeventName}
-                              {index !== participant.subevents.length - 1 &&
-                                ", "}
+                          {participant.subevents.map((subevent) => (
+                            <span key={subevent._id}>
+                              {subevent.subeventname}
+                              {", "}
                             </span>
                           ))}
                         </td>
@@ -487,7 +499,7 @@ const EventDetailsPage = () => {
                         >
                           <FaDownload />
                         </button>
-                      </td>
+                      </td>{" "}
                       <td>
                         <button
                           className="download-btn"
@@ -542,7 +554,6 @@ const EventDetailsPage = () => {
               </table>
             </div>
           </div>
-
           <div className="controls-section">
             <div className="control-item">
               <h4>Mark Attendance</h4>
@@ -550,8 +561,7 @@ const EventDetailsPage = () => {
                 Mark Attendance
               </button>
             </div>
-          </div>
-
+          </div>{" "}
           <Modal
             isOpen={showBulkEmailModal}
             onRequestClose={handleCloseBulkEmailModal}
