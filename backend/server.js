@@ -207,6 +207,45 @@ app.post("/createevents", async (req, res) => {
     }
 });
 
+app.get("/api/subevents/:eventId", async (req, res) => {
+  const { eventId } = req.params;
+  const subevents = await SubEvent.find({ subeventparentevent: eventId });
+  res.json(subevents);
+});
+
+
+app.post("/registerParticipant", async (req, res) => {
+  const { eventId, registrationFields, participantData, selectedSubevents } =
+    req.body;
+
+  try {
+    // Check if the participant model already exists in the cache
+    let ParticipantModel = participantModels[`Participant_${eventId}`];
+
+    if (!ParticipantModel) {
+      // Create and compile the participant model if it doesn't exist
+      const participantSchema = generateParticipantSchema(
+        registrationFields,
+        eventId
+      );
+      ParticipantModel = mongoose.model(
+        `Participant_${eventId}`,
+        participantSchema
+      );
+      participantModels[`Participant_${eventId}`] = ParticipantModel; // Store the compiled model in the cache
+    }
+
+    const createdParticipant = await ParticipantModel.create({
+      ...participantData,
+      subevents: selectedSubevents,
+    });
+    res.status(200).json({ participant: createdParticipant });
+  } catch (error) {
+    console.error("Error registering participant:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.post("/createsubevents", async (req, res) => {
     try {
         const event = await SubEvent.create(req.body);
@@ -228,34 +267,37 @@ async function loadParticipantModelsFromCache() {
 // server.js
 // server.js
 app.post("/createParticipantModel", async (req, res) => {
-    const { eventId, registrationFields } = req.body;
+  const { eventId, registrationFields } = req.body;
 
-    try {
-        // Check if the participant model already exists in the cache
-        let ParticipantModel = participantModels[`Participant_${eventId}`];
+  try {
+    // Check if the participant model already exists in the cache
+    let ParticipantModel = participantModels[`Participant_${eventId}`];
 
-        if (!ParticipantModel) {
-            // Create and compile the participant model if it doesn't exist
-            const participantSchema = generateParticipantSchema(registrationFields);
-            ParticipantModel = mongoose.model(
-                `Participant_${eventId}`,
-                participantSchema
-            );
-            participantModels[`Participant_${eventId}`] = ParticipantModel;
+    if (!ParticipantModel) {
+      // Create and compile the participant model if it doesn't exist
+      const participantSchema = generateParticipantSchema(
+        registrationFields,
+        eventId
+      );
+      ParticipantModel = mongoose.model(
+        `Participant_${eventId}`,
+        participantSchema
+      );
+      participantModels[`Participant_${eventId}`] = ParticipantModel;
 
-            // Save the participant fields to the cache collection
-            const cacheModel = new ParticipantModelCache({
-                modelName: `Participant_${eventId}`,
-                fields: registrationFields,
-            });
-            await cacheModel.save();
-        }
-
-        res.status(200).json({ message: "Participant model created successfully" });
-    } catch (error) {
-        console.error("Error creating participant model:", error);
-        res.status(500).json({ error: "Internal server error" });
+      // Save the participant fields to the cache collection
+      const cacheModel = new ParticipantModelCache({
+        modelName: `Participant_${eventId}`,
+        fields: registrationFields,
+      });
+      await cacheModel.save();
     }
+
+    res.status(200).json({ message: "Participant model created successfully" });
+  } catch (error) {
+    console.error("Error creating participant model:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/registerParticipant", async (req, res) => {

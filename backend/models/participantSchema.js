@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const generateParticipantSchema = (fields) => {
+const generateParticipantSchema = (fields, eventId) => {
   const schemaFields = {
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +16,15 @@ const generateParticipantSchema = (fields) => {
       type: String,
       default: "Registered",
     },
+    subevents: [
+      {
+        subeventId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "SubEvent",
+        },
+        subeventName: String,
+      },
+    ],
   };
 
   fields.forEach((field) => {

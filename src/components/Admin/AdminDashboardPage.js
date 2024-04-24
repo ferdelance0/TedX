@@ -1,11 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ksitmlogo from "../../images/logobanner.png";
-import "../../styles/adminStyles.css";
-import "../../styles/createEventPageStyles.css";
-import "../../styles/sideNavbarStyles.css";
-import { FaBars } from "react-icons/fa";
-import Chatbot from "./Chatbot"; // Import the 'Chatbot' component
+import {
+  Container,
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  IconButton,
+  Zoom,
+  Slide,
+  Fade,
+  useTheme,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import { FaBars, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import Chatbot from "./Chatbot";
 import { removeToken } from "../../auth/auth";
 
 const AdminDashboardPage = () => {
@@ -14,6 +38,8 @@ const AdminDashboardPage = () => {
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [events, setEvents] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const theme = useTheme();
 
   useEffect(() => {
     fetchEvents();
@@ -70,18 +96,15 @@ const AdminDashboardPage = () => {
 
   const handleLogout = () => {
     removeToken();
-    // Redirect to login page
     navigate("/login");
   };
 
-  // Generate year options
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from(
     { length: 5 },
     (_, index) => currentYear - index
   );
 
-  // Generate month options
   const monthOptions = [
     { value: "all", label: "All" },
     { value: "0", label: "January" },
@@ -98,151 +121,251 @@ const AdminDashboardPage = () => {
     { value: "11", label: "December" },
   ];
 
+  const StyledContainer = styled(Container)(({ theme }) => ({
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+  }));
+
+  const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+    marginTop: theme.spacing(4),
+  }));
+
+  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    fontWeight: "bold",
+    color: theme.palette.text.primary,
+  }));
+
+  const StyledButton = styled(Button)(({ theme }) => ({
+    marginRight: theme.spacing(2),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.background.default,
+    "&:hover": {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  }));
+
+  const StyledDrawer = styled(Drawer)(({ theme }) => ({
+    width: 240,
+    flexShrink: 0,
+    "& .MuiDrawer-paper": {
+      width: 240,
+      boxSizing: "border-box",
+      backgroundColor: theme.palette.background.default,
+    },
+  }));
+
+  const StyledListItem = styled(ListItem)(({ theme }) => ({
+    paddingLeft: theme.spacing(4),
+    color: theme.palette.text.primary,
+  }));
+
   return (
     <>
-      <div
-        className="sidebar-overlay"
-        onClick={toggleNav}
-        style={{ display: isOpen ? "block" : "none" }}
-      ></div>
-      <div className="main-container">
-        <div className="sidebar-header">
-          <button className="sidebar-toggle" onClick={toggleNav}>
-            {isOpen ? null : <FaBars />}
-          </button>
-        </div>
-        <nav className={`sidebar ${isOpen ? "open" : ""}`}>
-          <ul className={`sidebar-menu ${isOpen ? "open" : ""}`}>
-            <li>
-              <img src={ksitmlogo} alt="Logo" className="logo" />
-            </li>
-            <li>
-              <button className="sidebar-item" onClick={handleCreateEvent}>
-                Create Event
-              </button>
-            </li>
+      <StyledDrawer
+        anchor="left"
+        open={isOpen}
+        onClose={toggleNav}
+        variant="temporary"
+      >
+        <List>
+          <ListItem>
+            <img src={ksitmlogo} alt="Logo" style={{ width: "100%" }} />
+          </ListItem>
+          <StyledListItem button onClick={handleCreateEvent}>
+            <ListItemText primary="Create Event" />
+          </StyledListItem>
+          <StyledListItem button onClick={handleLogout}>
+            <ListItemText primary="Log Out" />
+          </StyledListItem>
+        </List>
+      </StyledDrawer>
 
-            <li>
-              <button className="sidebar-item" onClick={handleLogout}>
-                Log Out
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <div className="main-content">
-          <h1>Admin Dashboard</h1>
-          <div className="analytics-section">
-            <div className="analytics-card">
-              <div className="analytics-card-header">
-                <h3>Upcoming Events</h3>
-                <div className="analytics-card-filters">
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  >
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                  >
-                    {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="analytics-card-content">
-                {
-                  filteredEvents.filter((event) => event.status === "upcoming")
-                    .length
-                }
-              </div>
-            </div>
-            <div className="analytics-card">
-              <div className="analytics-card-header">
-                <h3>Completed Events</h3>
-                <div className="analytics-card-filters">
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                  >
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                  >
-                    {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="analytics-card-content">
-                {
-                  filteredEvents.filter((event) => event.status === "completed")
-                    .length
-                }
-              </div>
-            </div>
-          </div>
-          <div className="event-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Event Name</th>
-                  <th>Scheduled Date</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                  <th>Registration Form</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
+      <StyledContainer maxWidth="lg">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+        >
+          <Typography variant="h4" component="h1">
+            Admin Dashboard
+          </Typography>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={toggleNav}
+          >
+            <FaBars />
+          </IconButton>
+        </Box>
+
+        <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+          <Box mt={4}>
+            <Typography variant="h6" gutterBottom>
+              Analytics
+            </Typography>
+            <Box display="flex" justifyContent="space-around">
+              <Zoom in={true}>
+                <Paper
+                  elevation={3}
+                  style={{
+                    padding: "16px",
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  <Box display="flex" alignItems="center">
+                    <Typography variant="h6" gutterBottom>
+                      Upcoming Events
+                    </Typography>
+                    <IconButton
+                      onClick={() => setIsCollapsed(!isCollapsed)}
+                      size="small"
+                    >
+                      {isCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                    </IconButton>
+                  </Box>
+                  <Collapse in={!isCollapsed}>
+                    <Box mt={2}>
+                      <Select
+                        value={selectedYear}
+                        onChange={(e) =>
+                          setSelectedYear(Number(e.target.value))
+                        }
+                        fullWidth
+                      >
+                        {yearOptions.map((year) => (
+                          <MenuItem key={year} value={year}>
+                            {year}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        fullWidth
+                      >
+                        {monthOptions.map((month) => (
+                          <MenuItem key={month.value} value={month.value}>
+                            {month.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </Box>
+                  </Collapse>
+                  <Typography variant="h4" align="center" color="primary">
+                    {
+                      filteredEvents.filter(
+                        (event) => event.status === "upcoming"
+                      ).length
+                    }
+                  </Typography>
+                </Paper>
+              </Zoom>
+              <Zoom in={true} style={{ transitionDelay: "200ms" }}>
+                <Paper
+                  elevation={3}
+                  style={{
+                    padding: "16px",
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  <Box display="flex" alignItems="center">
+                    <Typography variant="h6" gutterBottom>
+                      Completed Events
+                    </Typography>
+                    <IconButton
+                      onClick={() => setIsCollapsed(!isCollapsed)}
+                      size="small"
+                    >
+                      {isCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                    </IconButton>
+                  </Box>
+                  <Collapse in={!isCollapsed}>
+                    <Box mt={2}>
+                      <Select
+                        value={selectedYear}
+                        onChange={(e) =>
+                          setSelectedYear(Number(e.target.value))
+                        }
+                        fullWidth
+                      >
+                        {yearOptions.map((year) => (
+                          <MenuItem key={year} value={year}>
+                            {year}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        fullWidth
+                      >
+                        {monthOptions.map((month) => (
+                          <MenuItem key={month.value} value={month.value}>
+                            {month.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </Box>
+                  </Collapse>
+                  <Typography variant="h4" align="center" color="primary">
+                    {
+                      filteredEvents.filter(
+                        (event) => event.status === "completed"
+                      ).length
+                    }
+                  </Typography>
+                </Paper>
+              </Zoom>
+            </Box>
+          </Box>
+        </Slide>
+
+        <Fade in={true}>
+          <StyledTableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Event Name</StyledTableCell>
+                  <StyledTableCell>Scheduled Date</StyledTableCell>
+                  <StyledTableCell>Location</StyledTableCell>
+                  <StyledTableCell>Status</StyledTableCell>
+                  <StyledTableCell>Registration Form</StyledTableCell>
+                  <StyledTableCell>Details</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {filteredEvents.map((event) => (
-                  <tr key={event._id}>
-                    <td>{event.eventname}</td>
-                    <td>{event.eventscheduleddate}</td>
-                    <td>{event.eventvenue}</td>
-                    <td>{event.status}</td>
-                    <td>
+                  <TableRow key={event._id}>
+                    <TableCell>{event.eventname}</TableCell>
+                    <TableCell>{event.eventscheduleddate}</TableCell>
+                    <TableCell>{event.eventvenue}</TableCell>
+                    <TableCell>{event.status}</TableCell>
+                    <TableCell>
                       <a
                         href={`http://localhost:3001/registration-form/${event._id}`}
                       >
                         Register
                       </a>
-                    </td>
-                    <td>
-                      <button
-                        className="content-button"
+                    </TableCell>
+                    <TableCell>
+                      <StyledButton
+                        variant="contained"
                         onClick={() => handleViewEventDetails(event._id)}
                       >
                         View Details
-                      </button>
-                    </td>
-                  </tr>
+                      </StyledButton>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div>
-        <Chatbot />
-      </div>
+              </TableBody>
+            </Table>
+          </StyledTableContainer>
+        </Fade>
+      </StyledContainer>
+
+      <Chatbot />
     </>
   );
 };
