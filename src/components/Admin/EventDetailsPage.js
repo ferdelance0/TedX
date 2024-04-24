@@ -46,6 +46,7 @@ const EventDetailsPage = () => {
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedSubevent, setSelectedSubevent] = useState("All");
+  const [filteredParticipants, setFilteredParticipants] = useState([]);
 
   const [subevents, setSubevents] = useState([]);
 
@@ -233,17 +234,22 @@ const EventDetailsPage = () => {
   const handleSubeventFilter = (e) => {
     setSelectedSubevent(e.target.value);
   };
-  const filteredParticipants = participants.filter((participant) => {
-    if (selectedSubevent === "All" || !event.eventhassubevents) {
-      return true;
-    } else {
-      return participant.subevents.some(
-        (subevent) =>
-          subevent._id.subeventparentevent === eventId &&
-          subevent._id.subeventname === selectedSubevent
-      );
-    }
-  });
+  useEffect(() => {
+    const filterParticipants = () => {
+      const filtered = participants.filter((participant) => {
+        if (selectedSubevent === "All" || !event || !event.eventhassubevents) {
+          return true;
+        } else {
+          return participant.subevents.some(
+            (subevent) => subevent.subeventname === selectedSubevent
+          );
+        }
+      });
+      setFilteredParticipants(filtered);
+    };
+
+    filterParticipants();
+  }, [selectedSubevent, participants, event]);
 
   if (!event) {
     return <div>Loading...</div>;
