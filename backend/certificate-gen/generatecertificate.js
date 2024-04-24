@@ -8,10 +8,19 @@ const {
   uploadBytes,
   getDownloadURL,
 } = require("firebase/storage");
-
+const qr = require('qrcode');
 const app = firebase;
 const storage = getStorage();
-
+async function generateQRCode(text) {
+  try {
+    // Generate QR code as a data URL
+    const qrDataUrl = await qr.toDataURL(text);
+    return qrDataUrl;
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error;
+  }
+}
 const generateCertificatePDF = async (name) => {
   const existingPdfBytes = fs.readFileSync(
     "./template/Dark Blue and Gold Elegant Certificate of Achievement Template (1).pdf"
@@ -63,7 +72,8 @@ const generateCertificatePDF = async (name) => {
 };
 
 
-const generateIDPDF = async (name) => {
+
+const generateIDPDF = async (name, participantId) => {
   const position = "Attendee";
   const existingPdfBytes = fs.readFileSync(
     "./template/White Creative Business Card Template.pdf"
@@ -79,33 +89,41 @@ const generateIDPDF = async (name) => {
   // Embed the font into the PDF document
   const font = await pdfDoc.embedFont(fontBytes);
 
-  // Calculate the width of the text
-  const fontSize = 18; // Adjust the font size as needed
-  const nameWidth = font.widthOfTextAtSize(name, fontSize);
-
-  // Calculate the horizontal position for centering the text
-  const pageWidth = firstPage.getWidth();
-  const horizontalPosition = (pageWidth - nameWidth) / 2 - 60;
+  // Set a constant horizontal position
+  const horizontalPosition = 100; // Adjust as needed
 
   // Calculate the vertical position for centering the text
   const pageHeight = firstPage.getHeight();
+  const fontSize = 18; // Adjust the font size as needed
   const textHeight = fontSize;
   const verticalPosition = (pageHeight - textHeight) / 2;
 
   // Draw the text on the page
   firstPage.drawText(name, {
-    x: horizontalPosition,
+    x: 20,
     y: verticalPosition + 20, // Adjust vertical position as needed
     size: fontSize,
     color: rgb(0, 0, 0),
     font: font,
   });
   firstPage.drawText(position, {
-    x: horizontalPosition,
+    x: 20,
     y: verticalPosition - 1, // Adjust vertical position as needed
     size: fontSize,
     color: rgb(0, 0, 0.5),
     font: font,
+  });
+
+  // Generate QR code
+  const qrCode = await generateQRCode(participantId); // Function to generate QR code
+
+  // Embed QR code into PDF
+  const qrImage = await pdfDoc.embedPng(qrCode);
+  firstPage.drawImage(qrImage, {
+    x: horizontalPosition + 30, // Adjust position as needed
+    y: verticalPosition - 50, // Adjust position as needed
+    width: 50,
+    height: 50,
   });
 
   // Save the modified PDF
@@ -118,5 +136,6 @@ const generateIDPDF = async (name) => {
   console.log("PDF generated successfully.");
   return downloadURL;
 };
+
 
 module.exports = { generateCertificatePDF, generateIDPDF };

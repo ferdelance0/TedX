@@ -362,7 +362,7 @@ app.post("/generateID", async (req, res) => {
         console.log("Participant already has an ID card URL:", participant.idCardUrl);
         return res.status(200).json({ message: "ID card already generated", url: participant.idCardUrl });
       }
-      const url = await generateIDPDF(Name);
+      const url = await generateIDPDF(Name,participantId);
       participant.idCardUrl = url;
       await participant.save();
       res.status(200).json({ message: "ID card generated successfully", url });
@@ -471,7 +471,7 @@ app.get("/massidcardgen", async (req, res) => {
         for (const participant of participants) {
             if (!participant.idCardUrl) {
                 const { _id, Name } = participant;
-                const url = await generateIDPDF(Name); // Generate ID card for each participant
+                const url = await generateIDPDF(Name,_id); // Generate ID card for each participant
                 participant.idCardUrl = url;
                 await participant.save(); // Use save method to update the participant in the database
                 console.log(url, Name, _id);
