@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from '../components/CommonComponents/LoginPage';
 import PollQuestionsForm from '../components/CommonComponents/PollQuestionsForm';
 import RegistrationForm from '../components/CommonComponents/RegistrationForm';
+import FeedbackForm from '../components/Admin/FeedbackForm';
 const CommonRoutes = () => {
   return (
     <Routes>
@@ -14,6 +15,10 @@ const CommonRoutes = () => {
       <Route
         path="/registration-form/:eventId"
         element={<RegistrationForm />}
+      />
+       <Route
+        path="/events/:eventId/feedbackquestions"
+        element={<FeedbackForm />}
       />
     </Routes>
   );

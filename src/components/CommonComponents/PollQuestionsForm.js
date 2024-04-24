@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../../styles/adminStyles.css';
 import Modal from 'react-modal';
+
+
 const customModalStyles = {
   content: {
     top: '50%',
@@ -27,7 +29,24 @@ const PollQuestionForm = () => {
   const [pollQuestions, setPollQuestions] = useState([]);
   const [pollAnswers, setPollAnswers] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [eventName, setEventName] = useState("");
   useEffect(() => {
+    axios
+      .get(`http://localhost:3000/events/${eventId}`)
+      .then((response) => {
+        if (response.data.event) {
+ 
+          setEventName(response.data.event.eventname);
+   
+
+          
+        } else {
+          return <div>Event not found.</div>;
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking event existence:", error);
+      });
     // Fetch poll questions from the backend based on the event ID
     axios
       .get(`http://localhost:3000/events/${eventId}/pollquestions`)
@@ -76,7 +95,8 @@ const PollQuestionForm = () => {
   return (
     <div className="main-content">
       <div className="page-container">
-        <h1 className="page-title">Poll Questions</h1>
+      <h1> {eventName}</h1>
+        <h3 className="page-title">Poll Questions</h3>
         <form onSubmit={handleSubmit}>
           {pollQuestions.map((question, questionIndex) => (
             <div key={questionIndex} className="poll-question">

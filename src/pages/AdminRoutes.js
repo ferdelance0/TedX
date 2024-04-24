@@ -5,7 +5,7 @@ import AdminDashboardPage from '../components/Admin/AdminDashboardPage';
 import CreateEventPage from '../components/Admin/CreateEventPage';
 import EventDetailsPage from '../components/Admin/EventDetailsPage';
 // import IdCardGenerator from '../components/Admin/IdCardGenerator';
-import FeedbackForm from '../components/Admin/FeedbackForm';
+
 import SignUpPage from '../components/Admin/SignupPage';
 import PollResponsesPage from '../components/Admin/PollResponsesPage';
 // import Certificate from '../components/Admin/Certificate';
@@ -24,10 +24,7 @@ const AdminRoutes = () => {
         path="/events/:eventId/pollresponses"
         element={<PollResponsesPage />}
       />
-      <Route
-        path="/events/:eventId/feedbackquestions"
-        element={<FeedbackForm />}
-      />
+     
       {/*<Route path="/admin/id-card-generator" element={<IdCardGenerator />} />
       <Route path="/admin/feedback-form" element={<FeedbackForm />} />
       <Route path="/admin/poll" element={<Poll />} /> */}
