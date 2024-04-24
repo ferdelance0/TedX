@@ -59,6 +59,9 @@ const AdminDashboardPage = () => {
       console.error("Error fetching events:", error);
     }
   };
+  const handleAddVolunteer = () => {
+    navigate("/admin/add-volunteer");
+  };
 
   const filteredEvents = events
     .map((event) => {
@@ -177,6 +180,10 @@ const AdminDashboardPage = () => {
           <StyledListItem button onClick={handleLogout}>
             <ListItemText primary="Log Out" />
           </StyledListItem>
+          <StyledListItem>
+            <ListItemText onClick={handleAddVolunteer} primary="Volunteer Management"/>
+        
+            </StyledListItem>
         </List>
       </StyledDrawer>
 

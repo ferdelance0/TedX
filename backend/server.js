@@ -414,31 +414,40 @@ app.post("/generateID", async (req, res) => {
     }
   });
 
-app.post("/login", async (req, res) => {
+  app.post("/login", async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
+  
     try {
-        // Check if the user exists
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ error: "Invalid email or password" });
-        }
-        // Verify the password
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: "Invalid email or password" });
-        }
-        const jwtsecret = "MySecretKEy";
-        // If email and password are correct, generate JWT token
-        const token = jwt.sign({ userId: user._id }, jwtsecret, {
-            expiresIn: "1h", // Token expires in 1 hour
-        });
-        res.status(200).json({ token });
+      // Check if the user exists
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+  
+      // Verify the password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+  
+      // Fetch the user's assigned event and role
+      const { assignedEvent, role } = user;
+  
+      // Generate the JWT token
+      const jwtsecret = "MySecretKEy";
+      const token = jwt.sign(
+        { userId: user._id, eventId: assignedEvent, role },
+        jwtsecret,
+        { expiresIn: "1h" } // Token expires in 1 hour
+      );
+  
+      res.status(200).json({ token });
     } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({ error: "Internal server error" });
+      console.error("Error during login:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-});
+  });
 
 app.post("/signup", async (req, res) => {
     const { email, password } = req.body;
@@ -537,8 +546,70 @@ app.get("/massidcardgen", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
-
+app.get("/get-security", async (req, res) => {
+    try {
+      // Query the users table for users with role "volunteer"
+      const volunteers = await User.find({ role: "security" });
+      res.status(200).json(volunteers);
+    } catch (error) {
+      console.error("Error fetching volunteers:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  app.get("/get-events", async (req, res) => {
+    try {
+      const volunteers = await Event.find();
+      res.status(200).json(volunteers);
+    } catch (error) {
+      console.error("Error fetching volunteers:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app.post("/update-assigned-event", async (req, res) => {
+    try {
+      const { userId, eventId } = req.body;
+        console.log(eventId)
+      const user = await User.findOne({_id:userId});
+      if (!user) {
+        return res.status(401).json({ error: "User not found LA" });
+      }
+      user.assignedEvent = eventId;
+      const updatedUser = await user.save();
+  
+      console.log("User updated successfully:", updatedUser);
+  
+      res.status(200).json({ message: "Assigned event updated successfully", user: updatedUser });
+    } catch (error) {
+      console.error("Error updating assigned event:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app.post("/add-security", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      // Check if the user already exists
+      console.log(email)
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+  
+      // Create a new user
+      const newUser = new User({
+        email,
+        password,
+        role: "security",
+      });
+      await newUser.save();
+  
+      res.status(201).json({ message: "User created successfully" });
+    } catch (error) {
+      console.error("Error adding user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
 // Connect to MongoDB Atlas
 mongoose
     .connect(mongoURI)

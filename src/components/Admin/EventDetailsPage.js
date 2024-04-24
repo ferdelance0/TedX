@@ -153,6 +153,8 @@ const EventDetailsPage = () => {
     setShowBulkEmailModal(true);
   };
 
+
+
   const handleCloseBulkEmailModal = () => {
     setShowBulkEmailModal(false);
   };
@@ -335,11 +337,7 @@ const EventDetailsPage = () => {
                 </li>
               </ul>
             </li>
-            <li>
-            <button className="sidebar-item" onClick={handleAddVolunteer}>
-                Add Volunteer
-              </button>
-            </li>
+            
           </ul>
         </nav>
         {/* side nav bar ending */}

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/loginpageStyles.css';
-import { saveToken } from '../../auth/auth';
+import { saveToken, getRole } from '../../auth/auth';
+
 function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -12,18 +13,20 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post('http://localhost:3000/login', {
         email: username,
         password: password,
       });
-
       if (response.status === 200) {
-        saveToken(response.data.token); 
-        navigate('/admin/dashboard');
+        saveToken(response.data.token);
+        const role = getRole(); // Get the user's role from the token
+        if (role === 'security') {
+          navigate('/security/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
-        // Login failed, handle error
         setError(response.data.error);
       }
     } catch (error) {
@@ -79,6 +82,6 @@ function LoginPage() {
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;

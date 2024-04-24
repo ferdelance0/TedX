@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import AdminDashboardPage from '../components/Admin/AdminDashboardPage';
 import CreateEventPage from '../components/Admin/CreateEventPage';
 import EventDetailsPage from '../components/Admin/EventDetailsPage';
+import AddVolunteer from '../components/Admin/AddVolunteer'
 // import IdCardGenerator from '../components/Admin/IdCardGenerator';
 import FeedbackForm from '../components/Admin/FeedbackForm';
 import SignUpPage from '../components/Admin/SignupPage';
@@ -19,6 +20,7 @@ const AdminRoutes = () => {
       <Route path="/create-event" element={<CreateEventPage />} />
 
       <Route path="/events/:eventId/details" element={<EventDetailsPage />} />
+      <Route path="/add-volunteer" element={<AddVolunteer />} />
 
       <Route
         path="/events/:eventId/pollresponses"
