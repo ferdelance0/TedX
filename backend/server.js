@@ -29,7 +29,7 @@ const verifyHCaptcha = async (captchaToken, req) => {
   
       const response = await axios.post('https://hcaptcha.com/siteverify', null, {
         params: {
-          secret: 'YOUR_HCAPTCHA_SECRET_KEY',
+          secret: 'ES_d8a0388469814d8fad80d0a8b051c50a',
           response: captchaToken,
           remoteip: remoteIP,
         },
@@ -209,19 +209,19 @@ app.get("/events/:eventId/feedbackquestions", async (req, res) => {
 });
 
 //endpoint to retrieve poll responses for an event// server.js
-app.get("/events/:eventId/pollresponses", async (req, res) => {
-    try {
-        const eventId = req.params.eventId;
+// app.get("/events/:eventId/pollresponses", async (req, res) => {
+//     try {
+//         const eventId = req.params.eventId;
 
-        // Find all poll responses for the given event ID
-        const pollResponses = await PollResponse.find({ eventId });
+//         // Find all poll responses for the given event ID
+//         const pollResponses = await PollResponse.find({ eventId });
 
-        res.status(200).json({ pollResponses });
-    } catch (error) {
-        console.error("Error retrieving poll responses:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+//         res.status(200).json({ pollResponses });
+//     } catch (error) {
+//         console.error("Error retrieving poll responses:", error);
+//         res.status(500).json({ error: "Internal server error" });
+//     }
+// });
 
 app.post("/createevents", async (req, res) => {
     try {
@@ -572,6 +572,97 @@ app.get("/massidcardgen", async (req, res) => {
 });
 
 
+
+app.post("/participants/:participantId/pollresponses", async (req, res) => {
+    try {
+      const participantId = req.params.participantId;
+      const { eventId, responses } = req.body;
+  
+      // Find the participant by ID
+      const ParticipantModel = participantModels[`Participant_${eventId}`];
+      const participant = await ParticipantModel.findById(participantId);
+  
+      if (!participant) {
+        return res.status(404).json({ error: "Participant not found" });
+      }
+  
+      // Update the participant's poll responses
+      participant.pollResponses = responses;
+      await participant.save();
+  
+      res.status(200).json({ message: "Poll responses submitted successfully" });
+    } catch (error) {
+      console.error("Error submitting poll responses:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+//   app.get("/events/:eventId/pollresponses", async (req, res) => {
+//     try {
+//       const { eventId } = req.params;
+//       const ParticipantModel = participantModels[`Participant_${eventId}`];
+//       const participants = await ParticipantModel.find();
+  
+//       const pollResponses = participants.map((participant) => ({
+//         participantId: participant._id,
+//         pollResponses: participant.pollResponses,
+//       }));
+  
+//       res.json({ pollResponses });
+//     } catch (error) {
+//       console.error("Error fetching poll responses:", error);
+//       res.status(500).json({ error: "Internal server error" });
+//     }
+//   });
+
+
+app.get("/events/:eventId/pollresponses", async (req, res) => {
+    try {
+      const { eventId } = req.params;
+      const ParticipantModel = participantModels[`Participant_${eventId}`];
+      const participants = await ParticipantModel.find();
+  
+      const pollResponses = {};
+
+    //   participants.forEach((participant) => {
+    //     participant.pollResponses.forEach((response) => {
+    //       const { questionId, answer } = response;
+          
+    //       console.log("responses : ",response);
+    //       console.log(questionId,answer);
+    //       if (!pollResponses[questionId]) {
+    //         pollResponses[questionId] = {};
+    //       }
+    //       if (!pollResponses[questionId][answer]) {
+    //         pollResponses[questionId][answer] = 0;
+    //       }
+    //       pollResponses[questionId][answer]++;
+    //     });
+    //   });
+
+    participants.forEach((participant) => {
+        participant.pollResponses.forEach((response, index) => { // Add index parameter
+          const { questionId, answer } = response;
+      
+          console.log("responses : ", response);
+          console.log("Question Index:", index); // Log the index of the question
+          console.log(questionId, answer);
+          if (!pollResponses[index]) {
+            pollResponses[index] = {};
+          }
+          if (!pollResponses[index][answer]) {
+            pollResponses[index][answer] = 0;
+          }
+          pollResponses[index][answer]++;
+        });
+      });
+  
+      res.json({ pollResponses });
+    } catch (error) {
+      console.error("Error fetching poll responses:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 // Connect to MongoDB Atlas
 mongoose
     .connect(mongoURI)
@@ -585,3 +676,4 @@ mongoose
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     })
     .catch((err) => console.error(err));
+

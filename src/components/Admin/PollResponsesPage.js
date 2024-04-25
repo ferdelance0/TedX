@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Pie } from 'react-chartjs-2';
-import '../../styles/adminStyles.css';
-import '../../styles/createEventPageStyles.css';
-import '../../styles/eventDetailsPageStyles.css';
-import '../../styles/sideNavbarStyles.css';
+import { Container, Typography, CircularProgress, Paper } from '@mui/material';
+import { styled } from '@mui/system';
 import {
   Chart,
   LinearScale,
@@ -29,112 +27,125 @@ Chart.register(
   Legend
 );
 
+const CustomContainer = styled(Container)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+}));
+
+const CustomTypography = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
+const CustomPaper = styled(Paper)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+  padding: theme.spacing(2),
+}));
+
+const CustomCircularProgress = styled(CircularProgress)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+}));
+
+const CustomChartContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: 400,
+}));
+
 const PollResponsesPage = () => {
   const { eventId } = useParams();
-  const [pollResponses, setPollResponses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pollQuestions, setPollQuestions] = useState([]);
+  const [cumulativeResponses, setCumulativeResponses] = useState({});
 
-  // Fetch poll questions for the event
   useEffect(() => {
     const fetchPollQuestions = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/events/${eventId}/pollquestions`
-        );
-        setPollQuestions(response.data.pollQuestions);
+        const response = await axios.get(`http://localhost:3000/events/${eventId}/pollquestions`);
+        const fetchedQuestions = response.data.pollQuestions;
+        console.log('Fetched poll questions:', fetchedQuestions);
+        setPollQuestions(fetchedQuestions);
       } catch (error) {
         console.error('Error fetching poll questions:', error);
+        setError('Error fetching poll questions');
       }
     };
 
-    fetchPollQuestions();
-  }, [eventId]);
-
-  // Fetch poll responses for the event
-  useEffect(() => {
     const fetchPollResponses = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-        const response = await axios.get(
-          `http://localhost:3000/events/${eventId}/pollresponses`
-        );
-        setPollResponses(response.data.pollResponses);
+        const response = await axios.get(`http://localhost:3000/events/${eventId}/pollresponses`);
+        const pollResponses = response.data.pollResponses;
+        setCumulativeResponses(pollResponses);
       } catch (error) {
-        setError('Error fetching poll responses');
         console.error('Error fetching poll responses:', error);
-      } finally {
-        setIsLoading(false);
+        setError('Error fetching poll responses');
       }
     };
 
-    fetchPollResponses();
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      await Promise.all([fetchPollQuestions(), fetchPollResponses()]);
+      setIsLoading(false);
+    };
+
+    fetchData();
   }, [eventId]);
 
-  // Function to generate pie chart data
-  const generatePieChartData = (question, responses) => {
-    const options = question.options;
-    const counts = options.map(() => 0);
-
-    responses.forEach((response) => {
-      const selectedOption = response.responses.find(
-        (optionIndex) =>
-          optionIndex === question.options.indexOf(options[optionIndex])
-      );
-
-      if (selectedOption !== undefined) {
-        counts[selectedOption] += 1;
-      }
-    });
-
-    const chartData = {
-      labels: options,
-      datasets: [
-        {
-          data: counts,
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56',
-            '#4BC0C0',
-            '#9966FF',
-          ],
-        },
-      ],
-    };
-
-    return chartData;
+const generatePieChartData = (question) => {
+  const options = question.options;
+  const counts = options.map((option) => cumulativeResponses[question._id]?.[option] || 0);
+  const chartData = {
+    labels: options,
+    datasets: [
+      {
+        data: counts,
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+      },
+    ],
   };
+  return chartData;
+};
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <CustomCircularProgress />;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <CustomContainer>
+        <CustomTypography variant="h5">{error}</CustomTypography>
+      </CustomContainer>
+    );
   }
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">Poll Responses</h2>
-      {pollQuestions.map((question, index) => (
-        <div key={index} className="poll-question">
-          <h3>{question.question}</h3>
-          <Pie
-            data={generatePieChartData(question, pollResponses)}
-            options={
-              {
-                // Pie chart options
-              }
-            }
-            height={50}
-            width={50}
-          />
-        </div>
+    <CustomContainer maxWidth="lg">
+      <CustomTypography variant="h4" align="center" gutterBottom>
+        Poll Responses
+      </CustomTypography>
+      {pollQuestions.map((question) => (
+        <CustomPaper key={question._id}>
+          <Typography variant="h6" gutterBottom>
+            {question.question}
+          </Typography>
+          <CustomChartContainer>
+            <Pie
+              data={generatePieChartData(question)}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                height: '400px', // Adjust the height as needed
+  width: '100%', // Adjust the width as needed
+              }}
+            />
+          </CustomChartContainer>
+        </CustomPaper>
       ))}
-    </div>
+    </CustomContainer>
   );
 };
 
