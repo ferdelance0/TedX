@@ -20,11 +20,16 @@ const {
     generateCertificatePDF,
     generateIDPDF,
 } = require("./certificate-gen/generatecertificate");
-const verifyHCaptcha = async (captchaToken, remoteIP) => {
+const verifyHCaptcha = async (captchaToken, req) => {
     try {
+      let remoteIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  
+      // Remove any potential proxy/load balancer-added information (e.g., port numbers)
+      remoteIP = remoteIP.split(',')[0].trim();
+  
       const response = await axios.post('https://hcaptcha.com/siteverify', null, {
         params: {
-          secret: 'ES_d8a0388469814d8fad80d0a8b051c50a',
+          secret: 'YOUR_HCAPTCHA_SECRET_KEY',
           response: captchaToken,
           remoteip: remoteIP,
         },
@@ -434,39 +439,40 @@ app.post("/generateID", async (req, res) => {
     }
   });
 
-app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-    const {captchaToken } = req.body;
-    const remoteIP = req.connection.remoteAddress;
-    console.log(email, password);
+  app.post('/login', async (req, res) => {
+    const { email, password, captchaToken } = req.body;
+  
     try {
-        // Check if the user exists
-        const user = await User.findOne({ email });
-        const isHCaptchaValid = await verifyHCaptcha(captchaToken, remoteIP);
-
-    if (!isHCaptchaValid) {
-      return res.status(401).json({ error: 'Invalid captcha' });
-    }
-        if (!user) {
-            return res.status(401).json({ error: "Invalid email or password" });
-        }
-        // Verify the password
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: "Invalid email or password" });
-        }
-        const jwtsecret = "MySecretKEy";
-        // If email and password are correct, generate JWT token
-        const token = jwt.sign({ userId: user._id }, jwtsecret, {
-            expiresIn: "1h", // Token expires in 1 hour
-        });
-        res.status(200).json({ token });
+      // Verify the hCaptcha token
+      const isHCaptchaValid = await verifyHCaptcha(captchaToken, req);
+  
+      if (!isHCaptchaValid) {
+        return res.status(401).json({ error: 'Invalid captcha' });
+      }
+  
+      // Check if the user exists
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+  
+      // Verify the password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+  
+      const jwtsecret = 'MySecretKEy';
+      const token = jwt.sign({ userId: user._id }, jwtsecret, {
+        expiresIn: '1h',
+      });
+  
+      res.status(200).json({ token });
     } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({ error: "Internal server error" });
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
-});
-
+  });
 app.post("/signup", async (req, res) => {
     const { email, password } = req.body;
 
