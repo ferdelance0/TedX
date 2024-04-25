@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const axios = require('axios');
 const User = require("./models/user.model");
 const Event = require("./models/events.model");
 const SubEvent = require("./models/subevents.model");
@@ -19,7 +20,22 @@ const {
     generateCertificatePDF,
     generateIDPDF,
 } = require("./certificate-gen/generatecertificate");
-
+const verifyHCaptcha = async (captchaToken, remoteIP) => {
+    try {
+      const response = await axios.post('https://hcaptcha.com/siteverify', null, {
+        params: {
+          secret: 'ES_d8a0388469814d8fad80d0a8b051c50a',
+          response: captchaToken,
+          remoteip: remoteIP,
+        },
+      });
+  
+      return response.data.success;
+    } catch (error) {
+      console.error('Error verifying hCaptcha:', error);
+      return false;
+    }
+  };
 // Create Express app
 const app = express();
 app.use(express.json());
@@ -420,10 +436,17 @@ app.post("/generateID", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
+    const {captchaToken } = req.body;
+    const remoteIP = req.connection.remoteAddress;
     console.log(email, password);
     try {
         // Check if the user exists
         const user = await User.findOne({ email });
+        const isHCaptchaValid = await verifyHCaptcha(captchaToken, remoteIP);
+
+    if (!isHCaptchaValid) {
+      return res.status(401).json({ error: 'Invalid captcha' });
+    }
         if (!user) {
             return res.status(401).json({ error: "Invalid email or password" });
         }

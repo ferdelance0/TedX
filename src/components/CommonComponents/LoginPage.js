@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/loginpageStyles.css';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { saveToken } from '../../auth/auth';
 function LoginPage() {
   const navigate = useNavigate();
@@ -9,14 +10,19 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!captchaToken) {
+      setError('Please complete the captcha');
+      return;
+    }
     try {
       const response = await axios.post('http://localhost:3000/login', {
         email: username,
         password: password,
+        captchaToken: captchaToken,
       });
 
       if (response.status === 200) {
@@ -35,7 +41,9 @@ function LoginPage() {
   const handleRegisterRedirect = () => {
     navigate('/signup');
   };
-
+  const handleCaptchaVerify = (token) => {
+    setCaptchaToken(token);
+  };
   return (
     <div className="login-container">
       <div className="login-card">
@@ -68,6 +76,11 @@ function LoginPage() {
             />
             Remember me
           </label>
+          <HCaptcha
+            sitekey="3b45f4ec-af45-4f9a-9f07-6aa4e63f6ec0"
+            onVerify={handleCaptchaVerify}
+          />
+          {error && <p className="error-message">{error}</p>}
           <button type="submit" className="login-button">
             Login
           </button>
@@ -75,6 +88,7 @@ function LoginPage() {
           <p className="register-link" onClick={handleRegisterRedirect}>
             Don't have an account? Register
           </p>
+          
         </form>
       </div>
     </div>
