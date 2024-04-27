@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import ProgressBar from "../Admin/ProgressBar";
 import {
   Container,
   Typography,
@@ -48,19 +49,25 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const RegistrationForm = () => {
   const { eventId } = useParams();
   const [eventExists, setEventExists] = useState(false);
+  const [eventName, setEventName] = useState("");
+  const [eventDetails, setEventDetails] = useState("");
+  const [eventDate, setEventDate] = useState("");
   const [registrationFields, setRegistrationFields] = useState([]);
   const [participantData, setParticipantData] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [subevents, setSubevents] = useState([]);
   const [selectedSubevents, setSelectedSubevents] = useState([]);
   const [subeventError, setSubeventError] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1); // Add current pa
   useEffect(() => {
     axios
       .get(`http://localhost:3000/events/${eventId}`)
       .then((response) => {
         if (response.data.event) {
           setEventExists(true);
+          setEventName(response.data.event.eventname);
+          setEventDetails(response.data.event.eventdetails);
+          setEventDate(response.data.event.eventdate);
           setRegistrationFields(response.data.event.eventregistrationfields);
           setParticipantData({ eventId });
         } else {
@@ -87,6 +94,13 @@ const RegistrationForm = () => {
       ...prevData,
       [field]: value,
     }));
+  };
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(currentPage - 1);
   };
 
   const handleSubeventChange = (subevent) => {
@@ -147,30 +161,58 @@ const RegistrationForm = () => {
     <StyledContainer maxWidth="sm">
       <Fade in={true}>
         <Box>
+        <Box mb={4}>
+            <Typography variant="h4" align="center" gutterBottom>
+              {eventName}
+            </Typography>
+            <Typography variant="body1" align="center" gutterBottom>
+              {eventDetails}
+            </Typography>
+            <Typography variant="body2" align="center" gutterBottom>
+              Event Date: {eventDate}
+            </Typography>
+          </Box>
           <Typography variant="h4" align="center" gutterBottom>
             Registration Form
           </Typography>
+
+          {/* Add the ProgressBar component */}
+          <ProgressBar currentPage={currentPage} totalPages={2} />
+
           <StyledForm onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              {registrationFields.map((field) => (
-                <Grid item xs={12} key={field.label}>
-                  <Zoom in={true}>
-                    <StyledTextField
-                      label={field.label}
-                      type={field.inputType}
-                      name={field.label}
-                      value={participantData[field.label] || ""}
-                      onChange={(e) =>
-                        handleInputChange(field.label, e.target.value)
-                      }
-                      fullWidth
-                      required
-                    />
-                  </Zoom>
+            {currentPage === 1 ? (
+              // Participant Information Page
+              <Grid container spacing={2}>
+                {registrationFields.map((field) => (
+                  <Grid item xs={12} key={field.label}>
+                    <Zoom in={true}>
+                      <StyledTextField
+                        label={field.label}
+                        type={field.inputType}
+                        name={field.label}
+                        value={participantData[field.label] || ""}
+                        onChange={(e) =>
+                          handleInputChange(field.label, e.target.value)
+                        }
+                        fullWidth
+                        required
+                      />
+                    </Zoom>
+                  </Grid>
+                ))}
+                <Grid item xs={12} display="flex" justifyContent="space-between">
+                  <div></div>
+                  <StyledButton
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNextPage}
+                  >
+                    Next
+                  </StyledButton>
                 </Grid>
-              ))}
-            </Grid>
-            {subevents.length > 0 && (
+              </Grid>
+            ) : (
+              // Subevents Page
               <Box mt={2}>
                 <Typography variant="h6" align="center" gutterBottom>
                   Select Subevents (at least one is required)
@@ -208,18 +250,20 @@ const RegistrationForm = () => {
                     Please select at least one subevent.
                   </Typography>
                 )}
+                <Box display="flex" justifyContent="space-between" mt={2}>
+                  <StyledButton
+                    variant="contained"
+                    color="primary"
+                    onClick={handlePrevPage}
+                  >
+                    Previous
+                  </StyledButton>
+                  <StyledButton type="submit" variant="contained" color="primary">
+                    Submit
+                  </StyledButton>
+                </Box>
               </Box>
             )}
-            <Box display="flex" justifyContent="center">
-              <StyledButton
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="large"
-              >
-                Submit
-              </StyledButton>
-            </Box>
           </StyledForm>
         </Box>
       </Fade>
