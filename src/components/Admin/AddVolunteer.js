@@ -23,6 +23,8 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { FaBars, FaTimes } from "react-icons/fa";
@@ -41,9 +43,9 @@ const VolunteerManagementPage = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   useEffect(() => {
-    // Fetch volunteers and events data from backend upon component mount
     fetchVolunteers();
     fetchEvents();
   }, []);
@@ -53,7 +55,14 @@ const VolunteerManagementPage = () => {
       const response = await fetch("http://localhost:3000/get-security");
       if (response.ok) {
         const data = await response.json();
-        setVolunteers(data);
+        const volunteersWithEvents = data.map((volunteer) => {
+          const assignedEventIds = volunteer.assignedEvents || [];
+          return {
+            ...volunteer,
+            assignedEvent: assignedEventIds,
+          };
+        });
+        setVolunteers(volunteersWithEvents);
       } else {
         console.error("Error fetching volunteers:", response.statusText);
       }
@@ -76,10 +85,15 @@ const VolunteerManagementPage = () => {
     }
   };
 
+  const getEventNames = (eventIds) => {
+    return events
+      .filter((event) => eventIds.includes(event._id))
+      .map((event) => event.eventname);
+  };
+
   const handleAssignEvent = async (volunteer) => {
-    setLoading(true);
+    console.log(volunteer.assignedEvent);
     try {
-      // Make a POST request to update the volunteer's assigned event
       const response = await fetch("http://localhost:3000/update-assigned-event", {
         method: "POST",
         headers: {
@@ -87,7 +101,7 @@ const VolunteerManagementPage = () => {
         },
         body: JSON.stringify({
           userId: volunteer._id,
-          eventId: volunteer.assignedEvent,
+          eventIds: volunteer.assignedEvent,
         }),
       });
       if (response.ok) {
@@ -97,13 +111,6 @@ const VolunteerManagementPage = () => {
       }
       setShowModal(true);
       setLoading(false);
-
-      // Update the volunteer's assigned event in the local state
-      setVolunteers((prevVolunteers) =>
-        prevVolunteers.map((v) =>
-          v._id === volunteer._id ? { ...v, assignedEvent: volunteer.assignedEvent } : v
-        )
-      );
     } catch (error) {
       setModalMessage("Error assigning event: " + error);
       setShowModal(true);
@@ -112,8 +119,10 @@ const VolunteerManagementPage = () => {
   };
 
   const handleAddUser = async () => {
-    setLoading(true);
     try {
+      setNewUsername(document.getElementById("username").value);
+      setNewPassword(document.getElementById("password").value);
+      console.log(newUsername, newPassword);
       const response = await fetch("http://localhost:3000/add-security", {
         method: "POST",
         headers: {
@@ -166,6 +175,16 @@ const VolunteerManagementPage = () => {
     removeToken();
     navigate("/login");
   };
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedEventId(newValue);
+  };
+
+  const filteredVolunteers = selectedEventId
+    ? volunteers.filter((volunteer) =>
+        volunteer.assignedEvent.includes(selectedEventId)
+      )
+    : volunteers;
 
   const StyledDrawer = styled(Drawer)(({ theme }) => ({
     width: 240,
@@ -241,6 +260,19 @@ const VolunteerManagementPage = () => {
           </List>
         </StyledDrawer>
 
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={selectedEventId}
+            onChange={handleTabChange}
+            aria-label="Event Tabs"
+          >
+            <Tab label="All Events" value={null} />
+            {events.map((event) => (
+              <Tab key={event._id} label={event.eventname} value={event._id} />
+            ))}
+          </Tabs>
+        </Box>
+
         <TableContainer component={Paper} sx={{ mb: 4 }}>
           <Table>
             <TableHead>
@@ -251,26 +283,29 @@ const VolunteerManagementPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {volunteers.map((volunteer) => (
+              {filteredVolunteers.map((volunteer) => (
                 <TableRow key={volunteer._id}>
                   <TableCell>{volunteer.email}</TableCell>
                   <TableCell>
                     <StyledFormControl>
                       <StyledSelect
-                        value={volunteer.assignedEvent || ""}
+                        multiple
+                        value={volunteer.assignedEvent || []}
                         onChange={(e) => {
-                          const selectedEvent = e.target.value;
-                          // Update the volunteer's assigned event locally
+                          const selectedEventIds = e.target.value;
                           setVolunteers((prevVolunteers) =>
                             prevVolunteers.map((v) =>
                               v._id === volunteer._id
-                                ? { ...v, assignedEvent: selectedEvent }
+                                ? { ...v, assignedEvent: selectedEventIds }
                                 : v
                             )
                           );
                         }}
+                        renderValue={(selectedEventIds) =>
+                          getEventNames(selectedEventIds).join(", ")
+                        }
                       >
-                        <MenuItem value="">Select Event</MenuItem>
+                        <MenuItem value="">Select Events</MenuItem>
                         {events.map((event) => (
                           <MenuItem key={event._id} value={event._id}>
                             {event.eventname}
@@ -284,10 +319,7 @@ const VolunteerManagementPage = () => {
                       variant="contained"
                       color="primary"
                       onClick={() => handleAssignEvent(volunteer)}
-                      disabled={
-                        !volunteer.assignedEvent ||
-                        volunteer.assignedEvent === volunteer.eventId
-                      }
+                      disabled={volunteer.assignedEvent.length === 0}
                     >
                       Assign
                     </Button>
@@ -353,20 +385,18 @@ const VolunteerManagementPage = () => {
             </Typography>
             <Box sx={{ mt: 2 }}>
               <TextField
+                id="username"
                 label="Username"
                 variant="outlined"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
                 fullWidth
               />
             </Box>
             <Box sx={{ mt: 2 }}>
               <TextField
+                id="password"
                 label="Password"
                 type="password"
                 variant="outlined"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
                 fullWidth
               />
             </Box>

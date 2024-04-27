@@ -559,6 +559,7 @@ app.get("/get-security", async (req, res) => {
   
   app.get("/get-events", async (req, res) => {
     try {
+      const currentDate = new Date();
       const volunteers = await Event.find();
       res.status(200).json(volunteers);
     } catch (error) {
@@ -592,7 +593,7 @@ app.get("/get-security", async (req, res) => {
       console.log(email)
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ error: "User already exists" });
+        return res.status(500).json({ error: "User already exists" });
       }
   
       // Create a new user
