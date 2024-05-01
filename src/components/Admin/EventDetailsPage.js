@@ -178,6 +178,25 @@ const EventDetailsPage = () => {
       setIsSending(false);
     }
   };
+  const handleDownloadVolunteers = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/events/${eventId}/volunteers`);
+      const volunteers = response.data;
+      const csvContent = "Volunteer_ID,Name\n" + volunteers.map(volunteer => `${volunteer._id},${volunteer.email},`).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'volunteers.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log('Volunteers CSV file downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading volunteers CSV file:', error);
+    }
+  };
+
   const handleMassGenerateIDCards = async () => {
     try {
       await axios
@@ -337,6 +356,11 @@ const EventDetailsPage = () => {
                 </li>
               </ul>
             </li>
+            <li>
+            <button className="sidebar-item" onClick={handleDownloadVolunteers}>
+              Download Volunteers
+            </button>
+          </li>
             
           </ul>
         </nav>

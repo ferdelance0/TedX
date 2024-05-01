@@ -22,7 +22,17 @@ export function getRole() {
 export function getEventId(token) {
     if (token) {
         const decoded = jwtDecode(token);
+        console.log(decoded)
         return decoded.eventId;
     }
     return null;
 }
+export const decodeToken = (token) => {
+    const decodedToken = jwtDecode(token);
+    return {
+      userId: decodedToken.userId,
+      role: decodedToken.role,
+      eventId: decodedToken.eventId,
+    };
+  };
+  

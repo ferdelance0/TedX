@@ -12,9 +12,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  assignedEvent:{
-    type: String,
-  },
+  assignedEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
   role:{
     type: String
   }

@@ -432,12 +432,13 @@ app.post("/generateID", async (req, res) => {
       }
   
       // Fetch the user's assigned event and role
-      const { assignedEvent, role } = user;
-  
+      const { role } = user;
+      const assignedEvents = user.assignedEvents;
+      console.log(assignedEvents)
       // Generate the JWT token
       const jwtsecret = "MySecretKEy";
       const token = jwt.sign(
-        { userId: user._id, eventId: assignedEvent, role },
+        { userId: user._id, eventId: assignedEvents, role },
         jwtsecret,
         { expiresIn: "1h" } // Token expires in 1 hour
       );
@@ -569,13 +570,13 @@ app.get("/get-security", async (req, res) => {
   });
   app.post("/update-assigned-event", async (req, res) => {
     try {
-      const { userId, eventId } = req.body;
-        console.log(eventId)
+      const { userId, eventIds } = req.body;
+        console.log(eventIds)
       const user = await User.findOne({_id:userId});
       if (!user) {
         return res.status(401).json({ error: "User not found LA" });
       }
-      user.assignedEvent = eventId;
+      user.assignedEvents = eventIds;
       const updatedUser = await user.save();
   
       console.log("User updated successfully:", updatedUser);
@@ -610,7 +611,33 @@ app.get("/get-security", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  app.get("/events/:eventId/volunteers", async (req, res) => {
+    try {
+      const { eventId } = req.params;
   
+      // Find the event by its ID
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+  
+      // Fetch the volunteers assigned to the event
+      const volunteers = await User.find({ assignedEvents: eventId, role: "security" });
+  
+      // Extract the required details from each volunteer
+      const volunteerDetails = volunteers.map((volunteer) => ({
+        _id: volunteer._id,
+        name: volunteer.name,
+        email: volunteer.email,
+        phone: volunteer.phone,
+      }));
+      console.log(volunteerDetails)
+      res.status(200).json(volunteerDetails);
+    } catch (error) {
+      console.error("Error fetching volunteer details:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 // Connect to MongoDB Atlas
 mongoose
     .connect(mongoURI)

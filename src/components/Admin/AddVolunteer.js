@@ -21,7 +21,6 @@ import {
   IconButton,
   MenuItem,
   FormControl,
-  InputLabel,
   Select,
   Tabs,
   Tab,
@@ -35,7 +34,7 @@ import { removeToken } from "../../auth/auth";
 const VolunteerManagementPage = () => {
   const navigate = useNavigate();
   const [volunteers, setVolunteers] = useState([]);
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState({ scheduled: [], completed: [] });
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -43,7 +42,7 @@ const VolunteerManagementPage = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [selectedTab, setSelectedTab] = useState("scheduled");
 
   useEffect(() => {
     fetchVolunteers();
@@ -76,7 +75,16 @@ const VolunteerManagementPage = () => {
       const response = await fetch("http://localhost:3000/get-events");
       if (response.ok) {
         const data = await response.json();
-        setEvents(data);
+        const currentDate = new Date();
+        const scheduledEvents = data.filter((event) => {
+          const eventDate = new Date(event.eventscheduleddate);
+          return eventDate >= currentDate;
+        });
+        const completedEvents = data.filter((event) => {
+          const eventDate = new Date(event.eventscheduleddate);
+          return eventDate < currentDate;
+        });
+        setEvents({ scheduled: scheduledEvents, completed: completedEvents });
       } else {
         console.error("Error fetching events:", response.statusText);
       }
@@ -86,9 +94,13 @@ const VolunteerManagementPage = () => {
   };
 
   const getEventNames = (eventIds) => {
-    return events
-      .filter((event) => eventIds.includes(event._id))
-      .map((event) => event.eventname);
+    return eventIds.map((eventId) => {
+      const event =
+        [...events.scheduled, ...events.completed].find(
+          (event) => event._id === eventId
+        ) || {};
+      return event.eventname || "";
+    });
   };
 
   const handleAssignEvent = async (volunteer) => {
@@ -177,14 +189,16 @@ const VolunteerManagementPage = () => {
   };
 
   const handleTabChange = (event, newValue) => {
-    setSelectedEventId(newValue);
+    setSelectedTab(newValue);
   };
 
-  const filteredVolunteers = selectedEventId
+  const filteredVolunteers = events[selectedTab]
     ? volunteers.filter((volunteer) =>
-        volunteer.assignedEvent.includes(selectedEventId)
+        volunteer.assignedEvent.some((eventId) =>
+          events[selectedTab].map((event) => event._id).includes(eventId)
+        )
       )
-    : volunteers;
+    : [];
 
   const StyledDrawer = styled(Drawer)(({ theme }) => ({
     width: 240,
@@ -261,15 +275,9 @@ const VolunteerManagementPage = () => {
         </StyledDrawer>
 
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-          <Tabs
-            value={selectedEventId}
-            onChange={handleTabChange}
-            aria-label="Event Tabs"
-          >
-            <Tab label="All Events" value={null} />
-            {events.map((event) => (
-              <Tab key={event._id} label={event.eventname} value={event._id} />
-            ))}
+          <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Event Tabs">
+            <Tab label="Scheduled Events" value="scheduled" />
+            <Tab label="Completed Events" value="completed" />
           </Tabs>
         </Box>
 
@@ -306,8 +314,12 @@ const VolunteerManagementPage = () => {
                         }
                       >
                         <MenuItem value="">Select Events</MenuItem>
-                        {events.map((event) => (
-                          <MenuItem key={event._id} value={event._id}>
+                        {events.scheduled.map((event) => (
+                          <MenuItem
+                            key={event._id}
+                            value={event._id}
+                            selected={volunteer.assignedEvent.includes(event._id)}
+                          >
                             {event.eventname}
                           </MenuItem>
                         ))}
