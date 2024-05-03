@@ -1,37 +1,37 @@
 // EventDetailsPage.js
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaDownload } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { FaBars, FaTimes, FaDownload } from "react-icons/fa";
 
-import ksitmlogo from '../../images/logobanner.png';
+import ksitmlogo from "../../images/logobanner.png";
 
-import '../../styles/adminStyles.css';
-import '../../styles/createEventPageStyles.css';
-import '../../styles/eventDetailsPageStyles.css';
-import '../../styles/sideNavbarStyles.css';
-import Modal from 'react-modal';
-import { FaSpinner, FaCheckCircle } from 'react-icons/fa';
+import "../../styles/adminStyles.css";
+import "../../styles/createEventPageStyles.css";
+import "../../styles/eventDetailsPageStyles.css";
+import "../../styles/sideNavbarStyles.css";
+import Modal from "react-modal";
+import { FaSpinner, FaCheckCircle } from "react-icons/fa";
 
 const customModalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    maxWidth: '500px',
-    width: '100%',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    maxWidth: "500px",
+    width: "100%",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
   },
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 };
-Modal.setAppElement('#root');
+Modal.setAppElement("#root");
 const EventDetailsPage = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
@@ -39,12 +39,15 @@ const EventDetailsPage = () => {
   const [participants, setParticipants] = useState([]);
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [showBulkEmailModal, setShowBulkEmailModal] = useState(false);
-  const [emailSubject, setEmailSubject] = useState('');
-  const [emailContent, setEmailContent] = useState('');
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailContent, setEmailContent] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedSubevent, setSelectedSubevent] = useState("All");
+  const [filteredParticipants, setFilteredParticipants] = useState([]);
+  const [subevents, setSubevents] = useState([]);
 
   useEffect(() => {
     const fetchEventAndParticipants = async () => {
@@ -69,12 +72,16 @@ const EventDetailsPage = () => {
           console.log("Fetched subevents:", subeventsResponse.data);
         }
       } catch (error) {
-        console.error('Error fetching event and participants:', error);
+        console.error(
+          "Error fetching event, participants, and subevents:",
+          error
+        );
       }
     };
 
     fetchEventAndParticipants();
   }, [eventId]);
+
   const handleSelectAllChange = (e) => {
     setSelectedParticipants(
       e.target.checked ? participants.map((p) => p._id) : []
@@ -86,7 +93,7 @@ const EventDetailsPage = () => {
   };
 
   const handleBackToAdminDashboard = () => {
-    navigate('/admin/dashboard');
+    navigate("/admin/dashboard");
   };
 
   const handleViewPollForm = () => {
@@ -111,14 +118,14 @@ const EventDetailsPage = () => {
       );
       const updatedParticipants = participants.map((participant) => {
         if (selectedParticipants.includes(participant._id)) {
-          return { ...participant, status: 'Attended' };
+          return { ...participant, status: "Attended" };
         }
         return participant;
       });
       setParticipants(updatedParticipants);
       setSelectedParticipants([]);
     } catch (error) {
-      console.error('Error marking attendance:', error);
+      console.error("Error marking attendance:", error);
     }
   };
 
@@ -142,27 +149,59 @@ const EventDetailsPage = () => {
 
   const handleMassGenerateCertificates = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/masscertgen?eventId=${eventId}`);
+      const response = await axios.get(
+        `http://localhost:3000/masscertgen?eventId=${eventId}`
+      );
       const certificates = response.data.certificateUrls;
-      const csvContent = "Participant_ID,Name,Certificate_URL\n" + certificates.map(cert => `${cert.Participant_ID},${cert.Name},${cert.Certificate_URL}`).join("\n");
+      const csvContent =
+        "Participant_ID,Name,Certificate_URL\n" +
+        certificates
+          .map(
+            (cert) =>
+              `${cert.Participant_ID},${cert.Name},${cert.Certificate_URL}`
+          )
+          .join("\n");
       const blob = new Blob([csvContent], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'certificates.csv');
+      link.setAttribute("download", "certificates.csv");
       document.body.appendChild(link);
       link.click();
-      console.log('CSV file downloaded successfully!');
+      console.log("CSV file downloaded successfully!");
     } catch (error) {
-      console.error('Error generating CSV file:', error);
+      console.error("Error generating CSV file:", error);
+    }
+  };
+
+  const handleDownloadVolunteers = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/events/${eventId}/volunteers`
+      );
+      const volunteers = response.data;
+      const csvContent =
+        "Volunteer_ID,Name\n" +
+        volunteers
+          .map((volunteer) => `${volunteer._id},${volunteer.email},`)
+          .join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "volunteers.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      console.log("Volunteers CSV file downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading volunteers CSV file:", error);
     }
   };
 
   const handleSendBulkEmail = () => {
     setShowBulkEmailModal(true);
   };
-
-
 
   const handleCloseBulkEmailModal = () => {
     setShowBulkEmailModal(false);
@@ -175,59 +214,47 @@ const EventDetailsPage = () => {
         `http://localhost:3000/events/${eventId}/send-bulk-email`,
         {
           subject: emailSubject,
-          content: emailContent.replace(/\n/g, '<br>'),
+          content: emailContent.replace(/\n/g, "<br>"),
         }
       );
       setShowSuccessModal(true);
       handleCloseBulkEmailModal();
     } catch (error) {
-      console.error('Error sending bulk email:', error);
-      alert('Failed to send bulk email');
+      console.error("Error sending bulk email:", error);
+      alert("Failed to send bulk email");
     } finally {
       setIsSending(false);
     }
   };
-  const handleDownloadVolunteers = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3000/events/${eventId}/volunteers`);
-      const volunteers = response.data;
-      const csvContent = "Volunteer_ID,Name\n" + volunteers.map(volunteer => `${volunteer._id},${volunteer.email},`).join("\n");
-      const blob = new Blob([csvContent], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'volunteers.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('Volunteers CSV file downloaded successfully!');
-    } catch (error) {
-      console.error('Error downloading volunteers CSV file:', error);
-    }
-  };
-
   const handleMassGenerateIDCards = async () => {
     try {
       await axios
         .get(`http://localhost:3000/massidcardgen?eventId=${eventId}`)
         .then((response) => {
-          console.log(response.data)
+          console.log(response.data);
           const certificates = response.data.idCardUrls;
-          const csvContent = "Participant_ID,Name,Certificate_URL\n" + certificates.map(cert => `${cert.Participant_ID},${cert.Name},${cert.idCardUrl}`).join("\n");
+          const csvContent =
+            "Participant_ID,Name,Certificate_URL\n" +
+            certificates
+              .map(
+                (cert) =>
+                  `${cert.Participant_ID},${cert.Name},${cert.idCardUrl}`
+              )
+              .join("\n");
           const blob = new Blob([csvContent], { type: "text/csv" });
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = url;
-          link.setAttribute('download', 'certificates.csv');
+          link.setAttribute("download", "certificates.csv");
           document.body.appendChild(link);
           link.click();
         })
         .catch((error) => {
-          console.error('Error downloading CSV file:', error);
+          console.error("Error downloading CSV file:", error);
         });
-      console.log('Mass ID card generation request successful!');
+      console.log("Mass ID card generation request successful!");
     } catch (error) {
-      console.error('Error generating mass ID cards:', error);
+      console.error("Error generating mass ID cards:", error);
     }
   };
 
@@ -285,7 +312,7 @@ const EventDetailsPage = () => {
       <div
         className="sidebar-overlay"
         onClick={toggleNav}
-        style={{ display: isOpen ? 'block' : 'none' }}
+        style={{ display: isOpen ? "block" : "none" }}
       ></div>
       <div className="d-flex justify-content-around">
         {/* side nav bar beginning */}
@@ -294,8 +321,8 @@ const EventDetailsPage = () => {
             {isOpen ? null : <FaBars />}
           </button>
         </div>
-        <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
-          <ul className={`sidebar-menu ${isOpen ? 'open' : ''}`}>
+        <nav className={`sidebar ${isOpen ? "open" : ""}`}>
+          <ul className={`sidebar-menu ${isOpen ? "open" : ""}`}>
             <button className="sidebar-toggle" onClick={toggleNav}>
               {isOpen ? <FaTimes /> : <FaBars />}
             </button>
@@ -320,15 +347,17 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${activeItem === 'registration' ? 'active' : ''
-                  }`}
-                onClick={() => toggleSubItems('registration')}
+                className={`sidebar-item ${
+                  activeItem === "registration" ? "active" : ""
+                }`}
+                onClick={() => toggleSubItems("registration")}
               >
                 Registration
               </button>
               <ul
-                className={`sub-menu ${activeItem === 'registration' ? 'open' : ''
-                  }`}
+                className={`sub-menu ${
+                  activeItem === "registration" ? "open" : ""
+                }`}
               >
                 <li>
                   <a
@@ -341,20 +370,24 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${activeItem === 'idCard' ? 'active' : ''
-                  }`}
-                onClick={() => toggleSubItems('idCard')}
+                className={`sidebar-item ${
+                  activeItem === "idCard" ? "active" : ""
+                }`}
+                onClick={() => toggleSubItems("idCard")}
               >
                 ID Card
               </button>
               <ul
-                className={`sub-menu ${activeItem === 'idCard' ? 'open' : ''}`}
+                className={`sub-menu ${activeItem === "idCard" ? "open" : ""}`}
               >
                 <li>
                   <button className="sub-item">View ID Card</button>
                 </li>
                 <li>
-                  <button className="sub-item" onClick={handleMassGenerateIDCards}>
+                  <button
+                    className="sub-item"
+                    onClick={handleMassGenerateIDCards}
+                  >
                     Mass Generate ID Cards
                   </button>
                 </li>
@@ -362,13 +395,14 @@ const EventDetailsPage = () => {
             </li>
             <li>
               <button
-                className={`sidebar-item ${activeItem === 'poll' ? 'active' : ''
-                  }`}
-                onClick={() => toggleSubItems('poll')}
+                className={`sidebar-item ${
+                  activeItem === "poll" ? "active" : ""
+                }`}
+                onClick={() => toggleSubItems("poll")}
               >
                 Poll
               </button>
-              <ul className={`sub-menu ${activeItem === 'poll' ? 'open' : ''}`}>
+              <ul className={`sub-menu ${activeItem === "poll" ? "open" : ""}`}>
                 <li>
                   <button className="sub-item" onClick={handleViewPollForm}>
                     View Poll Form
@@ -385,17 +419,18 @@ const EventDetailsPage = () => {
               </ul>
             </li>
             <li>
-              
               <button
-                className={`sidebar-item ${activeItem === 'certificate' ? 'active' : ''
-                  }`}
-                onClick={() => toggleSubItems('certificate')}
+                className={`sidebar-item ${
+                  activeItem === "certificate" ? "active" : ""
+                }`}
+                onClick={() => toggleSubItems("certificate")}
               >
                 Certificate
               </button>
               <ul
-                className={`sub-menu ${activeItem === 'certificate' ? 'open' : ''
-                  }`}
+                className={`sub-menu ${
+                  activeItem === "certificate" ? "open" : ""
+                }`}
               >
                 <li>
                   <button className="sub-item">View Certificate</button>
@@ -411,11 +446,13 @@ const EventDetailsPage = () => {
               </ul>
             </li>
             <li>
-            <button className="sidebar-item" onClick={handleDownloadVolunteers}>
-              Download Volunteers
-            </button>
-          </li>
-            
+              <button
+                className="sidebar-item"
+                onClick={handleDownloadVolunteers}
+              >
+                Download Volunteers
+              </button>
+            </li>
           </ul>
         </nav>
         {/* side nav bar ending */}
@@ -425,8 +462,6 @@ const EventDetailsPage = () => {
             <h2 className="event-title">{event.eventname}</h2>
           </div>
           <div className="event-description">{event.eventdescription}</div>
-
-          <div></div>
           <div className="participants-list">
             <h3>Participants</h3>
             {event.eventhassubevents && subevents.length > 0 && (
@@ -468,13 +503,14 @@ const EventDetailsPage = () => {
                     {event.eventregistrationfields.map((field, index) => (
                       <th key={index}>{field.label}</th>
                     ))}
+                    {event.eventhassubevents && <th>Subevents Registered</th>}
                     <th>Certificate</th>
                     <th>ID Card</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {participants.map((participant) => (
+                  {filteredParticipants.map((participant) => (
                     <tr key={participant._id}>
                       <td>
                         <input
@@ -511,11 +547,10 @@ const EventDetailsPage = () => {
                           className="download-btn"
                           onClick={() => {
                             const { _id, Name } = participant;
-
-                            fetch('http://localhost:3000/generatecertificate', {
-                              method: 'POST',
+                            fetch("http://localhost:3000/generatecertificate", {
+                              method: "POST",
                               headers: {
-                                'Content-Type': 'application/json',
+                                "Content-Type": "application/json",
                               },
                               body: JSON.stringify({
                                 participantId: _id,
@@ -525,34 +560,33 @@ const EventDetailsPage = () => {
                             })
                               .then((response) => response.json())
                               .then((data) => {
-                                let a = document.createElement('a');
+                                let a = document.createElement("a");
                                 a.href = data.url;
-                                a.download = 'certificate.pdf';
-                                a.style.display = 'none';
-
+                                a.download = "certificate.pdf";
+                                a.style.display = "none";
                                 document.body.appendChild(a);
                                 a.click();
 
                                 document.body.removeChild(a);
                               })
                               .catch((error) => {
-                                console.error('Error:', error);
+                                console.error("Error:", error);
                               });
                           }}
                         >
                           <FaDownload />
                         </button>
-                      </td>
+                      </td>{" "}
                       <td>
                         <button
                           className="download-btn"
                           onClick={() => {
                             const { _id, Name } = participant;
 
-                            fetch('http://localhost:3000/generateID', {
-                              method: 'POST',
+                            fetch("http://localhost:3000/generateID", {
+                              method: "POST",
                               headers: {
-                                'Content-Type': 'application/json',
+                                "Content-Type": "application/json",
                               },
                               body: JSON.stringify({
                                 participantId: _id,
@@ -562,10 +596,10 @@ const EventDetailsPage = () => {
                             })
                               .then((response) => response.json())
                               .then((data) => {
-                                let a = document.createElement('a');
+                                let a = document.createElement("a");
                                 a.href = data.url;
-                                a.download = 'idcard.pdf';
-                                a.style.display = 'none';
+                                a.download = "idcard.pdf";
+                                a.style.display = "none";
 
                                 document.body.appendChild(a);
                                 a.click();
@@ -573,7 +607,7 @@ const EventDetailsPage = () => {
                                 document.body.removeChild(a);
                               })
                               .catch((error) => {
-                                console.error('Error:', error);
+                                console.error("Error:", error);
                               });
                           }}
                         >
@@ -582,10 +616,11 @@ const EventDetailsPage = () => {
                       </td>
                       <td>
                         <span
-                          className={`status-pill ${participant.status === 'Attended'
-                            ? 'attended'
-                            : 'registered'
-                            }`}
+                          className={`status-pill ${
+                            participant.status === "Attended"
+                              ? "attended"
+                              : "registered"
+                          }`}
                         >
                           {participant.status}
                         </span>
@@ -596,7 +631,6 @@ const EventDetailsPage = () => {
               </table>
             </div>
           </div>
-
           <div className="controls-section">
             <div className="control-item">
               <h4>Mark Attendance</h4>
@@ -604,9 +638,7 @@ const EventDetailsPage = () => {
                 Mark Attendance
               </button>
             </div>
-
-          </div>
-
+          </div>{" "}
           <Modal
             isOpen={showBulkEmailModal}
             onRequestClose={handleCloseBulkEmailModal}
@@ -646,7 +678,7 @@ const EventDetailsPage = () => {
                 className="modal-send-button"
                 disabled={isSending}
               >
-                {isSending ? <FaSpinner className="spinning" /> : 'Send'}
+                {isSending ? <FaSpinner className="spinning" /> : "Send"}
               </button>
               <button
                 onClick={handleCloseBulkEmailModal}
@@ -684,5 +716,4 @@ const EventDetailsPage = () => {
     </>
   );
 };
-
 export default EventDetailsPage;
