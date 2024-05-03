@@ -42,7 +42,7 @@ const VolunteerManagementPage = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("scheduled");
+  const [selectedTab, setSelectedTab] = useState("all");
 
   useEffect(() => {
     fetchVolunteers();
@@ -192,13 +192,21 @@ const VolunteerManagementPage = () => {
     setSelectedTab(newValue);
   };
 
-  const filteredVolunteers = events[selectedTab]
-    ? volunteers.filter((volunteer) =>
-        volunteer.assignedEvent.some((eventId) =>
-          events[selectedTab].map((event) => event._id).includes(eventId)
-        )
+  let filteredVolunteers = [];
+
+  if (selectedTab === "all") {
+    filteredVolunteers = volunteers;
+  } else if (selectedTab === "unassigned") {
+    filteredVolunteers = volunteers.filter(
+      (volunteer) => volunteer.assignedEvent.length === 0
+    );
+  } else {
+    filteredVolunteers = volunteers.filter((volunteer) =>
+      volunteer.assignedEvent.some((eventId) =>
+        events[selectedTab].map((event) => event._id).includes(eventId)
       )
-    : [];
+    );
+  }
 
   const StyledDrawer = styled(Drawer)(({ theme }) => ({
     width: 240,
@@ -276,6 +284,8 @@ const VolunteerManagementPage = () => {
 
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
           <Tabs value={selectedTab} onChange={handleTabChange} aria-label="Event Tabs">
+            <Tab label="All Volunteers" value="all" />
+            <Tab label="Unassigned" value="unassigned" />
             <Tab label="Scheduled Events" value="scheduled" />
             <Tab label="Completed Events" value="completed" />
           </Tabs>
