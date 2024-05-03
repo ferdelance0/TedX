@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "../../styles/loginpageStyles.css";
-import { saveToken } from "../../auth/auth";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import '../../styles/loginpageStyles.css';
+import { saveToken, getRole } from '../../auth/auth';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -18,12 +18,15 @@ function LoginPage() {
         email: username,
         password: password,
       });
-
       if (response.status === 200) {
         saveToken(response.data.token);
-        navigate("/admin/dashboard");
+        const role = getRole(); // Get the user's role from the token
+        if (role === 'security') {
+          navigate('/security/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
-        // Login failed, handle error
         setError(response.data.error);
       }
     } catch (error) {
@@ -79,6 +82,6 @@ function LoginPage() {
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;

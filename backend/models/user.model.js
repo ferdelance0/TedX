@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  assignedEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+  role:{
+    type: String
+  }
   // Add any additional fields you need for your user model
   // For example:
   // name: {

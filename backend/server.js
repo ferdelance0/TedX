@@ -407,69 +407,63 @@ app.post("/generatecertificate", async (req, res) => {
 });
 
 app.post("/generateID", async (req, res) => {
-  try {
-    const { Name, participantId, eventId } = req.body;
-    const participant = await participantModels[
-      `Participant_${eventId}`
-    ].findOne({ _id: participantId });
-    if (!participant) {
-      console.error("Participant not found");
-      return res.status(404).json({ message: "Participant not found" });
+    try {
+      const { Name, participantId, eventId } = req.body;
+      const participant = await participantModels[`Participant_${eventId}`].findOne({ _id: participantId });
+      if (!participant) {
+        console.error("Participant not found");
+        return res.status(404).json({ message: "Participant not found" });
+      }
+      if (participant.idCardUrl) {
+        console.log("Participant already has an ID card URL:", participant.idCardUrl);
+        return res.status(200).json({ message: "ID card already generated", url: participant.idCardUrl });
+      }
+      const url = await generateIDPDF(Name,participantId);
+      participant.idCardUrl = url;
+      await participant.save();
+      res.status(200).json({ message: "ID card generated successfully", url });
+    } catch (error) {
+      console.error("Error generating ID card:", error);
+      res.status(500).json({ message: "Failed to generate ID card" });
     }
-    if (participant.idCardUrl) {
-      console.log(
-        "Participant already has an ID card URL:",
-        participant.idCardUrl
+  });
+
+  app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+    console.log(email, password);
+  
+    try {
+      // Check if the user exists
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+  
+      // Verify the password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+  
+      // Fetch the user's assigned event and role
+      const { role } = user;
+      const assignedEvents = user.assignedEvents;
+      console.log(assignedEvents)
+      // Generate the JWT token
+      const jwtsecret = "MySecretKEy";
+      const token = jwt.sign(
+        { userId: user._id, eventId: assignedEvents, role },
+        jwtsecret,
+        { expiresIn: "1h" } // Token expires in 1 hour
       );
-      return res.status(200).json({
-        message: "ID card already generated",
-        url: participant.idCardUrl,
-      });
+  
+      res.status(200).json({ token });
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-    const url = await generateIDPDF(Name);
-    participant.idCardUrl = url;
-    await participant.save();
-    res.status(200).json({ message: "ID card generated successfully", url });
-  } catch (error) {
-    console.error("Error generating ID card:", error);
-    res.status(500).json({ message: "Failed to generate ID card" });
-  }
-});
+  });
 
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // Verify the hCaptcha token
-    // const isHCaptchaValid = await verifyHCaptcha(captchaToken, req);
-
-    // if (!isHCaptchaValid) {
-    //   return res.status(401).json({ error: 'Invalid captcha' });
-    // }
-
-    // Check if the user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    // Verify the password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    const jwtsecret = "MySecretKEy";
-    const token = jwt.sign({ userId: user._id }, jwtsecret, {
-      expiresIn: "1h",
-    });
-
-    res.status(200).json({ token });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
@@ -548,15 +542,15 @@ app.get("/massidcardgen", async (req, res) => {
         .json({ error: "No participants found for the event" });
     }
 
-    for (const participant of participants) {
-      if (!participant.idCardUrl) {
-        const { _id, Name } = participant;
-        const url = await generateIDPDF(Name); // Generate ID card for each participant
-        participant.idCardUrl = url;
-        await participant.save(); // Use save method to update the participant in the database
-        console.log(url, Name, _id);
-      }
-    }
+        for (const participant of participants) {
+            if (!participant.idCardUrl) {
+                const { _id, Name } = participant;
+                const url = await generateIDPDF(Name,_id); // Generate ID card for each participant
+                participant.idCardUrl = url;
+                await participant.save(); // Use save method to update the participant in the database
+                console.log(url, Name, _id);
+            }
+        }
 
     // Construct the response with generated ID card URLs
     const idCardUrls = participants.map((participant) => ({
@@ -575,8 +569,97 @@ app.get("/massidcardgen", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-app.post("/participants/:participantId/pollresponses", async (req, res) => {
+app.get("/get-security", async (req, res) => {
+    try {
+      // Query the users table for users with role "volunteer"
+      const volunteers = await User.find({ role: "security" });
+      res.status(200).json(volunteers);
+    } catch (error) {
+      console.error("Error fetching volunteers:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  app.get("/get-events", async (req, res) => {
+    try {
+      const currentDate = new Date();
+      const volunteers = await Event.find();
+      res.status(200).json(volunteers);
+    } catch (error) {
+      console.error("Error fetching volunteers:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app.post("/update-assigned-event", async (req, res) => {
+    try {
+      const { userId, eventIds } = req.body;
+        console.log(eventIds)
+      const user = await User.findOne({_id:userId});
+      if (!user) {
+        return res.status(401).json({ error: "User not found LA" });
+      }
+      user.assignedEvents = eventIds;
+      const updatedUser = await user.save();
+  
+      console.log("User updated successfully:", updatedUser);
+  
+      res.status(200).json({ message: "Assigned event updated successfully", user: updatedUser });
+    } catch (error) {
+      console.error("Error updating assigned event:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app.post("/add-security", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      // Check if the user already exists
+      console.log(email)
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(500).json({ error: "User already exists" });
+      }
+  
+      // Create a new user
+      const newUser = new User({
+        email,
+        password,
+        role: "security",
+      });
+      await newUser.save();
+  
+      res.status(201).json({ message: "User created successfully" });
+    } catch (error) {
+      console.error("Error adding user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  app.get("/events/:eventId/volunteers", async (req, res) => {
+    try {
+      const { eventId } = req.params;
+  
+      // Find the event by its ID
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+  
+      // Fetch the volunteers assigned to the event
+      const volunteers = await User.find({ assignedEvents: eventId, role: "security" });
+  
+      // Extract the required details from each volunteer
+      const volunteerDetails = volunteers.map((volunteer) => ({
+        _id: volunteer._id,
+        name: volunteer.name,
+        email: volunteer.email,
+        phone: volunteer.phone,
+      }));
+      console.log(volunteerDetails)
+      res.status(200).json(volunteerDetails);
+    } catch (error) {
+      console.error("Error fetching volunteer details:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });app.post("/participants/:participantId/pollresponses", async (req, res) => {
   try {
     const participantId = req.params.participantId;
     const { eventId, responses } = req.body;
