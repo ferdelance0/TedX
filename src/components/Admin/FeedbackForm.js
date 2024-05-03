@@ -6,12 +6,31 @@ const FeedbackForm = () => {
   const { eventId } = useParams();
   const [feedbackQuestions, setFeedbackQuestions] = useState([]);
   const [responses, setResponses] = useState({});
+  const [eventName, setEventName] = useState("");
+
+  const [eventDate, setEventDate] = useState("");
 
   useEffect(() => {
     axios
+      .get(`http://localhost:3000/events/${eventId}`)
+      .then((response) => {
+        if (response.data.event) {
+ 
+          setEventName(response.data.event.eventname);
+   
+          setEventDate(response.data.event.eventdate);
+          
+        } else {
+          return <div>Event not found.</div>;
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking event existence:", error);
+      });
+    axios
       .get(`http://localhost:3000/events/${eventId}/feedbackquestions`)
       .then((response) => {
-        console.log('hello!');
+        
         setFeedbackQuestions(response.data.feedbackQuestions);
       })
       .catch((error) => {
@@ -41,7 +60,8 @@ const FeedbackForm = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container"  style={{ marginTop: '50px' }}>
+      <h1> {eventName}</h1>
       <h2>Feedback Form</h2>
       <form onSubmit={handleSubmit}>
         {feedbackQuestions.map((question) => (

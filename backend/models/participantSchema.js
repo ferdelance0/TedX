@@ -25,6 +25,15 @@ const generateParticipantSchema = (fields, eventId) => {
         subeventName: String,
       },
     ],
+    pollResponses: [
+      {
+        questionId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Event.eventpollquestions",
+        },
+        answer: String,
+      },
+    ],
   };
 
   fields.forEach((field) => {

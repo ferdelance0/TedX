@@ -190,3 +190,18 @@ tr:nth-child(even) {
 tr:hover {
   background-color: #e0e0e0;
 }
+.subevent-filter-btn{
+  border: none;
+  background-color: #ffffff;
+  width: max-content;
+  margin: 5px;
+  border-radius: 15%;
+  border-bottom: #333 solid 1px;
+}
+.subevent-filter-btn:hover{
+  border: none;
+  background-color: #e7e7e7;
+  margin: 5px;
+
+  border-bottom: #333 solid 1px;
+}

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../../styles/adminStyles.css';
 import Modal from 'react-modal';
+
 const customModalStyles = {
   content: {
     top: '50%',
@@ -22,17 +23,19 @@ const customModalStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
+
 const PollQuestionForm = () => {
-  const { eventId } = useParams();
+  const { eventId, participantId } = useParams();
   const [pollQuestions, setPollQuestions] = useState([]);
   const [pollAnswers, setPollAnswers] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [eventName, setEventName] = useState("");
+
   useEffect(() => {
     // Fetch poll questions from the backend based on the event ID
     axios
       .get(`http://localhost:3000/events/${eventId}/pollquestions`)
       .then((response) => {
-        console.log('hello!');
         setPollQuestions(response.data.pollQuestions);
       })
       .catch((error) => {
@@ -47,21 +50,20 @@ const PollQuestionForm = () => {
     }));
   };
 
-  // PollQuestionForm.js
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Convert pollAnswers to the expected format
-    const pollResponses = {
-      participantId: 'YOUR_PARTICIPANT_ID', // Replace with the actual participant ID
-      responses: Object.values(pollAnswers),
-    };
+    const pollResponses = pollQuestions.map((question, index) => ({
+      questionId: question._id,
+      answer: question.options[pollAnswers[index]],
+    }));
 
-    // Send poll answers to the backend
+    // Send poll answers to the backend for the specific participant
     axios
       .post(
-        `http://localhost:3000/events/${eventId}/pollresponses`,
-        pollResponses
+        `http://localhost:3000/participants/${participantId}/pollresponses`,
+        { eventId, responses: pollResponses }
       )
       .then((response) => {
         console.log('Poll responses submitted:', response.data);
@@ -76,7 +78,8 @@ const PollQuestionForm = () => {
   return (
     <div className="main-content">
       <div className="page-container">
-        <h1 className="page-title">Poll Questions</h1>
+        <h1>{eventName}</h1>
+        <h3 className="page-title">Poll Questions</h3>
         <form onSubmit={handleSubmit}>
           {pollQuestions.map((question, questionIndex) => (
             <div key={questionIndex} className="poll-question">

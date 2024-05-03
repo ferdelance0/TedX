@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import '../../styles/loginpageStyles.css';
-import { saveToken } from '../../auth/auth';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "../../styles/loginpageStyles.css";
+import { saveToken } from "../../auth/auth";
+
 function LoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post('http://localhost:3000/login', {
+      const response = await axios.post("http://localhost:3000/login", {
         email: username,
         password: password,
       });
 
       if (response.status === 200) {
-        saveToken(response.data.token); 
-        navigate('/admin/dashboard');
+        saveToken(response.data.token);
+        navigate("/admin/dashboard");
       } else {
         // Login failed, handle error
         setError(response.data.error);
       }
     } catch (error) {
-      setError('An error occurred during login.');
-      console.error('Error during login:', error);
+      setError("An error occurred during login.");
+      console.error("Error during login:", error);
     }
   };
 
   const handleRegisterRedirect = () => {
-    navigate('/signup');
+    navigate("/signup");
   };
 
   return (
@@ -68,10 +68,10 @@ function LoginPage() {
             />
             Remember me
           </label>
+          {error && <p className="error-message">{error}</p>}
           <button type="submit" className="login-button">
             Login
           </button>
-          {error && <p className="error-message">{error}</p>}
           <p className="register-link" onClick={handleRegisterRedirect}>
             Don't have an account? Register
           </p>
