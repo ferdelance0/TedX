@@ -331,30 +331,30 @@ app.post("/registerParticipant", async (req, res) => {
   }
 });
 
-app.post("/events/:eventId/pollresponses", async (req, res) => {
-  try {
-    const eventId = req.params.eventId;
-    const { participantId, responses } = req.body;
+// app.post("/events/:eventId/pollresponses", async (req, res) => {
+//   try {
+//     const eventId = req.params.eventId;
+//     const { participantId, responses } = req.body;
 
-    // Validate the incoming data
-    if (!eventId || !participantId || !responses || !Array.isArray(responses)) {
-      return res.status(400).json({ error: "Invalid request data" });
-    }
+//     // Validate the incoming data
+//     if (!eventId || !participantId || !responses || !Array.isArray(responses)) {
+//       return res.status(400).json({ error: "Invalid request data" });
+//     }
 
-    const pollResponse = new PollResponse({
-      eventId,
-      participantId,
-      responses,
-    });
+//     const pollResponse = new PollResponse({
+//       eventId,
+//       participantId,
+//       responses,
+//     });
 
-    await pollResponse.save();
+//     await pollResponse.save();
 
-    res.status(200).json({ message: "Poll responses submitted successfully" });
-  } catch (error) {
-    console.error("Error submitting poll responses:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+//     res.status(200).json({ message: "Poll responses submitted successfully" });
+//   } catch (error) {
+//     console.error("Error submitting poll responses:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.post("/events/:eventId/mark-attendance", async (req, res) => {
   try {
@@ -706,44 +706,35 @@ app.get("/events/:eventId/pollresponses", async (req, res) => {
     const { eventId } = req.params;
     const ParticipantModel = participantModels[`Participant_${eventId}`];
     const participants = await ParticipantModel.find();
-
+    console.log(participants);
     const pollResponses = {};
-
-    //   participants.forEach((participant) => {
-    //     participant.pollResponses.forEach((response) => {
-    //       const { questionId, answer } = response;
-
-    //       console.log("responses : ",response);
-    //       console.log(questionId,answer);
-    //       if (!pollResponses[questionId]) {
-    //         pollResponses[questionId] = {};
-    //       }
-    //       if (!pollResponses[questionId][answer]) {
-    //         pollResponses[questionId][answer] = 0;
-    //       }
-    //       pollResponses[questionId][answer]++;
-    //     });
-    //   });
+    const participantResponses = [];
 
     participants.forEach((participant) => {
-      participant.pollResponses.forEach((response, index) => {
-        // Add index parameter
-        const { questionId, answer } = response;
+      const participantResponse = {
+        name: participant.name, // Participant name
+        pollResponses: participant.pollResponses,
+      };
+      participantResponses.push(participantResponse);
 
+      participant.pollResponses.forEach((response) => {
+        const { questionId, answer } = response;
         console.log("responses : ", response);
-        console.log("Question Index:", index); // Log the index of the question
         console.log(questionId, answer);
-        if (!pollResponses[index]) {
-          pollResponses[index] = {};
+
+        if (!pollResponses[questionId]) {
+          pollResponses[questionId] = {};
         }
-        if (!pollResponses[index][answer]) {
-          pollResponses[index][answer] = 0;
+
+        if (!pollResponses[questionId][answer]) {
+          pollResponses[questionId][answer] = 0;
         }
-        pollResponses[index][answer]++;
+
+        pollResponses[questionId][answer]++;
       });
     });
 
-    res.json({ pollResponses });
+    res.json({ pollResponses, participantResponses });
   } catch (error) {
     console.error("Error fetching poll responses:", error);
     res.status(500).json({ error: "Internal server error" });
