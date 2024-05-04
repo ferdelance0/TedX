@@ -20,6 +20,23 @@ const {
   generateCertificatePDF,
   generateIDPDF,
 } = require("./certificate-gen/generatecertificate");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const eventId = req.body.eventId;
+    const uploadDir = path.join(__dirname, "uploads", eventId);
+    fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const eventId = req.body.eventId;
+    cb(null, `${eventId}.pdf`);
+  },
+});
+
+const upload = multer({ storage });
+
 const verifyHCaptcha = async (captchaToken, req) => {
   try {
     let remoteIP =
@@ -396,7 +413,7 @@ app.post("/generatecertificate", async (req, res) => {
       });
     } else {
     }
-    const url = await generateCertificatePDF(Name);
+    const url = await generateCertificatePDF(eventId,Name);
     participant.certificateUrl = url;
     await participant.save();
     res.status(200).json({ message: "PDF generated successfully", url });
@@ -749,6 +766,19 @@ app.get("/events/:eventId/pollresponses", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.post("/uploadcertificate", upload.single("certificateTemplate"), (req, res) => {
+  const eventId = req.body.eventId;
+  const certificateTemplate = req.file;
+
+  if (!certificateTemplate) {
+    return res.status(400).json({ error: "No certificate template uploaded" });
+  }
+
+  console.log("Certificate template uploaded successfully for event:", eventId);
+  res.status(200).json({ message: "Certificate template uploaded successfully" });
+});
+
 // Connect to MongoDB Atlas
 mongoose
   .connect(mongoURI)

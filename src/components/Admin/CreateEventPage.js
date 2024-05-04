@@ -1,4 +1,3 @@
-// CreateEventPage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/adminStyles.css";
@@ -169,7 +168,9 @@ const IdCardFields = ({
     </>
   );
 };
+
 Modal.setAppElement("#root");
+
 const CreateEventPage = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -180,7 +181,7 @@ const CreateEventPage = () => {
   const [eventMode, setEventMode] = useState("Offline");
   const [eventScheduledDate, setEventScheduledDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
-  const [multipleVenues, setMultipleVenues] = useState(false); // Add this line
+  const [multipleVenues, setMultipleVenues] = useState(false);
   const [isPollVisible, setIsPollVisible] = useState(false);
   const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -210,7 +211,6 @@ const CreateEventPage = () => {
   const [feedbackQuestions, setFeedbackQuestions] = useState([
     { question: "", inputType: "short" },
   ]);
-  const [certificateEvent, setCertificateEvent] = useState("");
   const [certificateTemplate, setCertificateTemplate] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -218,21 +218,21 @@ const CreateEventPage = () => {
     // Handle form submission and create the event
     const newEvent = {
       eventname: eventName,
-      // eventmode: eventMode || "Offline", // Set default value if eventMode is falsy
       eventdescription: eventDescription,
       eventvenue: eventLocation,
-      eventorganizer: eventOrganiser, // Add the organizer field if needed
+      eventorganizer: eventOrganiser,
       eventhassubevents: multipleVenues,
       eventscheduleddate: eventScheduledDate,
       eventregistrationfields: registrationFields,
       eventpollquestions: isPollVisible ? pollQuestions : [],
       eventfeedbackquestions: isFeedbackVisible ? feedbackQuestions : [],
     };
-    //the posting details
+
     // Add eventmode only if multipleVenues is false
     if (!multipleVenues) {
       newEvent.eventmode = eventMode || "Offline";
     }
+
     try {
       // Send a POST request to create the event
       const response = await axios.post(
@@ -247,10 +247,10 @@ const CreateEventPage = () => {
         // Create subevents for multiple venues
         const subeventsData = eventVenues.map((venue) => ({
           subeventname: venue.name,
-          subeventmode: venue.mode || "Offline", // Set default value if venue.mode is falsy
+          subeventmode: venue.mode || "Offline",
           subeventdescription: venue.description,
           subeventvenue: venue.venue,
-          subeventorganizer: venue.organiser, // Add the organizer field if needed
+          subeventorganizer: venue.organiser,
           subeventscheduleddate: venue.date,
           subeventparentevent: createdEvent._id,
         }));
@@ -261,11 +261,36 @@ const CreateEventPage = () => {
           subeventsData
         );
       }
+
+      if (certificateTemplate) {
+        const formData = new FormData();
+        formData.append("eventId", createdEvent._id);
+        formData.append("certificateTemplate", certificateTemplate);
+
+        try {
+          const response = await axios.post(
+            "http://localhost:3000/uploadcertificate",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          console.log("Certificate uploaded successfully:", response.data);
+          // Handle success scenario, e.g., show a success message
+        } catch (error) {
+          console.error("Error uploading certificate:", error);
+          // Handle error scenario, e.g., show an error message
+        }
+      }
+
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error creating event:", error);
       // Handle error scenario
     }
+
     // Reset form fields and state
     setPage(1);
     setEventName("");
@@ -295,10 +320,7 @@ const CreateEventPage = () => {
     setPollQuestions([{ question: "", options: [""] }]);
     setFeedbackEvent("");
     setFeedbackQuestions([{ question: "", inputType: "short" }]);
-    setCertificateEvent("");
     setCertificateTemplate(null);
-    // Redirect back to the admin dashboard
-    // navigate('/admin/dashboard');
   };
 
   const handleNext = () => {
@@ -308,6 +330,7 @@ const CreateEventPage = () => {
   const handlePrevious = () => {
     setPage(page - 1);
   };
+
   const handleBackToDashboard = () => {
     navigate("/admin/dashboard");
   };
@@ -392,17 +415,6 @@ const CreateEventPage = () => {
             </div>
           ) : null}
 
-          {/* <div className="form-group">
-            <label htmlFor="eventDuration">Duration</label>
-            <input
-              type="text"
-              id="eventDuration"
-              value={eventDuration}
-              onChange={(e) => setEventDuration(e.target.value)}
-              required
-            />
-          </div> */}
-
           <div className="form-group">
             <label htmlFor="eventScheduledDate">Scheduled Date</label>
             <input
@@ -465,7 +477,7 @@ const CreateEventPage = () => {
                       setEventVenues(updatedVenues);
                     }}
                     required
-                  />
+                    />
 
                   <input
                     type="date"
@@ -511,17 +523,6 @@ const CreateEventPage = () => {
                     }}
                     required
                   />
-                  {/* <input
-                    type="text"
-                    placeholder="Duration"
-                    value={venue.duration}
-                    onChange={(e) => {
-                      const updatedVenues = [...eventVenues];
-                      updatedVenues[index].duration = e.target.value;
-                      setEventVenues(updatedVenues);
-                    }}
-                    required
-                  /> */}
                 </div>
               ))}
               <button
@@ -537,6 +538,7 @@ const CreateEventPage = () => {
                       date: "",
                       time: "",
                       duration: "",
+                      mode: "Offline",
                     },
                   ])
                 }
@@ -663,6 +665,7 @@ const CreateEventPage = () => {
       </div>
     </>
   );
+  
   const renderPageFive = () => (
     <>
       <div className="page-container">
@@ -749,51 +752,37 @@ const CreateEventPage = () => {
       </div>
     </>
   );
-  const renderPageSix = () => (
-    <>
-      <div className="page-container">
-        <h2 className="page-title">Certificate Generation</h2>
-        <div className="form-group">
-          <label htmlFor="certificateEvent">Select Event</label>
-          <select
-            id="certificateEvent"
-            value={certificateEvent}
-            onChange={(e) => setCertificateEvent(e.target.value)}
-          >
-            {/* ... */}
-          </select>
+  
+  const renderPageSix = () => {
+    return (
+      <>
+        <div className="page-container">
+          <h2 className="page-title">Certificate Generation</h2>
+          <div className="form-group">
+            <label htmlFor="certificateTemplate">Upload Template</label>
+            <input
+              type="file"
+              id="certificateTemplate"
+              onChange={(e) => setCertificateTemplate(e.target.files[0])}
+            />
+          </div>
+          <div className="button-container">
+            <button className="content-button" onClick={handlePrevious}>
+              Previous
+            </button>
+            <button className="content-button" type="submit">
+              Done
+            </button>
+          </div>
         </div>
-        <div className="form-group">
-          <label htmlFor="certificateTemplate">Upload Template</label>
-          <input
-            type="file"
-            id="certificateTemplate"
-            onChange={(e) => setCertificateTemplate(e.target.files[0])}
-          />
-        </div>
-        <div className="button-container">
-          <button className="content-button " onClick={handlePrevious}>
-            Previous
-          </button>
-          <button className="content-button " type="submit">
-            Done
-          </button>
-        </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   return (
     <div className="container">
       <div className="main-content">
         <h1 style={{ color: "black" }}>Create New Event</h1>
-
-        {/* <button
-          className="back-to-home-btn content-button"
-          onClick={handleBackToDashboard}
-        >
-          Back To Dashboard
-        </button> */}
 
         <ProgressBar currentPage={page} totalPages={totalPages} />
 
@@ -818,7 +807,6 @@ const CreateEventPage = () => {
             className="content-button"
             onClick={() => {
               setShowSuccessModal(false);
-              // Optionally, you can redirect to the dashboard or perform any other action
               navigate("/admin/dashboard");
             }}
           >

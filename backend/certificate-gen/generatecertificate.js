@@ -21,9 +21,9 @@ async function generateQRCode(text) {
     throw error;
   }
 }
-const generateCertificatePDF = async (name) => {
+const generateCertificatePDF = async (eventId,name) => {
   const existingPdfBytes = fs.readFileSync(
-    "./template/Dark Blue and Gold Elegant Certificate of Achievement Template (1).pdf"
+    `./uploads/${eventId}/${eventId}.pdf`
   );
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   pdfDoc.registerFontkit(fontkit);
