@@ -563,7 +563,7 @@ app.get("/massidcardgen", async (req, res) => {
         for (const participant of participants) {
             if (!participant.idCardUrl) {
                 const { _id, Name } = participant;
-                const url = await generateIDPDF(Name,_id); // Generate ID card for each participant
+                const url = await generateIDPDF(Name,participant.ID); // Generate ID card for each participant
                 participant.idCardUrl = url;
                 await participant.save(); // Use save method to update the participant in the database
                 console.log(url, Name, _id);

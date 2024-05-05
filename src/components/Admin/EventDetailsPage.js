@@ -234,7 +234,7 @@ const EventDetailsPage = () => {
           console.log(response.data);
           const certificates = response.data.idCardUrls;
           const csvContent =
-            "Participant_ID,Name,Certificate_URL\n" +
+            "Participant_ID,Name,IDCard_URL\n" +
             certificates
               .map(
                 (cert) =>
@@ -245,7 +245,7 @@ const EventDetailsPage = () => {
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.setAttribute("download", "certificates.csv");
+          link.setAttribute("download", "idcards.csv");
           document.body.appendChild(link);
           link.click();
         })
