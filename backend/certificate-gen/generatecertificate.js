@@ -14,7 +14,7 @@ const storage = getStorage();
 async function generateQRCode(text) {
   try {
     // Generate QR code as a data URL
-    const qrDataUrl = await qr.toDataURL(text);
+    const qrDataUrl = await qr.toDataURL(text,{ margin: 2 ,errorCorrectionLevel: 'low'});
     return qrDataUrl;
   } catch (error) {
     console.error("Error generating QR code:", error);
@@ -74,9 +74,9 @@ const generateCertificatePDF = async (eventId,name) => {
 
 
 const generateIDPDF = async (name, participantId) => {
-  const position = "Attendee";
+  const position = "";
   const existingPdfBytes = fs.readFileSync(
-    "./template/White Creative Business Card Template.pdf"
+    "./template/online_ticket[1].pdf"
   );
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   pdfDoc.registerFontkit(fontkit);
@@ -94,16 +94,16 @@ const generateIDPDF = async (name, participantId) => {
 
   // Calculate the vertical position for centering the text
   const pageHeight = firstPage.getHeight();
-  const fontSize = 18; // Adjust the font size as needed
+  const fontSize = 22; // Adjust the font size as needed
   const textHeight = fontSize;
   const verticalPosition = (pageHeight - textHeight) / 2;
 
   // Draw the text on the page
   firstPage.drawText(name, {
-    x: 20,
-    y: verticalPosition + 20, // Adjust vertical position as needed
+    x: 213,
+    y: verticalPosition - 20, // Adjust vertical position as needed
     size: fontSize,
-    color: rgb(0, 0, 0),
+    color: rgb(1, 1, 1),
     font: font,
   });
   firstPage.drawText(position, {
@@ -115,15 +115,15 @@ const generateIDPDF = async (name, participantId) => {
   });
 
   // Generate QR code
-  const qrCode = await generateQRCode(participantId); // Function to generate QR code
+  const qrCode = await generateQRCode(`{registrationNumber : ${participantId}}`); // Function to generate QR code
 
   // Embed QR code into PDF
   const qrImage = await pdfDoc.embedPng(qrCode);
   firstPage.drawImage(qrImage, {
-    x: horizontalPosition + 30, // Adjust position as needed
-    y: verticalPosition - 50, // Adjust position as needed
-    width: 50,
-    height: 50,
+    x: horizontalPosition + 340, // Adjust position as needed
+    y: verticalPosition - 40, // Adjust position as needed
+    width: 100,
+    height: 100,
   });
 
   // Save the modified PDF

@@ -427,6 +427,7 @@ app.post("/generateID", async (req, res) => {
     try {
       const { Name, participantId, eventId } = req.body;
       const participant = await participantModels[`Participant_${eventId}`].findOne({ _id: participantId });
+      console.log(participant.ID)
       if (!participant) {
         console.error("Participant not found");
         return res.status(404).json({ message: "Participant not found" });
@@ -435,7 +436,7 @@ app.post("/generateID", async (req, res) => {
         console.log("Participant already has an ID card URL:", participant.idCardUrl);
         return res.status(200).json({ message: "ID card already generated", url: participant.idCardUrl });
       }
-      const url = await generateIDPDF(Name,participantId);
+      const url = await generateIDPDF(Name,participant.ID);
       participant.idCardUrl = url;
       await participant.save();
       res.status(200).json({ message: "ID card generated successfully", url });
@@ -573,7 +574,7 @@ app.get("/massidcardgen", async (req, res) => {
     const idCardUrls = participants.map((participant) => ({
       Participant_ID: participant._id,
       Name: participant.Name,
-      ID_Card_URL: participant.idCardUrl,
+      idCardUrl: participant.idCardUrl,
     }));
 
     // Return the generated ID card URLs

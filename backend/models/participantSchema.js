@@ -16,6 +16,7 @@ const generateParticipantSchema = (fields, eventId) => {
       type: String,
       default: "Registered",
     },
+    ID: {type: String},
     subevents: [
       {
         subeventId: {
